@@ -80,3 +80,51 @@ O Git, por padrão, não consegue rastrear ou "subir" pastas que estão totalmen
 
 ### 💡 Dica do para o Time de Back-end:
 Como vocês são os guardiões da lógica, foquem em criar **Testes Unitários** para a função de balanceamento. No fluxo de demonstração final, o professor vai tentar lançar um débito sem crédito correspondente para ver o sistema "reclamar". Se o seu backend estiver bem blindado, o sistema passará com nota máxima.
+
+
+
+## 🔄 Fluxo de Trabalho (Git Workflow)
+
+Para mantermos nosso código organizado e evitarmos conflitos, siga este passo a passo básico sempre que for iniciar o seu dia de trabalho ou finalizar uma tarefa.
+
+### 0. O Primeiro Passo (Apenas na primeira vez)
+Para baixar o projeto para a sua máquina, abra o terminal na pasta onde deseja guardar o código e rode o comando de clone. Depois, entre na pasta do projeto:
+```bash
+git clone https://github.com/seu-usuario/projeto.git
+cd 'nome do projeto'
+```
+
+### 1. Atualize seu código local (Antes de começar)
+Sempre puxe as atualizações que a sua equipe fez antes de começar a escrever código novo. Isso evita dores de cabeça no futuro.
+```bash
+git pull origin main
+```
+
+### 2. Verifique o estado do projeto
+Use este comando a qualquer momento para ver quais arquivos você criou, modificou ou deletou.
+```bash
+git status
+```
+
+### 3. Prepare os arquivos (Staging Area)
+Escolha quais arquivos modificados você quer colocar na "caixa" para enviar.
+```bash
+# Adiciona um arquivo específico (Recomendado)
+git add src/caminho/do/arquivo.ts
+
+# Adiciona TODOS os arquivos modificados de uma vez
+git add .
+```
+### 4. Feche a caixa e coloque uma etiqueta (Commit)
+Salve as alterações na sua máquina criando um histórico. Seja claro na mensagem para que os outros desenvolvedores entendam o que foi feito.
+```bash
+git commit -m "feat: adiciona controller de login do usuario"
+```
+---
+> Dica: Use feat: para novas funcionalidades, fix: para correção de bugs e chore: para configurações gerais.
+
+#### 5. Envie para a nuvem (Push)
+Agora que o código está salvo localmente, envie para o repositório remoto para que a equipe possa testar e integrar.
+```bash
+git push origin main
+```
