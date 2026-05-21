@@ -1,0 +1,33 @@
+name: 🧪 Back-end CI (Testes Automatizados)
+
+# 1. O GATILHO: Dispara sempre que alguém enviar código para a main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# 2. AS TAREFas
+jobs:
+  executar-testes:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo A: Baixa o código do Back-end no computador do GitHub
+      - name: 📥 Clonando o repositório
+        uses: actions/checkout@v4
+
+      # Passo B: Configura o ambiente do Node.js
+      - name: ⚙️ Configurando o Node.js (Versão 20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm' # Mantém o cache para economizar seus minutos livres
+
+      # Passo C: Instala as dependências (Express, Zod, Vitest, etc.)
+      - name: 📦 Instalando as dependências
+        run: npm install
+
+      # Passo D: A Prova de Fogo do Back-end!
+      - name: 🚨 Executando os testes com Vitest
+        run: npm run test
