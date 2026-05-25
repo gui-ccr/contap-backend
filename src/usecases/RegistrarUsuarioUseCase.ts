@@ -53,16 +53,26 @@ export async function registrarUsuarioUseCase(input: TRegistrarUsuario) {
       nome,
       empresa_id,
       cargo,
+      ativo: true,
+      createdAt: new Date().toISOString(),
     })
     .select()
     .single();
 
   if (dbError) {
     // O usuário foi criado no Auth mas falhou no banco — situação crítica.
-    // Registramos o erro com detalhes para o dev, mas não expõe mensagem técnica ao cliente.
-    console.error('[RegistrarUsuarioUseCase] Falha ao salvar perfil no banco:', dbError);
+    // Registramos o erro com detalhes para o dev investigar.
+    
+    console.error('=== ERRO CRÍTICO AO INSERIR NA TABELA USUARIOS ===');
+    console.error('Código de Erro:', dbError.code);
+    console.error('Mensagem:', dbError.message);
+    console.error('Detalhes:', dbError.details);
+    console.error('Dica do Supabase:', dbError.hint);
+    console.error('Objeto inteiro do erro:', JSON.stringify(dbError, null, 2));
+    console.error('==================================================');
+
     throw new Error(
-      'Conta criada no Auth, mas houve um erro ao salvar o perfil. Contate o suporte.'
+      `Conta criada no Auth, mas houve um erro ao salvar o perfil. Detalhes: ${dbError.message}`
     );
   }
 

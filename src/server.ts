@@ -26,8 +26,9 @@ app.get("/ping",async (req: Request, res: Response) => {
   }
 });
 
-
 // aqui voces vao colocar as outras rotas como /contas /planoContasRoutes e etc
+import { authRoutes } from './routes/auth.routes.js';
+app.use('/auth', authRoutes);
 
 // o comando pra rodar o servidor é 'npx tsx server.ts' lembrando que voces tem que estar dentro da pasta src se estiverem fora vao ter que colocar o caminho ate o arquivo /src/server.ts
 
