@@ -1,10 +1,12 @@
 import 'dotenv/config'
 import express, { type Response, type Request } from "express";
 import { supabase } from "./config/database.js";
+import { routes } from "./routes/routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3333;
 app.use(express.json());
+app.use(routes);
 
 app.get("/ping",async (req: Request, res: Response) => {
   try {
@@ -26,10 +28,10 @@ app.get("/ping",async (req: Request, res: Response) => {
   }
 });
 
+// --- REGISTRO DAS ROTAS DA APLICAÇÃO ---
+// Tudo que começar com /auth será tratado pelo authRoutes
+app.use('/auth', routes); // <-- 2. Conexão do arquivo de rotas no Express
 
-// aqui voces vao colocar as outras rotas como /contas /planoContasRoutes e etc
-
-// o comando pra rodar o servidor é 'npx tsx server.ts' lembrando que voces tem que estar dentro da pasta src se estiverem fora vao ter que colocar o caminho ate o arquivo /src/server.ts
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando com sucesso na porta ${PORT}`);
