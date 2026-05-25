@@ -3,7 +3,7 @@ import { supabase } from "../config/database.js";
 import type { ICriarLancamento} from "../schemas/LancamentoSchema"
 import { criarLancamentoSchema} from "../schemas/LancamentoSchema"
 
-export class criarLancamento {
+export class criarLancamentoController {
   async handle(req: Request<{},{},ICriarLancamento>, res: Response) {
     try {
       const dadosValidados = criarLancamentoSchema.parse(req.body);
