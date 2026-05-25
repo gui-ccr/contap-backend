@@ -8,6 +8,7 @@ const routes = Router();
 routes.post('/registrar', AuthController.registrar);
 
 // Rota de Lançamentos (agora no caminho correto)
-routes.post('/lancamento', criarLancamento.handle);
+routes.post('/lancamento', criarLancamento.prototype.handle);
 
+AuthController
 export {routes};

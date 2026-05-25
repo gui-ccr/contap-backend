@@ -1,11 +1,12 @@
 import 'dotenv/config'
 import express, { type Response, type Request } from "express";
 import { supabase } from "./config/database.js";
-import authRoutes from "./routes/routes.js";
+import { routes } from "./routes/routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3333;
 app.use(express.json());
+app.use(routes);
 
 app.get("/ping",async (req: Request, res: Response) => {
   try {
@@ -29,7 +30,7 @@ app.get("/ping",async (req: Request, res: Response) => {
 
 // --- REGISTRO DAS ROTAS DA APLICAÇÃO ---
 // Tudo que começar com /auth será tratado pelo authRoutes
-app.use('/auth', authRoutes); // <-- 2. Conexão do arquivo de rotas no Express
+app.use('/auth', routes); // <-- 2. Conexão do arquivo de rotas no Express
 
 
 app.listen(PORT, () => {

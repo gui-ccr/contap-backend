@@ -2,7 +2,7 @@ import z from "zod";
 
 export const criarLancamentoSchema = z.object({
     empresa_id: z.string().uuid("ID da empresa inválido"),
-    data_lancamento: z.date("A data deve estar no formato YYYY-MM-DD"),
+    data_lancamento: z.coerce.date(),
     descricao: z.string().min(5, "A descrição do evento precisa ter no mínimo 5 caracteres"),
     tipoTransacao: z.enum(['DEBITO', 'CREDITO']),
 
