@@ -1,11 +1,15 @@
 import { z } from "zod";
 
+// regex para validar a senha forte
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+
 // ─── Enum de Cargos ────────────────────────────────────────────────────────────
 export enum Cargos {
   DONO = 'DONO',
   GERENTE = 'GERENTE',
   CAIXA = 'CAIXA',
 }
+
 
 // ─── Schema: Perfil completo (tabela pública "usuarios") ───────────────────────
 export const criarUsuariosSchema = z.object({
@@ -28,11 +32,12 @@ export const registrarUsuarioSchema = z.object({
 // ─── Schema: Entrada do endpoint de login ──────────────────────────────────────
 export const loginSchema = z.object({
   email: z.string().email("Formato de e-mail inválido"),
-  password: z.string().min(1, "A senha é obrigatória"),
+  password: z.string().min(1, "A senha é obrigatória").regex(passwordRegex, "A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
 });
 
 // ─── Types derivados dos schemas ───────────────────────────────────────────────
 export interface ICriarUsuario extends z.infer<typeof criarUsuariosSchema> {}
+export interface ILogin extends z.infer<typeof loginSchema> {}
 export type TRegistrarUsuario = z.infer<typeof registrarUsuarioSchema>;
 export type TLogin = z.infer<typeof loginSchema>;
 export type TCargos = keyof typeof Cargos;
