@@ -1,12 +1,12 @@
 import { describe, it, expect, test } from "vitest";
-import { type ICriarUsuario, type TCargos } from "../src/schemas/Usuarios";
+import { type ICriarUsuario, Cargos } from "../src/schemas/Usuarios";
 
 function criarUsuario(
   id: string,
   nome: string,
   empresa_id: string,
   email: string,
-  cargo: TCargos,
+  cargo: Cargos,
 ): ICriarUsuario {
   return { id, nome, empresa_id, email, cargo };
 }
@@ -33,7 +33,7 @@ describe("Ambiente de Testes da Pizzaria", () => {
       "Guilherme",
       crypto.randomUUID(),
       "guilhermerodrigues6484@gmail.com",
-      "DONO",
+      Cargos.DONO,
     );
 
     expect(usuario).toEqual(

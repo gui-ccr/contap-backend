@@ -1,33 +1,45 @@
-import { type Request, type Response } from 'express';
-import { supabase } from '../config/database.js';
+import { type Request, type Response, type NextFunction } from 'express';
+import { SupabaseUsuarioRepository } from '../core/domain/repository/SupabaseUsuarioRepository.js';
+import { RegistrarUsuarioUseCase } from '../usecases/RegistrarUsuarioUseCase.js';
+import { LoginUseCase } from '../usecases/LoginUseCase.js';
+import { registrarUsuarioSchema } from '../schemas/Usuarios.js';
 
-// Função para registrar usuário e empresa
-export const registrar = async (req: Request, res: Response) => {
-  try {
-    const { email, senha, nome_usuario, nome_fantasia, razao_social, cnpj } = req.body;
+const usuarioRepository = new SupabaseUsuarioRepository();
 
-    if (!email || !senha || !nome_usuario || !nome_fantasia || !razao_social || !cnpj) {
-      return res.status(400).json({ error: 'Campos de cadastro incompletos.' });
+export class AuthController {
+  async registrar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const dadosValidados = registrarUsuarioSchema.parse(req.body);
+      console.log("1. SAIU DO ZOD:", dadosValidados.cargo);
+
+      const registrarUseCase = new RegistrarUsuarioUseCase(usuarioRepository);
+      
+      await registrarUseCase.execute({
+        nome: dadosValidados.nome,
+        email: dadosValidados.email,
+        senhaLimpa: dadosValidados.senha,
+        empresaId: dadosValidados.empresa_id,
+        cargo: dadosValidados.cargo
+      });
+
+      return res.status(201).json({ status: 'success', message: 'Usuário registrado com sucesso!' });
+    } catch (err: any) {
+      next(err);
     }
-
-    // 1. Cria a empresa
-    const { data: empresa, error: erroEmpresa } = await supabase
-      .from('empresas')
-      .insert([{ nome_fantasia, razao_social, cnpj }])
-      .select().single();
-
-    if (erroEmpresa) throw erroEmpresa;
-
-    // 2. Cria o usuário vinculado
-    const { data: usuario, error: erroUsuario } = await supabase
-      .from('usuarios')
-      .insert([{ email, senha, nome: nome_usuario, empresa_id: empresa.id }])
-      .select().single();
-
-    if (erroUsuario) throw erroUsuario;
-
-    return res.status(201).json({ message: "Cadastro realizado!", empresa, usuario });
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message });
   }
-};
+
+  async login(req: Request, res: Response, next: NextFunction) {
+    try {
+      const loginUseCase = new LoginUseCase(usuarioRepository);
+      
+      const resultado = await loginUseCase.execute({
+        email: req.body.email,
+        senhaLimpa: req.body.senha
+      });
+
+      return res.status(200).json({ status: 'success', data: resultado });
+    } catch (err: any) {
+      next(err);
+    }
+  }
+}

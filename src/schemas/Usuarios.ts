@@ -17,16 +17,16 @@ export const criarUsuariosSchema = z.object({
   empresa_id: z.string().uuid("ID da empresa inválido"),
   nome: z.string().min(2, "O nome é obrigatório"),
   email: z.string().email("Formato de e-mail inválido"),
-  cargo: z.nativeEnum(Cargos),   // ✅ Zod v4: sem errorMap, funciona direto
+  cargo: z.enum(['DONO', 'GERENTE', 'CAIXA'])  // ✅ Zod v4: sem errorMap, funciona direto
 });
 
 // ─── Schema: Entrada do endpoint de registro ───────────────────────────────────
 export const registrarUsuarioSchema = z.object({
   email: z.string().email("Formato de e-mail inválido"),
-  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+  senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   nome: z.string().min(2, "O nome é obrigatório"),
-  empresa_id: z.string().uuid("ID da empresa inválido"),
-  cargo: z.nativeEnum(Cargos),   // ✅ Zod v4: sem errorMap
+  empresa_id: z.string().uuid("ID da empresa inválido"), 
+  cargo: z.enum(['DONO', 'GERENTE', 'CAIXA'])
 });
 
 // ─── Schema: Entrada do endpoint de login ──────────────────────────────────────

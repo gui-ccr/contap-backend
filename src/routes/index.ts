@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authRoutes } from './auth.routes.js';
-import { lancamentoRoutes } from './lancamento.routes.ts';
+import { lancamentoRoutes } from './lancamento.routes.js';
 
 const routes = Router();
 

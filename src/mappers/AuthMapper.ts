@@ -1,4 +1,5 @@
 import { type Session, type User } from '@supabase/supabase-js';
+import { ErroMapeamento } from '../core/errors/AppErrors.js';
 
 export interface IAuthResponse {
   token: string;
@@ -14,11 +15,11 @@ export class AuthMapper {
   static toFrontend(session: Session | null, user: User | null): IAuthResponse {
     
     if (!session || !session.access_token) {
-      throw new Error("Falha no mapeamento: Token de acesso ausente.");
+      throw new ErroMapeamento("Falha no mapeamento: Token de acesso ausente.");
     }
 
     if (!user || !user.id) {
-      throw new Error("Falha no mapeamento: ID do usuário ausente.");
+      throw new ErroMapeamento("Falha no mapeamento: ID do usuário ausente.");
     }
 
     return {

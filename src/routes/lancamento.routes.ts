@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { criarLancamentoController } from '../controllers/LancamentoController';
+import { LancamentoController } from '../controllers/LancamentoController.js';
 
 const lancamentoRoutes = Router();
-const criaLancamentoController  = new criarLancamentoController
+const lancamentoController = new LancamentoController();
 
-lancamentoRoutes.post('/lancamento', criaLancamentoController.handle);
+lancamentoRoutes.post('/lancamento', lancamentoController.handle);
 
-export {lancamentoRoutes};
+export { lancamentoRoutes };
