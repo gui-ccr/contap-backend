@@ -33,26 +33,30 @@ O Backend é o responsável por implementar e validar os seguintes pontos exigid
 
 ---
 
-## 🏗️ Módulos de Lógica (Features)
+## 🏗️ Arquitetura e Módulos de Lógica (Clean Architecture & DDD)
 
-Para manter o código limpo e organizado (**Clean Code**), o backend está dividido por funcionalidades:
+Para garantir que o código se mantenha limpo, testável e fácil de manter (Clean Code), o back-end está dividido em contextos isolados. Cada peça tem uma responsabilidade única:
 
-* **`accounting-engine`**: Responsável pelas fórmulas de Balanço Patrimonial e DRE.
-* **`entry-validator`**: Middleware que intercepta novos lançamentos para validar o balanceamento automático.
-* **`statement-generator`**: Lógica de agregação de saldos por período para gerar o Razão Contábil (Extrato por conta).
+* **`Autenticação e Gestão de Usuários (Auth)`**: Lida com o registro de usuários, validação estrita de cargos (Admin, Gerente, Caixa), criptografia de senhas e geração de tokens de acesso JWT.
+* **Motor de Lançamentos Contábeis**: O coração do sistema. Garante a integridade financeira aplicando o Princípio das Partidas Dobradas (o sistema barra automaticamente qualquer lançamento onde os Débitos não sejam idênticos aos Créditos).
+* **Plano de Contas**: Estrutura que categoriza as entradas e saídas da empresa (Ativos, Passivos, Receitas, Despesas), servindo de base para os lançamentos.
+
+## 📂 Estrutura de Diretórios
+O nosso projeto segue um fluxo rigoroso onde a camada externa (Internet/Express) não interfere nas Regras de Negócio (Core).
 
 ```
 src/
-├── config/          # Conexão com Supabase e carregamento de variáveis de ambiente
-├── schemas/         # Regras de validação de entrada usando Zod (A nossa alfândega)
-├── domain/          # Interfaces, Tipos e Classes (O coração do sistema)
-├── mappers/         # Tradutores de dados (Converte de JSON para Classe e de Classe para DB)
-├── usecases/        # Regras de negócio, cálculos contábeis e validações lógicas
-├── controllers/     # Recebem a requisição (req), chamam o UseCase e devolvem a resposta (res)
-├── routes/          # Definição dos endpoints da API (O catálogo de endereços do Express)
-├── middlewares/     # Interceptadores (Tratamento de erros globais, Autenticação)
-├── utils/           # Funções reaproveitáveis (Formatadores de moeda, datas, etc.)
-└── server.ts        # Ponto de entrada (Inicialização do App Express)
+├── config/          # Conexão com o banco (Supabase) e variáveis de ambiente
+├── controllers/     # "Recepcionistas": recebem o HTTP Request, acionam o UseCase e devolvem a Response (Sem lógica de banco aqui!)
+├── core/            # O coração inviolável do sistema (Totalmente isolado do Express ou banco de dados)
+│   ├── domain/      # Regras de Negócio puras (Entidades) e os Contratos de Repositório (Interfaces)
+│   └── errors/      # Tratamento global de exceções (AppError e CodeErrors)
+├── mappers/         # "Tradutores": convertem formatos de dados (ex: JSON da web para Objetos de Domínio)
+├── middlewares/     # "Guarda-costas": Interceptam requisições (ex: validação de token JWT e tratamento de erros globais)
+├── routes/          # O catálogo de rotas do Express, divididos por contexto (auth.routes.ts, lancamento.routes.ts)
+├── schemas/         # "Seguranças da porta": Validação rigorosa de dados de entrada usando Zod (Tipagem em runtime)
+├── usecases/        # A lógica de aplicação em si (Onde a mágica acontece, ex: RegistrarUsuarioUseCase)
+└── server.ts        # Ponto de entrada que inicializa a API e junta todas as rotas
 ```
 ---
 
