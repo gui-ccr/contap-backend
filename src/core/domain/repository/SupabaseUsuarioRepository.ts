@@ -1,5 +1,5 @@
 import { supabase } from "../../../config/database.js";
-import { Usuario } from "../entities/Usuarios.js";
+import { Usuario } from "../entities/Usuarios.entity.js";
 import { type IUsuarioRepository } from "./IUsuarioRepository.js";
 import { ErroBancoDeDados, ErroNaoAutorizado } from "../../errors/AppErrors.js";
 import { AuthMapper, type IAuthResponse } from "../../../mappers/AuthMapper.js";

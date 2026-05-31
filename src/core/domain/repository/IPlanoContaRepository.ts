@@ -1,4 +1,4 @@
-import { PlanoConta } from "../entities/PlanoConta.js";
+import { PlanoConta } from "../entities/PlanoConta.entity.js";
 
 export interface IPlanoContaRepository {
   salvar(planoConta: PlanoConta): Promise<void>;

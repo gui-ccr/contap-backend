@@ -1,5 +1,5 @@
 import { supabase } from "../../../config/database.js";
-import { PlanoConta } from "../entities/PlanoConta.js";
+import { PlanoConta } from "../entities/PlanoConta.entity.js";
 import { ErroBancoDeDados } from "../../errors/AppErrors.js";
 import { type IPlanoContaRepository } from "./IPlanoContaRepository.js";
 

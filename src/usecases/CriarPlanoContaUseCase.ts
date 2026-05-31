@@ -1,5 +1,5 @@
 import { type IPlanoContaRepository } from "../core/domain/repository/IPlanoContaRepository.js";
-import { PlanoConta, type TipoContaContabil } from "../core/domain/entities/PlanoConta.js";
+import { PlanoConta, type TipoContaContabil } from "../core/domain/entities/PlanoConta.entity.js";
 import { ErroConflito } from "../core/errors/AppErrors.js";
 
 export interface ICriarPlanoContaInput {

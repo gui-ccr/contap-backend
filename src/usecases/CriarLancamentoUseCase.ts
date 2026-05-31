@@ -1,5 +1,5 @@
 import { type ILancamentoRepository } from "../core/domain/repository/ILancamentoRepository.js";
-import { Lancamento, type ILancamentoProps } from "../core/domain/entities/Lancamento.js";
+import { Lancamento, type ILancamentoProps } from "../core/domain/entities/Lancamento.entity.js";
 
 export class CriarLancamentoUseCase {
   // Injeção de Dependência da Interface (Inversão de Dependência do SOLID)
