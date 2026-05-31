@@ -1,4 +1,4 @@
-import { Usuario } from "../entities/Usuarios.js";
+import { Usuario } from "../entities/Usuarios.entity.js";
 import { type IAuthResponse } from "../../../mappers/AuthMapper.js";
 
 export interface IUsuarioRepository {

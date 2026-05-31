@@ -1,5 +1,5 @@
 import { supabase } from "../../../config/database.js";
-import { Lancamento } from "../entities/Lancamento.js";
+import { Lancamento } from "../entities/Lancamento.entity.js";
 import { ErroBancoDeDados } from "../../errors/AppErrors.js";
 import { type ILancamentoRepository } from "./ILancamentoRepository.js";
 

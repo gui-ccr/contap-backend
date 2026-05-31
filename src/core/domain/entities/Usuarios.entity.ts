@@ -4,7 +4,7 @@ export interface IUsuarioProps {
   id?: string;
   nome: string;
   email: string;
-  empresaId: string;
+  empresaId?: string;
   senhaHash: string;
   cargo: string;
 }
@@ -15,11 +15,18 @@ export class Usuario {
   constructor(props: IUsuarioProps) {
     this.props = props;
     this.validarEmail();
+    this.validarCargoEmpresa();
   }
 
   private validarEmail(): void {
     if (!this.props.email.includes('@')) {
       throw new ErroEntradaInvalida("Formato de e-mail de usuário inválido.");
+    }
+  }
+
+  private validarCargoEmpresa(): void {
+    if (this.props.cargo !== "DONO" && !this.props.empresaId){
+      throw new ErroEntradaInvalida("Funcionário deve estar associado a uma empresa.");
     }
   }
 

@@ -1,8 +1,10 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { SupabaseUsuarioRepository } from '../core/domain/repository/SupabaseUsuarioRepository.js';
 import { RegistrarFuncionarioUseCase } from '../usecases/RegistrarFuncionarioUseCase.js';
+import { RegistrarDonoUseCase } from '../usecases/RegistrarDonoUseCase.js';
 import { LoginUseCase } from '../usecases/LoginUseCase.js';
-import { registrarFuncionarioSchema } from '../schemas/Usuarios.js';
+import { registrarFuncionarioSchema } from '../schemas/Usuarios.schema.js';
+import { registrarDonoSchema } from '../schemas/Usuarios.schema.js';
 
 const usuarioRepository = new SupabaseUsuarioRepository();
 
@@ -22,6 +24,24 @@ export class AuthController {
       });
 
       return res.status(201).json({ status: 'success', message: 'Funcionário registrado com sucesso!' });
+    } catch (err: any) {
+      next(err);
+    }
+  }
+
+  async registrarDono(req: Request, res: Response, next: NextFunction) {
+    try {
+      const dadosValidados = registrarDonoSchema.parse(req.body);
+      
+      const registrarDonoUseCase = new RegistrarDonoUseCase(usuarioRepository);
+
+      await registrarDonoUseCase.execute({
+        nome: dadosValidados.nome,
+        email: dadosValidados.email,
+        senhalimpa: dadosValidados.senha,
+      });
+
+      return res.status(201).json({ status: 'success', message: 'Dono registrado com sucesso!' });
     } catch (err: any) {
       next(err);
     }

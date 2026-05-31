@@ -26,7 +26,14 @@ export const registrarFuncionarioSchema = z.object({
   senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   nome: z.string().min(2, "O nome é obrigatório"),
   empresa_id: z.string().uuid("ID da empresa inválido"),
-  cargo: z.enum(['DONO', 'GERENTE', 'CAIXA'])
+  cargo: z.enum(['GERENTE', 'CAIXA'])
+});
+
+// ─── Schema: Entrada do endpoint de registro de dono ─────────────────────────  
+export const registrarDonoSchema = z.object({
+  email: z.string().email("Formato de e-mail inválido"),
+  senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+  nome: z.string().min(2, "O nome é obrigatório"),
 });
 
 // ─── Schema: Entrada do endpoint de login ──────────────────────────────────────
