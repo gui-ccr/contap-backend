@@ -13,5 +13,5 @@ app.use(errorMiddleware);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando com sucesso na porta ${PORT}`);
-  console.log(`Acesse: http://localhost:${PORT}/ping`);
+  console.log(`Acesse: http://localhost:${PORT}`);
 });

@@ -6,5 +6,6 @@ const authController = new AuthController();
 
 authRoutes.post('/login', authController.login);
 authRoutes.post('/registrar-funcionario', authController.registrarFuncionario);
+authRoutes.post('/registrar-dono', authController.registrarDono);
 
 export { authRoutes };

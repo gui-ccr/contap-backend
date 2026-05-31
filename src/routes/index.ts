@@ -5,7 +5,7 @@ import { planoContaRoutes } from './planoConta.routes.js';
 
 const routes = Router();
 
-routes.use('/auth', authRoutes);
+routes.use('/auth', authRoutes); 
 routes.use('/lancamentos', lancamentoRoutes);
 routes.use('/plano-contas', planoContaRoutes);
 
