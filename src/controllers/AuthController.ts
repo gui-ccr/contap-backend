@@ -2,7 +2,7 @@ import { type Request, type Response, type NextFunction } from 'express';
 import { SupabaseUsuarioRepository } from '../core/domain/repository/SupabaseUsuarioRepository.js';
 import { RegistrarFuncionarioUseCase } from '../usecases/RegistrarFuncionarioUseCase.js';
 import { LoginUseCase } from '../usecases/LoginUseCase.js';
-import { registrarFuncionarioSchema } from '../schemas/Usuarios.js';
+import { registrarFuncionarioSchema } from '../schemas/Usuarios.schema.js';
 
 const usuarioRepository = new SupabaseUsuarioRepository();
 

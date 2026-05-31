@@ -1,5 +1,5 @@
 import { describe, it, expect, test } from "vitest";
-import { type ICriarUsuario, Cargos } from "../src/schemas/Usuarios";
+import { type ICriarUsuario, Cargos } from "../src/schemas/Usuarios.schema";
 
 function criarUsuario(
   id: string,
