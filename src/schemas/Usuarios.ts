@@ -20,12 +20,12 @@ export const criarUsuariosSchema = z.object({
   cargo: z.enum(['DONO', 'GERENTE', 'CAIXA'])  // ✅ Zod v4: sem errorMap, funciona direto
 });
 
-// ─── Schema: Entrada do endpoint de registro ───────────────────────────────────
-export const registrarUsuarioSchema = z.object({
+// ─── Schema: Entrada do endpoint de registro de funcionário ───────────────────
+export const registrarFuncionarioSchema = z.object({
   email: z.string().email("Formato de e-mail inválido"),
   senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   nome: z.string().min(2, "O nome é obrigatório"),
-  empresa_id: z.string().uuid("ID da empresa inválido"), 
+  empresa_id: z.string().uuid("ID da empresa inválido"),
   cargo: z.enum(['DONO', 'GERENTE', 'CAIXA'])
 });
 
@@ -38,6 +38,6 @@ export const loginSchema = z.object({
 // ─── Types derivados dos schemas ───────────────────────────────────────────────
 export interface ICriarUsuario extends z.infer<typeof criarUsuariosSchema> {}
 export interface ILogin extends z.infer<typeof loginSchema> {}
-export type TRegistrarUsuario = z.infer<typeof registrarUsuarioSchema>;
+export type TRegistrarFuncionario = z.infer<typeof registrarFuncionarioSchema>;
 export type TLogin = z.infer<typeof loginSchema>;
 export type TCargos = keyof typeof Cargos;

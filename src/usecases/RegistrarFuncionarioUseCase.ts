@@ -2,35 +2,27 @@ import { type IUsuarioRepository } from "../core/domain/repository/IUsuarioRepos
 import { Usuario } from "../core/domain/entities/Usuarios.js";
 import { ErroConflito } from "../core/errors/AppErrors.js";
 
-interface IRegistrarUsuarioInput {
+export interface IRegistrarFuncionarioInput {
   nome: string;
   email: string;
   senhaLimpa: string;
   empresaId: string;
   cargo: string;
 }
-export class RegistrarUsuarioUseCase {
-  constructor(private usuarioRepository: IUsuarioRepository) {}
-  async execute(input: IRegistrarUsuarioInput): Promise<void> {
-    console.log("2. CHEGOU NO USECASE:", input.cargo);
-    const usuarioExistente = await this.usuarioRepository.buscarPorEmail(
-      input.email,
-    );
 
-    console.log("DADOS QUE CHEGARAM NO USECASE:", input);
+export class RegistrarFuncionarioUseCase {
+  constructor(private usuarioRepository: IUsuarioRepository) {}
+
+  async execute(input: IRegistrarFuncionarioInput): Promise<void> {
+    const usuarioExistente = await this.usuarioRepository.buscarPorEmail(input.email);
 
     if (usuarioExistente) {
       throw new ErroConflito("Este endereço de e-mail já está cadastrado.");
     }
 
-    const authId = await this.usuarioRepository.registrarAuth(
-      input.email,
-      input.senhaLimpa,
-    );
+    const authId = await this.usuarioRepository.registrarAuth(input.email, input.senhaLimpa);
 
-    console.log("ID GERADO PELO SUPABASE:", authId);
-
-    const novoUsuario = new Usuario({
+    const novoFuncionario = new Usuario({
       id: authId,
       nome: input.nome,
       email: input.email,
@@ -39,6 +31,6 @@ export class RegistrarUsuarioUseCase {
       senhaHash: input.senhaLimpa,
     });
 
-    await this.usuarioRepository.salvar(novoUsuario);
+    await this.usuarioRepository.salvar(novoFuncionario);
   }
 }

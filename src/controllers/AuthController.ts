@@ -1,28 +1,27 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { SupabaseUsuarioRepository } from '../core/domain/repository/SupabaseUsuarioRepository.js';
-import { RegistrarUsuarioUseCase } from '../usecases/RegistrarUsuarioUseCase.js';
+import { RegistrarFuncionarioUseCase } from '../usecases/RegistrarFuncionarioUseCase.js';
 import { LoginUseCase } from '../usecases/LoginUseCase.js';
-import { registrarUsuarioSchema } from '../schemas/Usuarios.js';
+import { registrarFuncionarioSchema } from '../schemas/Usuarios.js';
 
 const usuarioRepository = new SupabaseUsuarioRepository();
 
 export class AuthController {
-  async registrar(req: Request, res: Response, next: NextFunction) {
+  async registrarFuncionario(req: Request, res: Response, next: NextFunction) {
     try {
-      const dadosValidados = registrarUsuarioSchema.parse(req.body);
-      console.log("1. SAIU DO ZOD:", dadosValidados.cargo);
+      const dadosValidados = registrarFuncionarioSchema.parse(req.body);
 
-      const registrarUseCase = new RegistrarUsuarioUseCase(usuarioRepository);
-      
-      await registrarUseCase.execute({
+      const registrarFuncionarioUseCase = new RegistrarFuncionarioUseCase(usuarioRepository);
+
+      await registrarFuncionarioUseCase.execute({
         nome: dadosValidados.nome,
         email: dadosValidados.email,
         senhaLimpa: dadosValidados.senha,
         empresaId: dadosValidados.empresa_id,
-        cargo: dadosValidados.cargo
+        cargo: dadosValidados.cargo,
       });
 
-      return res.status(201).json({ status: 'success', message: 'Usuário registrado com sucesso!' });
+      return res.status(201).json({ status: 'success', message: 'Funcionário registrado com sucesso!' });
     } catch (err: any) {
       next(err);
     }
