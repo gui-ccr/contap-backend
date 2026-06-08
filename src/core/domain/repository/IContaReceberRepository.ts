@@ -1,0 +1,16 @@
+export interface IContaReceber {
+  id?: string;
+  empresa_id: string;
+  origem: string;
+  valor: number;
+  data_previsao: string;
+  recebido: boolean;
+  data_recebimento?: string | null;
+}
+
+export interface IContaReceberRepository {
+  criar(dados: IContaReceber): Promise<IContaReceber>;
+  listarPorEmpresa(empresa_id: string): Promise<IContaReceber[]>;
+  marcarComoRecebido(id: string, data_recebimento: string): Promise<IContaReceber>;
+  buscarPorId(id: string): Promise<IContaReceber | null>;
+}
