@@ -1,13 +1,22 @@
-import { type Request, type Response, type NextFunction } from "express";
+import { type NextFunction, type Request, type Response } from "express";
+import { ZodError } from "zod";
 import { ErroAplicacao } from "../core/errors/AppErrors.js";
 
 export function errorMiddleware(
   error: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction,
 ) {
-  // 1. Se for um erro conhecido que criámos herdando de AppError
+  if (error instanceof ZodError) {
+    return res.status(400).json({
+      status: "error",
+      code: "ENTRADA_INVALIDA",
+      message: "Dados invalidos.",
+      issues: error.issues,
+    });
+  }
+
   if (error instanceof ErroAplicacao) {
     return res.status(error.statusCode).json({
       status: "error",
@@ -16,9 +25,8 @@ export function errorMiddleware(
     });
   }
 
-  // 2. Se for um erro desconhecido (ex: queda de luz, banco offline)
-  console.error("🚨 Erro não tratado:", error);
-  
+  console.error("Erro nao tratado:", error);
+
   return res.status(500).json({
     status: "error",
     code: "ERRO_INTERNO",
