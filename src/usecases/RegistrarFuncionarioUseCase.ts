@@ -8,10 +8,13 @@ export interface IRegistrarFuncionarioInput {
   senhaLimpa: string;
   empresaId: string;
   cargo: string;
+  cpf?: string;
+  dataNascimento?: string;
+  fotoUrl?: string;
 }
 
 export class RegistrarFuncionarioUseCase {
-  constructor(private usuarioRepository: IUsuarioRepository) {}
+  constructor(private readonly usuarioRepository: IUsuarioRepository) {}
 
   async execute(input: IRegistrarFuncionarioInput): Promise<void> {
     const usuarioExistente = await this.usuarioRepository.buscarPorEmail(input.email);
@@ -29,6 +32,9 @@ export class RegistrarFuncionarioUseCase {
       empresaId: input.empresaId,
       cargo: input.cargo,
       senhaHash: input.senhaLimpa,
+      ...(input.cpf !== undefined && { cpf: input.cpf }),
+      ...(input.dataNascimento !== undefined && { dataNascimento: input.dataNascimento }),
+      ...(input.fotoUrl !== undefined && { fotoUrl: input.fotoUrl }),
     });
 
     await this.usuarioRepository.salvar(novoFuncionario);
