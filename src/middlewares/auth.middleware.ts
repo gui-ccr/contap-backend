@@ -1,6 +1,9 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { supabase } from "../config/database.js";
-import { ErroBancoDeDados, ErroNaoAutorizado } from "../core/errors/AppErrors.js";
+import {
+  ErroBancoDeDados,
+  ErroNaoAutorizado,
+} from "../core/errors/AppErrors.js";
 
 export interface IUsuarioAutenticado {
   id: string;
@@ -15,7 +18,7 @@ export interface IRequestAutenticado extends Request {
 export async function authMiddleware(
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
@@ -31,7 +34,10 @@ export async function authMiddleware(
       throw new ErroNaoAutorizado("Token de autenticação mal formatado.");
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       throw new ErroNaoAutorizado("Token inválido ou expirado.");
@@ -44,17 +50,21 @@ export async function authMiddleware(
       .maybeSingle();
 
     if (dbError) {
-      throw new ErroBancoDeDados(`Erro ao verificar credenciais: ${dbError.message}`);
+      throw new ErroBancoDeDados(
+        `Erro ao verificar credenciais: ${dbError.message}`,
+      );
     }
 
     if (!usuarioData) {
-      throw new ErroNaoAutorizado("Usuário autenticado não encontrado na base de dados.");
+      throw new ErroNaoAutorizado(
+        "Usuário autenticado não encontrado na base de dados.",
+      );
     }
 
-    (req as IRequestAutenticado).usuario = {
+   req.usuario = {
       id: user.id,
       cargo: usuarioData.cargo as string,
-      ...(usuarioData.empresa_id != null && { empresaId: usuarioData.empresa_id as string }),
+      ...(usuarioData.empresa_id && { empresaId: usuarioData.empresa_id as string }),
     };
 
     next();

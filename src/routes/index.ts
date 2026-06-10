@@ -4,6 +4,7 @@ import { empresaRoutes } from './empresa.routes.js';
 import { lancamentoRoutes } from './lancamento.routes.js';
 import { planoContaRoutes } from './planoConta.routes.js';
 import { funcionarioRoutes } from './funcionario.routes.js';
+import contaReceberRoutes from './contaReceber.routes.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const routes = Router();
@@ -16,5 +17,6 @@ routes.use('/empresas', authMiddleware, empresaRoutes);
 routes.use('/lancamentos', authMiddleware, lancamentoRoutes);
 routes.use('/plano-contas', authMiddleware, planoContaRoutes);
 routes.use('/funcionarios', authMiddleware, funcionarioRoutes);
+routes.use('/contas-receber', authMiddleware, contaReceberRoutes);
 
 export { routes };
