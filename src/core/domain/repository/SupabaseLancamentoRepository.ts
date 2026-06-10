@@ -3,6 +3,8 @@ import { Lancamento } from "../entities/Lancamento.entity.js";
 import { ErroBancoDeDados } from "../../errors/AppErrors.js";
 import { type ILancamentoRepository } from "./ILancamentoRepository.js";
 
+
+// Corrigir SupabaseLancamentoRepository.ts: implementar listarPorEmpresa(empresaId) com JOIN em partidas retornando lista completa de lançamentos com partidas incluídas
 export class SupabaseLancamentoRepository implements ILancamentoRepository {
   async salvar(lancamento: Lancamento): Promise<void> {
     
@@ -42,7 +44,7 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
   }
 
   async listarPorEmpresa(empresaId: string): Promise<Lancamento[]> {
-    // Implementação futura de busca com Joins...
+    
     return [];
   }
 }
