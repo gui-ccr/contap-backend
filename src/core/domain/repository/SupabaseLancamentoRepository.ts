@@ -1,8 +1,10 @@
 import { supabase } from "../../../config/database.js";
-import { Lancamento, LancamentoSimplificado } from "../entities/Lancamento.entity.js";
+import {
+  Lancamento,
+  LancamentoSimplificado,
+} from "../entities/Lancamento.entity.js";
 import { ErroBancoDeDados } from "../../errors/AppErrors.js";
-import { type ILancamentoRepository } from "./ILancamentoRepository.js";
-
+import { type ILancamentoRepository, type ILancamentoDetalhado } from "./ILancamentoRepository.js";
 
 interface IlancamentoComPartidasRow {
   id: string;
@@ -76,11 +78,12 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
     }
   }
 
-  async listarPorEmpresa(empresaId: string): Promise<Lancamento[]> {
+  async listarPorEmpresa(empresaId: string): Promise<ILancamentoDetalhado[]> {
     try {
       const { data, error } = await supabase
         .from("lancamentos")
-        .select(`
+        .select(
+          `
           id,
           empresa_id,
           data_lancamento,
@@ -90,7 +93,8 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
             tipo,
             valor
           )
-        `)
+        `,
+        )
         .eq("empresa_id", empresaId)
         .order("data_lancamento", { ascending: false });
 
@@ -103,19 +107,18 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
 
       const rows = data as unknown as IlancamentoComPartidasRow[];
 
-      return rows.map(
-        (row) =>
-          new Lancamento({
-            empresaId: row.empresa_id,
-            dataLancamento: new Date(row.data_lancamento),
-            descricao: row.descricao,
-            partidas: (row.partidas ?? []).map((p) => ({
-              contaId: p.conta_id,
-              tipo: p.tipo,
-              valor: Number(p.valor),
-            })),
-          }),
-      );
+      return rows.map((row) => ({
+        id: row.id,
+        empresaId: row.empresa_id,
+        dataLancamento: new Date(row.data_lancamento),
+        descricao: row.descricao,
+        partidas: row.partidas.map((p) => ({
+          contaId: p.conta_id,
+          tipo: p.tipo,
+          valor: Number(p.valor),
+        })),
+      }));
+
     } catch (error: any) {
       if (error instanceof ErroBancoDeDados) throw error;
       throw new ErroBancoDeDados(
