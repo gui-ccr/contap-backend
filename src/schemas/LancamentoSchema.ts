@@ -1,17 +1,42 @@
 import z from "zod";
 
 export const criarLancamentoSchema = z.object({
-    empresa_id: z.string().uuid("ID da empresa inválido"),
-    data_lancamento: z.coerce.date(),
-    descricao: z.string().min(5, "A descrição do evento precisa ter no mínimo 5 caracteres"),
-    tipoTransacao: z.enum(['DEBITO', 'CREDITO']),
+  empresa_id: z.string().uuid("ID da empresa inválido"),
+  data_lancamento: z.coerce.date(),
+  descricao: z
+    .string()
+    .min(5, "A descrição do evento precisa ter no mínimo 5 caracteres"),
+  tipoTransacao: z.enum(["DEBITO", "CREDITO"]),
 
-    partidas: z.array(
-        z.object({
-            conta_id: z.string().uuid("ID da conta inválido"),
-            tipo: z.enum(['D', 'C']),
-            valor: z.number().positive("O valor financeiro deve ser maior que zero")
-        })
-    ).min(2, "Um lançamento contabil exige no mínimo duas partidas (uma de Débito e uma de Crédito")
-})
-export interface ICriarLancamento extends z.infer<typeof criarLancamentoSchema> {}
+  partidas: z
+    .array(
+      z.object({
+        conta_id: z.string().uuid("ID da conta inválido"),
+        tipo: z.enum(["D", "C"]),
+        valor: z
+          .number()
+          .positive("O valor financeiro deve ser maior que zero"),
+      }),
+    )
+    .min(
+      2,
+      "Um lançamento contabil exige no mínimo duas partidas (uma de Débito e uma de Crédito",
+    ),
+});
+
+export const criarLancamentoSimplificadoSchema = z.object({
+  empresa_id: z.string().uuid("ID da empresa inválido"),
+  descricao: z
+    .string()
+    .min(3, "A descrição do evento precisa ter no mínimo 3 caracteres"),
+  valor: z.number().positive("O valor financeiro deve ser maior que zero"),
+  tipoTransacao: z.enum(["DEBITO", "CREDITO"]),
+  data_lancamento: z.coerce.date(),
+});
+
+export interface ICriarLancamento extends z.infer<
+  typeof criarLancamentoSchema
+> {}
+export interface ICriarLancamentoSimplificado extends z.infer<
+  typeof criarLancamentoSimplificadoSchema
+> {}
