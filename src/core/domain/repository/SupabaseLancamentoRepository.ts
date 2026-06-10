@@ -3,7 +3,6 @@ import { Lancamento } from "../entities/Lancamento.entity.js";
 import { ErroBancoDeDados } from "../../errors/AppErrors.js";
 import { type ILancamentoRepository } from "./ILancamentoRepository.js";
 
-// Corrigir SupabaseLancamentoRepository.ts: implementar listarPorEmpresa(empresaId) com JOIN em partidas retornando lista completa de lançamentos com partidas incluídas
 
 interface IlancamentoComPartidasRow {
   id: string;
@@ -92,10 +91,10 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
             empresaId: row.empresa_id,
             dataLancamento: new Date(row.data_lancamento),
             descricao: row.descricao,
-            partidas: row.partidas.map((p) => ({
+            partidas: (row.partidas ?? []).map((p) => ({
               contaId: p.conta_id,
               tipo: p.tipo,
-              valor: Number(p.valor), // Garante que venha como number puro
+              valor: Number(p.valor),
             })),
           }),
       );
@@ -105,6 +104,5 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
         `Erro interno no repositório de lançamentos: ${error.message}`,
       );
     }
-    return [];
   }
 }

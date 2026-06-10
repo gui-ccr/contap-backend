@@ -66,10 +66,11 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
     data_recebimento: string,
   ): Promise<IContaReceber> {
     const { data, error } = await supabase
-    .from("contas_receber")
-    .select()
-    .eq("id", id)
-    .single();
+      .from("contas_receber")
+      .update({ recebido: true, data_recebimento })
+      .eq("id", id)
+      .select()
+      .single();
 
     if (error) {
       throw new ErroBancoDeDados(

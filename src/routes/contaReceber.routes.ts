@@ -1,39 +1,28 @@
 import { Router } from 'express';
 import { ContaReceberController } from '../controllers/ContaReceberController.js';
-
-// Imports dos UseCases
 import { CriarContaReceberUseCase } from '../usecases/CriarContaReceberUseCase.js';
 import { ListarContasReceberUseCase } from '../usecases/ListarContasReceberUseCase.js';
 import { ReceberContaUseCase } from '../usecases/ReceberContaUseCase.js';
+import { CriarLancamentoUseCase } from '../usecases/CriarLancamentoUseCase.js';
+import { SupabaseContaReceberRepository } from '../core/domain/repository/SupabaseContaRepository.js';
+import { SupabaseLancamentoRepository } from '../core/domain/repository/SupabaseLancamentoRepository.js';
+import { SupabasePlanoContaRepository } from '../core/domain/repository/SupabasePlanoContaRepository.js';
 
 const contaReceberRoutes = Router();
 
-/* =============================================================
-  INJEÇÃO DE DEPENDÊNCIAS (Remova os comentários quando você
-  criar o arquivo SupabaseContaReceberRepository.ts na pasta repository)
-  =============================================================
-  
-import { SupabaseContaReceberRepository } from '../core/domain/repository/SupabaseContaReceberRepository.js';
-import { CriarLancamentoUseCase } from '../usecases/CriarLancamentoUseCase.js';
-
-// 1. Instanciar repositórios (Conexão com Banco)
-const repository = new SupabaseContaReceberRepository();
-const lancamentoRepository = new ... // Seu repositório de lançamentos
+const contaReceberRepository = new SupabaseContaReceberRepository();
+const lancamentoRepository = new SupabaseLancamentoRepository();
+const planoContaRepository = new SupabasePlanoContaRepository();
 const criarLancamentoUseCase = new CriarLancamentoUseCase(lancamentoRepository);
 
-// 2. Instanciar Casos de Uso
-const criarUseCase = new CriarContaReceberUseCase(repository);
-const listarUseCase = new ListarContasReceberUseCase(repository);
-const receberUseCase = new ReceberContaUseCase(repository, criarLancamentoUseCase);
+const criarUseCase = new CriarContaReceberUseCase(contaReceberRepository);
+const listarUseCase = new ListarContasReceberUseCase(contaReceberRepository);
+const receberUseCase = new ReceberContaUseCase(contaReceberRepository, criarLancamentoUseCase, planoContaRepository);
 
-// 3. Instanciar o Controller
 const controller = new ContaReceberController(criarUseCase, listarUseCase, receberUseCase);
 
-// 4. Definir as Rotas
 contaReceberRoutes.post('/', (req, res) => controller.criar(req, res));
 contaReceberRoutes.get('/', (req, res) => controller.listar(req, res));
 contaReceberRoutes.patch('/:id/receber', (req, res) => controller.receber(req, res));
-
-*/
 
 export default contaReceberRoutes;
