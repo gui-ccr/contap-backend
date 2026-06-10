@@ -14,6 +14,13 @@ export interface ILancamentoProps {
   descricao: string;
   partidas: IPartidaProps[];
 }
+export interface ILancamentoSimplificadoProps {
+  empresaId: string;
+  descricao: string;
+  valor: number;
+  tipoTransacao: 'DEBITO' | 'CREDITO';
+  dataLancamento: Date;
+}
 
 export class Lancamento {
   private props: ILancamentoProps;
@@ -50,4 +57,17 @@ export class Lancamento {
   get dataLancamento() { return this.props.dataLancamento; }
   get descricao() { return this.props.descricao; }
   get partidas() { return this.props.partidas; }
+}
+export class LancamentoSimplificado {
+  private props: ILancamentoSimplificadoProps;
+
+  constructor(props: ILancamentoSimplificadoProps) {
+    this.props = props;
+  }
+ 
+
+  // Getters para expor os dados com segurança sem permitir mutação direta
+  get empresaId() { return this.props.empresaId; }
+  get dataLancamento() { return this.props.dataLancamento; }
+  get descricao() { return this.props.descricao; }
 }

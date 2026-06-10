@@ -1,4 +1,4 @@
-import { type Request, type Response } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { CriarContaReceberUseCase } from '../usecases/CriarContaReceberUseCase.js';
 import { ListarContasReceberUseCase } from '../usecases/ListarContasReceberUseCase.js';
 import { ReceberContaUseCase } from '../usecases/ReceberContaUseCase.js';
@@ -10,16 +10,16 @@ export class ContaReceberController {
     private receberContaUseCase: ReceberContaUseCase
   ) {}
 
-  async criar(req: Request, res: Response) {
+  async criar(req: Request, res: Response, next: NextFunction) {
     try {
       const resultado = await this.criarContaUseCase.executar(req.body);
       return res.status(201).json(resultado);
     } catch (error: any) {
-      return res.status(400).json({ error: error.message });
+      next(error);
     }
   }
 
-  async listar(req: Request, res: Response) {
+  async listar(req: Request, res: Response, next: NextFunction) {
     try {
       // Pega o ID da empresa vindo da URL (ex: ?empresa_id=123)
       const empresa_id = req.query.empresa_id as string;
@@ -30,7 +30,7 @@ export class ContaReceberController {
     }
   }
 
-  async receber(req: Request, res: Response) {
+  async receber(req: Request, res: Response, next: NextFunction) {
     try {
       // Garante para o TypeScript que id é uma string
       const id = req.params.id as string;
@@ -47,7 +47,7 @@ export class ContaReceberController {
         dados: resultado
       });
     } catch (error: any) {
-      return res.status(400).json({ error: error.message });
+      next(error);
     }
   }
 }

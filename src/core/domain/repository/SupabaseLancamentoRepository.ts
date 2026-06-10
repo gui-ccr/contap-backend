@@ -1,5 +1,5 @@
 import { supabase } from "../../../config/database.js";
-import { Lancamento } from "../entities/Lancamento.entity.js";
+import { Lancamento, LancamentoSimplificado } from "../entities/Lancamento.entity.js";
 import { ErroBancoDeDados } from "../../errors/AppErrors.js";
 import { type ILancamentoRepository } from "./ILancamentoRepository.js";
 
@@ -54,6 +54,24 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
       await supabase.from("lancamentos").delete().eq("id", lancamentoSalvo.id);
       throw new ErroBancoDeDados(
         `Erro ao salvar as partidas do lançamento: ${erroPartidas.message}`,
+      );
+    }
+  }
+  async salvarSimplificado(lancamento: LancamentoSimplificado): Promise<void> {
+    // 1. Salva o cabeçalho do lançamento contábil da pizzaria
+    const { data: lancamentoSalvo, error: erroLancamento } = await supabase
+      .from("lancamentos")
+      .insert({
+        empresa_id: lancamento.empresaId,
+        data_lancamento: lancamento.dataLancamento.toISOString(),
+        descricao: lancamento.descricao,
+      })
+      .select()
+      .single();
+
+    if (erroLancamento || !lancamentoSalvo) {
+      throw new ErroBancoDeDados(
+        `Erro ao salvar lançamento no Supabase: ${erroLancamento?.message || "Resposta vazia"}`,
       );
     }
   }

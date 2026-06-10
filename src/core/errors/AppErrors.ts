@@ -56,3 +56,4 @@ export class ErroDesequilibrioContabil extends ErroAplicacao {
   public readonly statusCode = 400; // Erro Contábil é um Bad Request (Soma D != C)
   public readonly errorCode = CodigosDeErro.DESEQUILIBRIO_CONTABIL;
 }
+
