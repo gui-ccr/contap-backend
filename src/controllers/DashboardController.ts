@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
 import { ErroEntradaInvalida } from "../core/errors/AppErrors.js";
-import { SupabaseLancamentoRepository } from "../core/domain/repository/SupabaseLancamentoRepository.js";
-import { SupabaseContaReceberRepository } from "../core/domain/repository/SupabaseContaRepository.js";
+import { SupabaseLancamentoRepository } from "../core/domain/repository/lancamento/SupabaseLancamentoRepository.js";
+import { SupabaseContaReceberRepository } from "../core/domain/repository/conta-receber/SupabaseContaRepository.js";
 
 function extrairEmpresaId(req: Request): string {
   const { empresaId } = (req as IRequestAutenticado).usuario;

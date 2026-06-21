@@ -1,6 +1,6 @@
 import { type NextFunction, type Request, type Response } from "express";
-import { SupabaseEmpresaRepository } from "../core/domain/repository/SupabaseEmpresaRepository.js";
-import { SupabasePlanoContaRepository } from "../core/domain/repository/SupabasePlanoContaRepository.js";
+import { SupabaseEmpresaRepository } from "../core/domain/repository/empresa/SupabaseEmpresaRepository.js";
+import { SupabasePlanoContaRepository } from "../core/domain/repository/plano-conta/SupabasePlanoContaRepository.js";
 import { Empresa } from "../core/domain/entities/Empresa.entity.js";
 import { PlanoConta } from "../core/domain/entities/PlanoConta.entity.js";
 import {

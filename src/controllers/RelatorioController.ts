@@ -1,5 +1,5 @@
 import { type Request, type Response, type NextFunction } from "express";
-import { SupabaseRelatorioRepository } from "../core/domain/repository/SupabaseRelatorioRepository.js";
+import { SupabaseRelatorioRepository } from "../core/domain/repository/relatorio/SupabaseRelatorioRepository.js";
 import { GerarDREUseCase } from "../usecases/relatorio/GerarDREUseCase.js";
 import { GerarBalancoPatrimonialUseCase } from "../usecases/relatorio/GerarBalancoPatrimonialUseCase.js";
 import { dreQuerySchema, balancoPatrimonialQuerySchema } from "../schemas/Relatorio.schema.js";

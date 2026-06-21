@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { LoginUseCase } from "../../src/usecases/auth/LoginUseCase.js";
 import { RegistrarDonoUseCase } from "../../src/usecases/auth/RegistrarDonoUseCase.js";
-import { type IUsuarioRepository } from "../../src/core/domain/repository/IUsuarioRepository.js";
+import { type IUsuarioRepository } from "../../src/core/domain/repository/usuario/IUsuarioRepository.js";
 import { ErroNaoAutorizado } from "../../src/core/errors/AppErrors.js";
 
 const mockUsuarioRepo = (): IUsuarioRepository => ({ registrarAuth: vi.fn(), loginAuth: vi.fn(), salvar: vi.fn(), buscarPorEmail: vi.fn(), buscarPorId: vi.fn(), listar: vi.fn(), atualizar: vi.fn(), deletar: vi.fn() });

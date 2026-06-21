@@ -10,7 +10,7 @@ import {
 import {
   type IAtualizarPlanoContaInput,
   type IPlanoContaRepository,
-} from "../../core/domain/repository/IPlanoContaRepository.js";
+} from "../../core/domain/repository/plano-conta/IPlanoContaRepository.js";
 
 export interface ICriarPlanoContaInput {
   empresaId: string;

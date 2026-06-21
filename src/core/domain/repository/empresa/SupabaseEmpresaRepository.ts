@@ -1,6 +1,6 @@
-import { supabase } from "../../../config/database.js";
-import { Empresa } from "../entities/Empresa.entity.js";
-import { ErroBancoDeDados } from "../../errors/AppErrors.js";
+import { supabase } from "../../../../config/database.js";
+import { Empresa } from "../../entities/Empresa.entity.js";
+import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 import {
   type IAtualizarEmpresaInput,
   type IEmpresaRepository,

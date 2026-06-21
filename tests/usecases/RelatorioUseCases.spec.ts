@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { GerarDREUseCase } from "../../src/usecases/relatorio/GerarDREUseCase.js";
 import { GerarBalancoPatrimonialUseCase } from "../../src/usecases/relatorio/GerarBalancoPatrimonialUseCase.js";
-import { type IRelatorioRepository } from "../../src/core/domain/repository/IRelatorioRepository.js";
+import { type IRelatorioRepository } from "../../src/core/domain/repository/relatorio/IRelatorioRepository.js";
 
 const mockRepo = (): IRelatorioRepository => ({ obterSaldosResultado: vi.fn(), obterSaldosPatrimoniais: vi.fn() });
 

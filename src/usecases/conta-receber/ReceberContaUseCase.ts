@@ -1,6 +1,6 @@
-import type { IContaReceberRepository } from "../../core/domain/repository/IContaReceberRepository.js";
+import type { IContaReceberRepository } from "../../core/domain/repository/conta-receber/IContaReceberRepository.js";
 import { CriarLancamentoUseCase } from "../lancamento/CriarLancamentoUseCase.js";
-import { type IPlanoContaRepository } from "../../core/domain/repository/IPlanoContaRepository.js";
+import { type IPlanoContaRepository } from "../../core/domain/repository/plano-conta/IPlanoContaRepository.js";
 import { ErroEntradaInvalida } from "../../core/errors/AppErrors.js";
 export class ReceberContaUseCase {
   constructor(

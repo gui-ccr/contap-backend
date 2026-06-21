@@ -1,6 +1,6 @@
 import { type NextFunction, type Request, type Response } from "express";
 import { PlanoConta } from "../core/domain/entities/PlanoConta.entity.js";
-import { SupabasePlanoContaRepository } from "../core/domain/repository/SupabasePlanoContaRepository.js";
+import { SupabasePlanoContaRepository } from "../core/domain/repository/plano-conta/SupabasePlanoContaRepository.js";
 import {
   atualizarPlanoContaSchema,
   criarPlanoContaSchema,

@@ -1,7 +1,7 @@
 import { type IRelatorioRepository } from "./IRelatorioRepository.js";
-import { type ISaldoContaAgregado } from "../entities/Relatorio.entity.js";
-import { supabase } from "../../../config/database.js";
-import { ErroBancoDeDados } from "../../errors/AppErrors.js";
+import { type ISaldoContaAgregado } from "../../entities/Relatorio.entity.js";
+import { supabase } from "../../../../config/database.js";
+import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 // Supabase returns these dynamically
 interface PartidaRow {

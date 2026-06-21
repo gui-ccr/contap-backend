@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AtualizarFuncionarioUseCase, DeletarFuncionarioUseCase } from "../../src/usecases/funcionario/FuncionarioUseCases.js";
 import { RegistrarFuncionarioUseCase } from "../../src/usecases/funcionario/RegistrarFuncionarioUseCase.js";
-import { type IUsuarioRepository } from "../../src/core/domain/repository/IUsuarioRepository.js";
+import { type IUsuarioRepository } from "../../src/core/domain/repository/usuario/IUsuarioRepository.js";
 import { Usuario } from "../../src/core/domain/entities/Usuarios.entity.js";
 import { ErroEntradaInvalida, ErroNaoAutorizado } from "../../src/core/errors/AppErrors.js";
 

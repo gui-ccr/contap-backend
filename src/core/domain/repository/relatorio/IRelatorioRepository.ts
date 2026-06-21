@@ -1,4 +1,4 @@
-import type { ISaldoContaAgregado } from "../entities/Relatorio.entity.js";
+import type { ISaldoContaAgregado } from "../../entities/Relatorio.entity.js";
 
 export interface IRelatorioRepository {
   /**

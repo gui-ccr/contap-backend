@@ -2,8 +2,8 @@ import {
   type IContaReceber,
   type IContaReceberRepository,
 } from "./IContaReceberRepository";
-import { supabase } from "../../../config/database.js";
-import { ErroBancoDeDados } from "../../errors/AppErrors.js";
+import { supabase } from "../../../../config/database.js";
+import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 export class SupabaseContaReceberRepository implements IContaReceberRepository {
   async criar(dados: IContaReceber): Promise<IContaReceber> {

@@ -2,8 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { CriarContaReceberUseCase } from "../../src/usecases/conta-receber/CriarContaReceberUseCase.js";
 import { ListarContasReceberUseCase } from "../../src/usecases/conta-receber/ListarContasReceberUseCase.js";
 import { ReceberContaUseCase } from "../../src/usecases/conta-receber/ReceberContaUseCase.js";
-import { type IContaReceberRepository } from "../../src/core/domain/repository/IContaReceberRepository.js";
-import { type IPlanoContaRepository } from "../../src/core/domain/repository/IPlanoContaRepository.js";
+import { type IContaReceberRepository } from "../../src/core/domain/repository/conta-receber/IContaReceberRepository.js";
+import { type IPlanoContaRepository } from "../../src/core/domain/repository/plano-conta/IPlanoContaRepository.js";
 import { CriarLancamentoUseCase } from "../../src/usecases/lancamento/CriarLancamentoUseCase.js";
 
 const mockContaRepo = (): IContaReceberRepository => ({ criar: vi.fn(), listarPorEmpresa: vi.fn(), marcarComoRecebido: vi.fn(), buscarPorId: vi.fn() });

@@ -1,11 +1,11 @@
-import { supabase } from "../../../config/database.js";
-import { Usuario } from "../entities/Usuarios.entity.js";
+import { supabase } from "../../../../config/database.js";
+import { Usuario } from "../../entities/Usuarios.entity.js";
 import {
   type IUsuarioRepository,
   type IAtualizarFuncionarioInput,
 } from "./IUsuarioRepository.js";
-import { ErroBancoDeDados, ErroNaoAutorizado } from "../../errors/AppErrors.js";
-import { AuthMapper, type IAuthResponse } from "../../../mappers/AuthMapper.js";
+import { ErroBancoDeDados, ErroNaoAutorizado } from "../../../errors/AppErrors.js";
+import { AuthMapper, type IAuthResponse } from "../../../../mappers/AuthMapper.js";
 
 function mapearUsuario(data: Record<string, unknown>): Usuario {
   return new Usuario({

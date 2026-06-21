@@ -1,4 +1,4 @@
-import { Empresa, type IEmpresaProps } from "../entities/Empresa.entity.js";
+import { Empresa, type IEmpresaProps } from "../../entities/Empresa.entity.js";
 
 export type IAtualizarEmpresaInput = Partial<Omit<IEmpresaProps, "id">>;
 

@@ -1,6 +1,6 @@
-import { supabase } from "../../../config/database.js";
-import { PlanoConta, type IPlanoContaProps } from "../entities/PlanoConta.entity.js";
-import { ErroBancoDeDados } from "../../errors/AppErrors.js";
+import { supabase } from "../../../../config/database.js";
+import { PlanoConta, type IPlanoContaProps } from "../../entities/PlanoConta.entity.js";
+import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 import {
   type IAtualizarPlanoContaInput,
   type IPlanoContaRepository,

@@ -1,4 +1,4 @@
-import { type IUsuarioRepository } from "../../core/domain/repository/IUsuarioRepository.js";
+import { type IUsuarioRepository } from "../../core/domain/repository/usuario/IUsuarioRepository.js";
 import { ErroNaoAutorizado } from "../../core/errors/AppErrors.js";
 
 interface ILoginInput {

@@ -1,5 +1,5 @@
-import { type Usuario } from "../entities/Usuarios.entity.js";
-import { type IAuthResponse } from "../../../mappers/AuthMapper.js";
+import { type Usuario } from "../../entities/Usuarios.entity.js";
+import { type IAuthResponse } from "../../../../mappers/AuthMapper.js";
 
 export interface IAtualizarFuncionarioInput {
   nome?: string;

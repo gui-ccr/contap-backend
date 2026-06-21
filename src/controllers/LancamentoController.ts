@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import type { ICriarLancamento } from "../schemas/LancamentoSchema.js";
-import { SupabaseLancamentoRepository } from "../core/domain/repository/SupabaseLancamentoRepository.js";
-import { SupabasePlanoContaRepository } from "../core/domain/repository/SupabasePlanoContaRepository.js";
+import { SupabaseLancamentoRepository } from "../core/domain/repository/lancamento/SupabaseLancamentoRepository.js";
+import { SupabasePlanoContaRepository } from "../core/domain/repository/plano-conta/SupabasePlanoContaRepository.js";
 import { criarLancamentoSchema } from "../schemas/LancamentoSchema.js";
 import { criarLancamentoSimplificadoSchema } from "../schemas/LancamentoSchema.js";
 import { CriarLancamentoUseCase } from "../usecases/lancamento/CriarLancamentoUseCase.js";

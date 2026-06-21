@@ -1,9 +1,9 @@
-import { supabase } from "../../../config/database.js";
+import { supabase } from "../../../../config/database.js";
 import {
   Lancamento,
   LancamentoSimplificado,
-} from "../entities/Lancamento.entity.js";
-import { ErroBancoDeDados } from "../../errors/AppErrors.js";
+} from "../../entities/Lancamento.entity.js";
+import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 import { type ILancamentoRepository, type ILancamentoDetalhado } from "./ILancamentoRepository.js";
 
 interface IlancamentoComPartidasRow {

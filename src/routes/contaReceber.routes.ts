@@ -4,9 +4,9 @@ import { CriarContaReceberUseCase } from '../usecases/CriarContaReceberUseCase.j
 import { ListarContasReceberUseCase } from '../usecases/ListarContasReceberUseCase.js';
 import { ReceberContaUseCase } from '../usecases/ReceberContaUseCase.js';
 import { CriarLancamentoUseCase } from '../usecases/CriarLancamentoUseCase.js';
-import { SupabaseContaReceberRepository } from '../core/domain/repository/SupabaseContaRepository.js';
-import { SupabaseLancamentoRepository } from '../core/domain/repository/SupabaseLancamentoRepository.js';
-import { SupabasePlanoContaRepository } from '../core/domain/repository/SupabasePlanoContaRepository.js';
+import { SupabaseContaReceberRepository } from '../core/domain/repository/conta-receber/SupabaseContaRepository.js';
+import { SupabaseLancamentoRepository } from '../core/domain/repository/lancamento/SupabaseLancamentoRepository.js';
+import { SupabasePlanoContaRepository } from '../core/domain/repository/plano-conta/SupabasePlanoContaRepository.js';
 
 const contaReceberRoutes = Router();
 

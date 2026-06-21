@@ -1,4 +1,4 @@
-import { PlanoConta, type IPlanoContaProps } from "../entities/PlanoConta.entity.js";
+import { PlanoConta, type IPlanoContaProps } from "../../entities/PlanoConta.entity.js";
 
 export type IAtualizarPlanoContaInput = Partial<Omit<IPlanoContaProps, "id">>;
 

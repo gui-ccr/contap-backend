@@ -3,8 +3,8 @@ import { CriarLancamentoUseCase } from "../../src/usecases/lancamento/CriarLanca
 import { CriarLancamentoSimplificadoUseCase } from "../../src/usecases/lancamento/CriarLancamentoSimplificadoUseCase.js";
 import { ListarLancamentosUseCase } from "../../src/usecases/lancamento/ListarLancamentosUseCase.js";
 import { ListarLancamentosSimplificadoUseCase } from "../../src/usecases/lancamento/ListarLancamentosSimplificadoUseCase.js";
-import { type ILancamentoRepository } from "../../src/core/domain/repository/ILancamentoRepository.js";
-import { type IPlanoContaRepository } from "../../src/core/domain/repository/IPlanoContaRepository.js";
+import { type ILancamentoRepository } from "../../src/core/domain/repository/lancamento/ILancamentoRepository.js";
+import { type IPlanoContaRepository } from "../../src/core/domain/repository/plano-conta/IPlanoContaRepository.js";
 import { ErroDesequilibrioContabil } from "../../src/core/errors/AppErrors.js";
 
 const mockLancRepo = (): ILancamentoRepository => ({ salvar: vi.fn(), salvarSimplificado: vi.fn(), listarPorEmpresa: vi.fn() });

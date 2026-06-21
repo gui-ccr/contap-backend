@@ -4,11 +4,11 @@ import { PlanoConta } from "../../src/core/domain/entities/PlanoConta.entity.js"
 import {
   type IAtualizarEmpresaInput,
   type IEmpresaRepository,
-} from "../../src/core/domain/repository/IEmpresaRepository.js";
+} from "../../src/core/domain/repository/empresa/IEmpresaRepository.js";
 import {
   type IAtualizarPlanoContaInput,
   type IPlanoContaRepository,
-} from "../../src/core/domain/repository/IPlanoContaRepository.js";
+} from "../../src/core/domain/repository/plano-conta/IPlanoContaRepository.js";
 import {
   CriarEmpresaUseCase,
   planoContasPadrao,

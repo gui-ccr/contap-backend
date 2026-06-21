@@ -8,8 +8,8 @@ import {
 import {
   type IAtualizarEmpresaInput,
   type IEmpresaRepository,
-} from "../../core/domain/repository/IEmpresaRepository.js";
-import { type IPlanoContaRepository } from "../../core/domain/repository/IPlanoContaRepository.js";
+} from "../../core/domain/repository/empresa/IEmpresaRepository.js";
+import { type IPlanoContaRepository } from "../../core/domain/repository/plano-conta/IPlanoContaRepository.js";
 
 export interface ICriarEmpresaInput {
   nome: string;

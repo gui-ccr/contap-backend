@@ -1,4 +1,4 @@
-import { type IPlanoContaRepository } from "../../core/domain/repository/IPlanoContaRepository.js";
+import { type IPlanoContaRepository } from "../../core/domain/repository/plano-conta/IPlanoContaRepository.js";
 import { LancamentoSimplificado, type ILancamentoSimplificadoProps } from "../../core/domain/entities/Lancamento.entity.js";
 import { ErroEntradaInvalida } from "../../core/errors/AppErrors.js";
 import { CriarLancamentoUseCase } from "../lancamento/CriarLancamentoUseCase.js";

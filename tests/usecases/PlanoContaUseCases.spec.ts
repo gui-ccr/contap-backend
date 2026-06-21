@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { ListarPlanoContasUseCase, CriarPlanoContaUseCase, BuscarPlanoContaPorIdUseCase, AtualizarPlanoContaUseCase, DeletarPlanoContaUseCase } from "../../src/usecases/plano-conta/PlanoContaUseCases.js";
-import { type IPlanoContaRepository } from "../../src/core/domain/repository/IPlanoContaRepository.js";
+import { type IPlanoContaRepository } from "../../src/core/domain/repository/plano-conta/IPlanoContaRepository.js";
 
 const mockRepo = (): IPlanoContaRepository => ({ salvar: vi.fn(), buscarPorCodigoEEmpresa: vi.fn(), listar: vi.fn(), buscarPorId: vi.fn(), atualizar: vi.fn(), deletar: vi.fn(), salvarMuitos: vi.fn() });
 

@@ -1,5 +1,5 @@
 import { type Request, type Response, type NextFunction } from 'express';
-import { SupabaseUsuarioRepository } from '../core/domain/repository/SupabaseUsuarioRepository.js';
+import { SupabaseUsuarioRepository } from '../core/domain/repository/usuario/SupabaseUsuarioRepository.js';
 import { RegistrarFuncionarioUseCase } from '../usecases/funcionario/RegistrarFuncionarioUseCase.js';
 import { RegistrarDonoUseCase } from '../usecases/auth/RegistrarDonoUseCase.js';
 import { LoginUseCase } from '../usecases/auth/LoginUseCase.js';
