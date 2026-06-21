@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { SupabaseRelatorioRepository } from "../core/domain/repository/SupabaseRelatorioRepository.js";
-import { GerarDREUseCase } from "../usecases/GerarDREUseCase.js";
-import { GerarBalancoPatrimonialUseCase } from "../usecases/GerarBalancoPatrimonialUseCase.js";
+import { GerarDREUseCase } from "../usecases/relatorio/GerarDREUseCase.js";
+import { GerarBalancoPatrimonialUseCase } from "../usecases/relatorio/GerarBalancoPatrimonialUseCase.js";
 import { dreQuerySchema, balancoPatrimonialQuerySchema } from "../schemas/Relatorio.schema.js";
 import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
 import { ErroEntradaInvalida } from "../core/errors/AppErrors.js";

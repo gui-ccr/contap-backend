@@ -14,7 +14,7 @@ import {
   CriarEmpresaUseCase,
   DeletarEmpresaUseCase,
   ListarEmpresasUseCase,
-} from "../usecases/EmpresaUseCases.js";
+} from "../usecases/empresa/EmpresaUseCases.js";
 
 const empresaRepository = new SupabaseEmpresaRepository();
 const planoContaRepository = new SupabasePlanoContaRepository();

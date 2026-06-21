@@ -13,7 +13,7 @@ import {
   CriarPlanoContaUseCase,
   DeletarPlanoContaUseCase,
   ListarPlanoContasUseCase,
-} from "../usecases/PlanoContaUseCases.js";
+} from "../usecases/plano-conta/PlanoContaUseCases.js";
 
 const planoContaRepository = new SupabasePlanoContaRepository();
 

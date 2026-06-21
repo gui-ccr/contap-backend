@@ -1,4 +1,4 @@
-import type { IContaReceberRepository } from "../core/domain/repository/IContaReceberRepository.js";
+import type { IContaReceberRepository } from "../../core/domain/repository/IContaReceberRepository.js";
 
 export class ListarContasReceberUseCase {
   constructor(private contasReceberRepository: IContaReceberRepository) {}

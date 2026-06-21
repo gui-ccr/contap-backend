@@ -1,5 +1,5 @@
-import type { IDRE, ISaldoContaAgregado } from "../core/domain/entities/Relatorio.entity.js";
-import type { IRelatorioRepository } from "../core/domain/repository/IRelatorioRepository.js";
+import type { IDRE, ISaldoContaAgregado } from "../../core/domain/entities/Relatorio.entity.js";
+import type { IRelatorioRepository } from "../../core/domain/repository/IRelatorioRepository.js";
 
 interface IRequest {
   empresaId: string;

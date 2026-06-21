@@ -1,6 +1,6 @@
-import { type IUsuarioRepository, type IAtualizarFuncionarioInput } from "../core/domain/repository/IUsuarioRepository.js";
-import { type Usuario } from "../core/domain/entities/Usuarios.entity.js";
-import { ErroEntradaInvalida, ErroNaoAutorizado, ErroNaoEncontrado } from "../core/errors/AppErrors.js";
+import { type IUsuarioRepository, type IAtualizarFuncionarioInput } from "../../core/domain/repository/IUsuarioRepository.js";
+import { type Usuario } from "../../core/domain/entities/Usuarios.entity.js";
+import { ErroEntradaInvalida, ErroNaoAutorizado, ErroNaoEncontrado } from "../../core/errors/AppErrors.js";
 
 // ─── Listar Funcionários ────────────────────────────────────────────────────────
 

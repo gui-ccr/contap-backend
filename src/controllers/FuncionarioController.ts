@@ -5,7 +5,7 @@ import {
   BuscarFuncionarioPorIdUseCase,
   AtualizarFuncionarioUseCase,
   DeletarFuncionarioUseCase,
-} from "../usecases/FuncionarioUseCases.js";
+} from "../usecases/funcionario/FuncionarioUseCases.js";
 import { atualizarFuncionarioSchema, funcionarioIdParamSchema } from "../schemas/Usuarios.schema.js";
 import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
 import { ErroEntradaInvalida } from "../core/errors/AppErrors.js";

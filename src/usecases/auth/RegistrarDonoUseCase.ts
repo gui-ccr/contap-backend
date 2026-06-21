@@ -1,6 +1,6 @@
-import { type IUsuarioRepository } from "../core/domain/repository/IUsuarioRepository.js";
-import { Usuario } from "../core/domain/entities/Usuarios.entity.js";
-import { ErroConflito } from "../core/errors/AppErrors.js";
+import { type IUsuarioRepository } from "../../core/domain/repository/IUsuarioRepository.js";
+import { Usuario } from "../../core/domain/entities/Usuarios.entity.js";
+import { ErroConflito } from "../../core/errors/AppErrors.js";
 
 export interface IRegistrarDonoInput {
     nome: string;

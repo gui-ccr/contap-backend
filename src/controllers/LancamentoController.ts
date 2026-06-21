@@ -4,9 +4,9 @@ import { SupabaseLancamentoRepository } from "../core/domain/repository/Supabase
 import { SupabasePlanoContaRepository } from "../core/domain/repository/SupabasePlanoContaRepository.js";
 import { criarLancamentoSchema } from "../schemas/LancamentoSchema.js";
 import { criarLancamentoSimplificadoSchema } from "../schemas/LancamentoSchema.js";
-import { CriarLancamentoUseCase } from "../usecases/CriarLancamentoUseCase.js";
-import { CriarLancamentoSimplificadoUseCase } from "../usecases/CriarLancamentoSimplificadoUseCase.js";
-import { ListarLancamentosSimplificadoUseCase } from "../usecases/ListarLancamentosSimplificadoUseCase.js";
+import { CriarLancamentoUseCase } from "../usecases/lancamento/CriarLancamentoUseCase.js";
+import { CriarLancamentoSimplificadoUseCase } from "../usecases/lancamento/CriarLancamentoSimplificadoUseCase.js";
+import { ListarLancamentosSimplificadoUseCase } from "../usecases/lancamento/ListarLancamentosSimplificadoUseCase.js";
 import { ErroNaoAutorizado } from "../core/errors/AppErrors.js";
 
 const lancamentoRepository = new SupabaseLancamentoRepository();

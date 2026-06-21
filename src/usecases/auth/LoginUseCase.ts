@@ -1,5 +1,5 @@
-import { type IUsuarioRepository } from "../core/domain/repository/IUsuarioRepository.js";
-import { ErroNaoAutorizado } from "../core/errors/AppErrors.js";
+import { type IUsuarioRepository } from "../../core/domain/repository/IUsuarioRepository.js";
+import { ErroNaoAutorizado } from "../../core/errors/AppErrors.js";
 
 interface ILoginInput {
   email: string;

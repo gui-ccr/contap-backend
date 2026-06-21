@@ -12,7 +12,7 @@ import {
 import {
   CriarEmpresaUseCase,
   planoContasPadrao,
-} from "../../src/usecases/EmpresaUseCases.js";
+} from "../../src/usecases/empresa/EmpresaUseCases.js";
 
 class EmpresaRepositoryFake implements IEmpresaRepository {
   empresas = new Map<string, Empresa>();

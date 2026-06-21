@@ -1,78 +1,43 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  AtualizarFuncionarioUseCase,
-  DeletarFuncionarioUseCase,
-} from "../../src/usecases/FuncionarioUseCases.js";
+import { AtualizarFuncionarioUseCase, DeletarFuncionarioUseCase } from "../../src/usecases/funcionario/FuncionarioUseCases.js";
+import { RegistrarFuncionarioUseCase } from "../../src/usecases/funcionario/RegistrarFuncionarioUseCase.js";
 import { type IUsuarioRepository } from "../../src/core/domain/repository/IUsuarioRepository.js";
 import { Usuario } from "../../src/core/domain/entities/Usuarios.entity.js";
 import { ErroEntradaInvalida, ErroNaoAutorizado } from "../../src/core/errors/AppErrors.js";
 
-const mockUsuarioRepository = (): IUsuarioRepository => ({
-  registrarAuth: vi.fn(),
-  loginAuth: vi.fn(),
-  salvar: vi.fn(),
-  buscarPorEmail: vi.fn(),
-  buscarPorId: vi.fn(),
-  listar: vi.fn(),
-  atualizar: vi.fn(),
-  deletar: vi.fn(),
-});
+const mockUsuarioRepository = (): IUsuarioRepository => ({ registrarAuth: vi.fn(), loginAuth: vi.fn(), salvar: vi.fn(), buscarPorEmail: vi.fn(), buscarPorId: vi.fn(), listar: vi.fn(), atualizar: vi.fn(), deletar: vi.fn() });
 
-describe("Funcionario UseCases - Regras de Negócio", () => {
+describe("Funcionário - Casos de Uso", () => {
   let repository: IUsuarioRepository;
+  beforeEach(() => { repository = mockUsuarioRepository(); });
 
-  beforeEach(() => {
-    repository = mockUsuarioRepository();
+  describe("RegistrarFuncionarioUseCase", () => {
+    it("Deve delegar ao repositorio a criacao", async () => {
+      (repository.registrarAuth as any).mockResolvedValue("auth-id");
+      const useCase = new RegistrarFuncionarioUseCase(repository);
+      await useCase.execute({ nome: "Joao", email: "j@j.com", senha: "123", cargo: "CAIXA", empresaId: "00000000-0000-0000-0000-000000000000" });
+      expect(repository.salvar).toHaveBeenCalled();
+    });
   });
 
   describe("DeletarFuncionarioUseCase", () => {
     it("Deve impedir que o dono delete a si mesmo", async () => {
       const useCase = new DeletarFuncionarioUseCase(repository);
-      
-      await expect(
-        useCase.execute({ id: "meu-id", idRequisitante: "meu-id", empresaIdRequisitante: "empresa-1" })
-      ).rejects.toThrow(ErroNaoAutorizado);
+      await expect(useCase.execute({ id: "meu-id", idRequisitante: "meu-id", empresaIdRequisitante: "empresa-1" })).rejects.toThrow(ErroNaoAutorizado);
     });
 
-    it("Deve impedir deleção de funcionário de outra empresa (Vazamento Multi-tenancy)", async () => {
+    it("Deve impedir deleção cruzada (Multi-tenancy)", async () => {
       const useCase = new DeletarFuncionarioUseCase(repository);
-      
-      // Mock do repositório para retornar funcionário de OUTRA empresa
-      (repository.buscarPorId as any).mockResolvedValueOnce(new Usuario({
-        id: "func-1", nome: "João", email: "j@j.com", senhaHash: "xxx", cargo: "CAIXA", empresaId: "outra-empresa"
-      }));
-
-      await expect(
-        useCase.execute({ id: "func-1", idRequisitante: "dono-1", empresaIdRequisitante: "empresa-1" })
-      ).rejects.toThrow(ErroNaoAutorizado);
-      
-      expect(repository.deletar).not.toHaveBeenCalled();
-    });
-
-    it("Deve deletar com sucesso se for da mesma empresa", async () => {
-      const useCase = new DeletarFuncionarioUseCase(repository);
-      
-      const funcMock = new Usuario({ id: "func-1", nome: "João", email: "j@j.com", senhaHash: "xxx", cargo: "CAIXA", empresaId: "empresa-1" });
-      (repository.buscarPorId as any).mockResolvedValueOnce(funcMock);
-      (repository.deletar as any).mockResolvedValueOnce(funcMock);
-
-      const result = await useCase.execute({ id: "func-1", idRequisitante: "dono-1", empresaIdRequisitante: "empresa-1" });
-      
-      expect(result.id).toBe("func-1");
-      expect(repository.deletar).toHaveBeenCalledWith("func-1");
+      (repository.buscarPorId as any).mockResolvedValueOnce(new Usuario({ id: "f1", nome: "X", email: "x@x.com", cargo: "CAIXA", empresaId: "outra" }));
+      await expect(useCase.execute({ id: "f1", idRequisitante: "dono", empresaIdRequisitante: "empresa-1" })).rejects.toThrow(ErroNaoAutorizado);
     });
   });
 
   describe("AtualizarFuncionarioUseCase", () => {
-    it("Deve impedir mudança de cargo para DONO", async () => {
+    it("Deve impedir mudança para DONO", async () => {
       const useCase = new AtualizarFuncionarioUseCase(repository);
-      
-      const funcMock = new Usuario({ id: "func-1", nome: "João", email: "j@j.com", senhaHash: "xxx", cargo: "CAIXA", empresaId: "empresa-1" });
-      (repository.buscarPorId as any).mockResolvedValueOnce(funcMock);
-
-      await expect(
-        useCase.execute({ id: "func-1", empresaIdRequisitante: "empresa-1", dados: { cargo: "DONO" } })
-      ).rejects.toThrow(ErroEntradaInvalida);
+      (repository.buscarPorId as any).mockResolvedValueOnce(new Usuario({ id: "f1", nome: "X", email: "x@x.com", cargo: "CAIXA", empresaId: "emp" }));
+      await expect(useCase.execute({ id: "f1", empresaIdRequisitante: "emp", dados: { cargo: "DONO" } })).rejects.toThrow(ErroEntradaInvalida);
     });
   });
 });

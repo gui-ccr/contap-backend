@@ -1,5 +1,5 @@
-import type { IContaReceberRepository } from "../core/domain/repository/IContaReceberRepository.js";
-import { criarContaReceberSchema, type TCriarContaReceber } from "../schemas/ContasReceber.schema.js";
+import type { IContaReceberRepository } from "../../core/domain/repository/IContaReceberRepository.js";
+import { criarContaReceberSchema, type TCriarContaReceber } from "../../schemas/ContasReceber.schema.js";
 
 export class CriarContaReceberUseCase {
   constructor(private contasReceberRepository: IContaReceberRepository) {}

@@ -1,15 +1,15 @@
-import { Empresa, type IEmpresaProps } from "../core/domain/entities/Empresa.entity.js";
-import { PlanoConta, type TipoContaContabil } from "../core/domain/entities/PlanoConta.entity.js";
+import { Empresa, type IEmpresaProps } from "../../core/domain/entities/Empresa.entity.js";
+import { PlanoConta, type TipoContaContabil } from "../../core/domain/entities/PlanoConta.entity.js";
 import {
   ErroBancoDeDados,
   ErroConflito,
   ErroNaoEncontrado,
-} from "../core/errors/AppErrors.js";
+} from "../../core/errors/AppErrors.js";
 import {
   type IAtualizarEmpresaInput,
   type IEmpresaRepository,
-} from "../core/domain/repository/IEmpresaRepository.js";
-import { type IPlanoContaRepository } from "../core/domain/repository/IPlanoContaRepository.js";
+} from "../../core/domain/repository/IEmpresaRepository.js";
+import { type IPlanoContaRepository } from "../../core/domain/repository/IPlanoContaRepository.js";
 
 export interface ICriarEmpresaInput {
   nome: string;

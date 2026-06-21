@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from 'express';
-import { CriarContaReceberUseCase } from '../usecases/CriarContaReceberUseCase.js';
-import { ListarContasReceberUseCase } from '../usecases/ListarContasReceberUseCase.js';
-import { ReceberContaUseCase } from '../usecases/ReceberContaUseCase.js';
+import { CriarContaReceberUseCase } from '../usecases/conta-receber/CriarContaReceberUseCase.js';
+import { ListarContasReceberUseCase } from '../usecases/conta-receber/ListarContasReceberUseCase.js';
+import { ReceberContaUseCase } from '../usecases/conta-receber/ReceberContaUseCase.js';
 
 export class ContaReceberController {
   constructor(

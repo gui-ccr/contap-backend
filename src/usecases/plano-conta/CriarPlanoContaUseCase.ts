@@ -1,4 +1,4 @@
 export {
   CriarPlanoContaUseCase,
   type ICriarPlanoContaInput,
-} from "./PlanoContaUseCases.js";
+} from "../plano-conta/PlanoContaUseCases.js";

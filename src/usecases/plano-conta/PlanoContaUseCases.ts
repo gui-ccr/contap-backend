@@ -2,15 +2,15 @@ import {
   PlanoConta,
   type IPlanoContaProps,
   type TipoContaContabil,
-} from "../core/domain/entities/PlanoConta.entity.js";
+} from "../../core/domain/entities/PlanoConta.entity.js";
 import {
   ErroConflito,
   ErroNaoEncontrado,
-} from "../core/errors/AppErrors.js";
+} from "../../core/errors/AppErrors.js";
 import {
   type IAtualizarPlanoContaInput,
   type IPlanoContaRepository,
-} from "../core/domain/repository/IPlanoContaRepository.js";
+} from "../../core/domain/repository/IPlanoContaRepository.js";
 
 export interface ICriarPlanoContaInput {
   empresaId: string;
