@@ -1,0 +1,92 @@
+{
+	"info": {
+		"_postman_id": "aa123b",
+		"name": "Contap - Funcionários Multi-Tenancy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Tentar apagar Funcionario de Outra Empresa",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Deve retornar erro 403 (ou apropriado) de Acesso Negado\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.include(\"Acesso negado\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN_EMPRESA_A}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/funcionarios/{{ID_FUNCIONARIO_EMPRESA_B}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"funcionarios",
+						"{{ID_FUNCIONARIO_EMPRESA_B}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Promover CAIXA a DONO indevidamente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Deve retornar falha de validação de regra de negócio\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.include(\"Não é permitido promover um funcionário ao cargo de DONO\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN_EMPRESA_A}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cargo\": \"DONO\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/funcionarios/{{ID_FUNCIONARIO_EMPRESA_A}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"funcionarios",
+						"{{ID_FUNCIONARIO_EMPRESA_A}}"
+					]
+				}
+			}
+		}
+	]
+}
