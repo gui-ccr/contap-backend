@@ -97,7 +97,7 @@ export class LancamentoController {
 
       if (!empresaId) {
         throw new ErroNaoAutorizado("Usuário não possui uma empresa vinculada.");
-      }ErroNaoAutorizado
+      }
 
       const resultado = await listarLancamentosSimplificadoUseCase.executar(empresaId);
 
