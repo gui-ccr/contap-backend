@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { Empresa } from "../src/core/domain/entities/Empresa.entity.js";
-import { PlanoConta } from "../src/core/domain/entities/PlanoConta.entity.js";
+import { Empresa } from "../../src/core/domain/entities/Empresa.entity.js";
+import { PlanoConta } from "../../src/core/domain/entities/PlanoConta.entity.js";
 import {
   type IAtualizarEmpresaInput,
   type IEmpresaRepository,
-} from "../src/core/domain/repository/IEmpresaRepository.js";
+} from "../../src/core/domain/repository/IEmpresaRepository.js";
 import {
   type IAtualizarPlanoContaInput,
   type IPlanoContaRepository,
-} from "../src/core/domain/repository/IPlanoContaRepository.js";
+} from "../../src/core/domain/repository/IPlanoContaRepository.js";
 import {
   CriarEmpresaUseCase,
   planoContasPadrao,
-} from "../src/usecases/EmpresaUseCases.js";
+} from "../../src/usecases/EmpresaUseCases.js";
 
 class EmpresaRepositoryFake implements IEmpresaRepository {
   empresas = new Map<string, Empresa>();
