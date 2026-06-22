@@ -17,7 +17,7 @@ describe("Contas a Receber - Casos de Uso", () => {
       (repo.criar as any).mockResolvedValue({ id: "conta-1" });
       const useCase = new CriarContaReceberUseCase(repo);
       
-      const res = await useCase.executar({ empresa_id: "00000000-0000-0000-0000-000000000000", origem: "Venda X", valor: 100, data_previsao: "2026-06-01", descricao: "Desc" });
+      const res = await useCase.executar({ empresa_id: "00000000-0000-0000-0000-000000000000", origem: "Venda X", valor: 100, data_previsao: "2026-06-01" });
       expect(res.id).toBe("conta-1");
       expect(repo.criar).toHaveBeenCalled();
     });

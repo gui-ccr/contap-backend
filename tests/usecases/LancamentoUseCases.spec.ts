@@ -8,7 +8,15 @@ import { type IPlanoContaRepository } from "../../src/core/domain/repository/pla
 import { ErroDesequilibrioContabil } from "../../src/core/errors/AppErrors.js";
 
 const mockLancRepo = (): ILancamentoRepository => ({ salvar: vi.fn(), salvarSimplificado: vi.fn(), listarPorEmpresa: vi.fn() });
-const mockPlanoRepo = (): IPlanoContaRepository => ({ salvar: vi.fn(), buscarPorCodigoEEmpresa: vi.fn(), buscarTodosPorEmpresa: vi.fn() });
+const mockPlanoRepo = (): IPlanoContaRepository => ({
+  salvar: vi.fn(),
+  salvarMuitos: vi.fn(),
+  listar: vi.fn(),
+  buscarPorCodigoEEmpresa: vi.fn(),
+  buscarPorId: vi.fn(),
+  atualizar: vi.fn(),
+  deletar: vi.fn(),
+});
 
 describe("Lançamentos - Casos de Uso", () => {
   describe("CriarLancamentoUseCase", () => {

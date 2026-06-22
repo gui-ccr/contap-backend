@@ -15,7 +15,7 @@ describe("Funcionário - Casos de Uso", () => {
     it("Deve delegar ao repositorio a criacao", async () => {
       (repository.registrarAuth as any).mockResolvedValue("auth-id");
       const useCase = new RegistrarFuncionarioUseCase(repository);
-      await useCase.execute({ nome: "Joao", email: "j@j.com", senha: "123", cargo: "CAIXA", empresaId: "00000000-0000-0000-0000-000000000000" });
+      await useCase.execute({ nome: "Joao", email: "j@j.com", senhaLimpa: "123", cargo: "CAIXA", empresaId: "00000000-0000-0000-0000-000000000000" });
       expect(repository.salvar).toHaveBeenCalled();
     });
   });
@@ -28,7 +28,7 @@ describe("Funcionário - Casos de Uso", () => {
 
     it("Deve impedir deleção cruzada (Multi-tenancy)", async () => {
       const useCase = new DeletarFuncionarioUseCase(repository);
-      (repository.buscarPorId as any).mockResolvedValueOnce(new Usuario({ id: "f1", nome: "X", email: "x@x.com", cargo: "CAIXA", empresaId: "outra" }));
+      (repository.buscarPorId as any).mockResolvedValueOnce(new Usuario({ id: "f1", nome: "X", email: "x@x.com", cargo: "CAIXA", empresaId: "outra", senhaHash: "hash" }));
       await expect(useCase.execute({ id: "f1", idRequisitante: "dono", empresaIdRequisitante: "empresa-1" })).rejects.toThrow(ErroNaoAutorizado);
     });
   });
@@ -36,7 +36,7 @@ describe("Funcionário - Casos de Uso", () => {
   describe("AtualizarFuncionarioUseCase", () => {
     it("Deve impedir mudança para DONO", async () => {
       const useCase = new AtualizarFuncionarioUseCase(repository);
-      (repository.buscarPorId as any).mockResolvedValueOnce(new Usuario({ id: "f1", nome: "X", email: "x@x.com", cargo: "CAIXA", empresaId: "emp" }));
+      (repository.buscarPorId as any).mockResolvedValueOnce(new Usuario({ id: "f1", nome: "X", email: "x@x.com", cargo: "CAIXA", empresaId: "emp", senhaHash: "hash" }));
       await expect(useCase.execute({ id: "f1", empresaIdRequisitante: "emp", dados: { cargo: "DONO" } })).rejects.toThrow(ErroEntradaInvalida);
     });
   });

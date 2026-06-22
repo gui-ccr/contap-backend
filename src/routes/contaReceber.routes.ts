@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { ContaReceberController } from '../controllers/ContaReceberController.js';
-import { CriarContaReceberUseCase } from '../usecases/CriarContaReceberUseCase.js';
-import { ListarContasReceberUseCase } from '../usecases/ListarContasReceberUseCase.js';
-import { ReceberContaUseCase } from '../usecases/ReceberContaUseCase.js';
-import { CriarLancamentoUseCase } from '../usecases/CriarLancamentoUseCase.js';
+import { CriarContaReceberUseCase } from '../usecases/conta-receber/CriarContaReceberUseCase.js';
+import { ListarContasReceberUseCase } from '../usecases/conta-receber/ListarContasReceberUseCase.js';
+import { ReceberContaUseCase } from '../usecases/conta-receber/ReceberContaUseCase.js';
+import { CriarLancamentoUseCase } from '../usecases/lancamento/CriarLancamentoUseCase.js';
 import { SupabaseContaReceberRepository } from '../core/domain/repository/conta-receber/SupabaseContaRepository.js';
 import { SupabaseLancamentoRepository } from '../core/domain/repository/lancamento/SupabaseLancamentoRepository.js';
 import { SupabasePlanoContaRepository } from '../core/domain/repository/plano-conta/SupabasePlanoContaRepository.js';

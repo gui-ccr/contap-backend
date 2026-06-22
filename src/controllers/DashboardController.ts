@@ -1,8 +1,9 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
 import { ErroEntradaInvalida } from "../core/errors/AppErrors.js";
-import { SupabaseLancamentoRepository } from "../core/domain/repository/lancamento/SupabaseLancamentoRepository.js";
-import { SupabaseContaReceberRepository } from "../core/domain/repository/conta-receber/SupabaseContaRepository.js";
+import { SupabaseDashboardRepository } from "../core/domain/repository/dashboard/SupabaseDashboardRepository.js";
+import { ObterResumoDashboardUseCase } from "../usecases/dashboard/ObterResumoDashboardUseCase.js";
+import { dashboardResumoQuerySchema } from "../schemas/Dashboard.schema.js";
 
 function extrairEmpresaId(req: Request): string {
   const { empresaId } = (req as IRequestAutenticado).usuario;
@@ -12,38 +13,24 @@ function extrairEmpresaId(req: Request): string {
   return empresaId;
 }
 
-const lancamentoRepository = new SupabaseLancamentoRepository();
-const contaReceberRepository = new SupabaseContaReceberRepository();
+const dashboardRepository = new SupabaseDashboardRepository();
 
 export class DashboardController {
   async resumo(req: Request, res: Response, next: NextFunction) {
     try {
       const empresaId = extrairEmpresaId(req);
+      const { dataInicio, dataFim } = dashboardResumoQuerySchema.parse(req.query);
+      const useCase = new ObterResumoDashboardUseCase(dashboardRepository);
 
-      // Fetch basic metrics
-      const lancamentos = await lancamentoRepository.listarPorEmpresa(empresaId);
-      const contasReceber = await contaReceberRepository.listarPorEmpresa(empresaId);
-
-      const totalLancamentos = lancamentos.length;
-      
-      let valorTotalReceberPendente = 0;
-      let valorTotalRecebido = 0;
-
-      for (const conta of contasReceber) {
-        if (conta.recebido) {
-          valorTotalRecebido += Number(conta.valor);
-        } else {
-          valorTotalReceberPendente += Number(conta.valor);
-        }
-      }
+      const resumo = await useCase.execute({
+        empresaId,
+        ...(dataInicio !== undefined && { dataInicio: new Date(dataInicio) }),
+        ...(dataFim !== undefined && { dataFim: new Date(dataFim) }),
+      });
 
       return res.status(200).json({
         status: "success",
-        data: {
-          totalLancamentos,
-          valorTotalReceberPendente: Number(valorTotalReceberPendente.toFixed(2)),
-          valorTotalRecebido: Number(valorTotalRecebido.toFixed(2)),
-        },
+        data: resumo,
       });
     } catch (err) {
       next(err);

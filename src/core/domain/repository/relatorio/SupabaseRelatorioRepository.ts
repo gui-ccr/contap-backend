@@ -8,7 +8,7 @@ interface PartidaRow {
   valor: number;
   tipo: "D" | "C";
   lancamentos: { data_lancamento: string; empresa_id: string };
-  plano_contas: { codigo: string; nome: string; natureza: string };
+  plano_contas: { codigo: string; nome: string; tipo: "ATIVO" | "PASSIVO" | "PL" | "RECEITA" | "DESPESA" };
 }
 
 export class SupabaseRelatorioRepository implements IRelatorioRepository {
@@ -23,12 +23,12 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
         valor,
         tipo,
         lancamentos!inner(data_lancamento, empresa_id),
-        plano_contas!inner(codigo, nome, natureza)
+        plano_contas!inner(codigo, nome, tipo)
       `)
       .eq("lancamentos.empresa_id", empresaId)
       .gte("lancamentos.data_lancamento", dataInicio.toISOString())
       .lte("lancamentos.data_lancamento", dataFim.toISOString())
-      .in("plano_contas.natureza", ["RECEITA", "DESPESA"]);
+      .in("plano_contas.tipo", ["RECEITA", "DESPESA"]);
 
     if (error) {
       throw new ErroBancoDeDados(`Erro ao buscar saldos de resultado: ${error.message}`);
@@ -40,8 +40,8 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
     for (const row of data as any[]) {
       const p = row as PartidaRow;
       const cod = p.plano_contas.codigo;
-      const isReceita = p.plano_contas.natureza === "RECEITA";
-      const isDespesa = p.plano_contas.natureza === "DESPESA";
+      const isReceita = p.plano_contas.tipo === "RECEITA";
+      const isDespesa = p.plano_contas.tipo === "DESPESA";
 
       let mapToUse = isReceita ? receitasMap : isDespesa ? despesasMap : null;
       if (!mapToUse) continue;
@@ -82,11 +82,11 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
         valor,
         tipo,
         lancamentos!inner(data_lancamento, empresa_id),
-        plano_contas!inner(codigo, nome, natureza)
+        plano_contas!inner(codigo, nome, tipo)
       `)
       .eq("lancamentos.empresa_id", empresaId)
       .lte("lancamentos.data_lancamento", dataBase.toISOString())
-      .in("plano_contas.natureza", ["ATIVO", "PASSIVO", "PATRIMONIO_LIQUIDO"]);
+      .in("plano_contas.tipo", ["ATIVO", "PASSIVO", "PL"]);
 
     if (error) {
       throw new ErroBancoDeDados(`Erro ao buscar saldos patrimoniais: ${error.message}`);
@@ -99,12 +99,12 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
     for (const row of data as any[]) {
       const p = row as PartidaRow;
       const cod = p.plano_contas.codigo;
-      const natureza = p.plano_contas.natureza;
+      const natureza = p.plano_contas.tipo;
 
       let mapToUse;
       if (natureza === "ATIVO") mapToUse = ativosMap;
       else if (natureza === "PASSIVO") mapToUse = passivosMap;
-      else if (natureza === "PATRIMONIO_LIQUIDO") mapToUse = plMap;
+      else if (natureza === "PL") mapToUse = plMap;
       else continue;
 
       if (!mapToUse.has(cod)) {

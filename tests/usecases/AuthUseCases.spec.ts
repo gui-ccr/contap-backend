@@ -12,7 +12,7 @@ describe("Auth & Registro - Casos de Uso", () => {
       const repo = mockUsuarioRepo();
       (repo.loginAuth as any).mockRejectedValue(new ErroNaoAutorizado("Email ou senha incorretos."));
       const useCase = new LoginUseCase(repo);
-      await expect(useCase.execute({ email: "x@x.com", senha: "y" })).rejects.toThrow(ErroNaoAutorizado);
+      await expect(useCase.execute({ email: "x@x.com", senhaLimpa: "y" })).rejects.toThrow(ErroNaoAutorizado);
     });
   });
 
