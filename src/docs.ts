@@ -975,6 +975,13 @@ export const getDocsHtml = () => `
         <!-- Sidebar Navigation -->
         <aside class="hidden lg:block fixed w-72 h-[calc(100vh-73px)] bg-transparent overflow-y-auto pb-10">
             <div class="p-6">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Primeiros Passos</p>
+                <nav class="space-y-1.5 mb-6">
+                    <a href="#comecando" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-darkCard transition group" data-target="comecando">
+                        <svg class="w-5 h-5 group-hover:text-slate-900 dark:group-hover:text-white transition" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                        Como Usar a API
+                    </a>
+                </nav>
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Módulos</p>
                 <nav class="space-y-1.5">
 ${MODULOS.map(renderSidebarLink).join("\n")}
@@ -996,6 +1003,136 @@ ${MODULOS.map(renderSidebarLink).join("\n")}
                     Não há prefixo <code class="bg-slate-200 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">/api</code> — as rotas abaixo são montadas diretamente na raiz da aplicação. Rotas marcadas como <strong>Token JWT Requerido</strong> exigem o header <code class="bg-slate-200 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">Authorization: Bearer &lt;token&gt;</code> obtido em <code class="bg-slate-200 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">POST /auth/login</code>.
                 </div>
             </header>
+
+            <!-- ================= MODULE: COMO USAR ================= -->
+            <section id="comecando" class="scroll-mt-28 mb-20">
+                <div class="flex items-center gap-4 mb-6 border-b border-lightBorder dark:border-darkBorder pb-4">
+                    <div class="p-2.5 bg-brand/10 rounded-xl text-brand">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Como Usar a API</h2>
+                </div>
+                <p class="text-slate-600 dark:text-slate-400 mb-10 leading-relaxed">
+                    Guia rápido para quem nunca consumiu uma API antes. Em resumo: o frontend faz requisições HTTP para uma URL, manda dados em JSON, e recebe uma resposta em JSON de volta. É só isso.
+                </p>
+
+                <article class="bg-lightCard dark:bg-darkCard rounded-2xl border border-lightBorder dark:border-darkBorder shadow-sm mb-8 overflow-hidden">
+                    <div class="p-6 lg:p-8">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-brand" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            1. Qual URL usar
+                        </h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                            Toda chamada à API começa com esta URL base (já em produção, sem precisar rodar nada localmente):
+                        </p>
+                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner mb-4">https://contup-api.vercel.app</pre>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Cada endpoint deste documento é só um "caminho" que vai depois dessa URL. Por exemplo, o endpoint <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">POST /auth/login</code> deve ser chamado em:
+                        </p>
+                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner mt-4">https://contup-api.vercel.app/auth/login</pre>
+                        <div class="mt-6 p-4 rounded-xl bg-slate-100 dark:bg-[#15181e] border border-lightBorder dark:border-darkBorder text-sm text-slate-600 dark:text-slate-300">
+                            Dica: salve essa URL numa variável de ambiente do projeto frontend (ex: <code class="bg-slate-200 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">NEXT_PUBLIC_API_URL</code>) em vez de espalhar o link fixo pelo código. Assim, se a URL mudar um dia, você troca em um lugar só.
+                        </div>
+                    </div>
+                </article>
+
+                <article class="bg-lightCard dark:bg-darkCard rounded-2xl border border-lightBorder dark:border-darkBorder shadow-sm mb-8 overflow-hidden">
+                    <div class="p-6 lg:p-8">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-brand" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                            2. Como fazer uma requisição
+                        </h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                            Use o <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">fetch</code> (já existe no navegador, não precisa instalar nada) ou uma biblioteca como <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">axios</code>. Exemplo de login com <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">fetch</code>:
+                        </p>
+                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner">${k("const")} resposta = ${k("await")} fetch(${v('"https://contup-api.vercel.app/auth/login"')}, {
+  ${k("method")}: ${v('"POST"')},
+  ${k("headers")}: { ${v('"Content-Type"')}: ${v('"application/json"')} },
+  ${k("body")}: JSON.stringify({
+    email: ${v('"carlos@acmecorp.com"')},
+    senha: ${v('"senha123"')}
+  })
+});
+
+${k("const")} dados = ${k("await")} resposta.json();
+console.log(dados);
+${'/* { status: "success", data: { token: "...", usuario: {...} } } */'}</pre>
+                        <ul class="list-disc list-inside space-y-1 text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-4">
+                            <li><code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">method</code>: o verbo HTTP do endpoint (GET, POST, PUT, PATCH ou DELETE — está indicado em cada endpoint deste documento).</li>
+                            <li><code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">headers</code>: sempre envie <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">Content-Type: application/json</code> quando enviar um body.</li>
+                            <li><code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">body</code>: só existe em POST/PUT/PATCH. Tem que ser uma string JSON — por isso o <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">JSON.stringify(...)</code>.</li>
+                            <li>Em endpoints <strong>GET</strong>, não existe body — parâmetros vão na própria URL (query params), ex: <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">/relatorios/dre?dataInicio=2026-06-01&dataFim=2026-06-23</code>.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="bg-lightCard dark:bg-darkCard rounded-2xl border border-lightBorder dark:border-darkBorder shadow-sm mb-8 overflow-hidden">
+                    <div class="p-6 lg:p-8">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-brand" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                            3. Como funciona o login (token)
+                        </h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                            A maioria dos endpoints exige que o usuário esteja "logado". O fluxo é sempre o mesmo:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                            <li>Chame <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">POST /auth/login</code> com e-mail e senha.</li>
+                            <li>A resposta traz um <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">token</code> (uma string longa, tipo uma "senha temporária"). Guarde esse token (ex: em <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">localStorage</code>).</li>
+                            <li>Em <strong>toda</strong> próxima requisição para um endpoint que exige autenticação (marcado como <span class="px-2 py-0.5 text-xs font-bold bg-brand/20 text-brand-dark dark:text-brand rounded">Token JWT Requerido</span> neste documento), envie esse token no header <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">Authorization</code>, no formato <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">Bearer &lt;token&gt;</code>.</li>
+                        </ol>
+                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner">${k("const")} token = localStorage.getItem(${v('"token"')});
+
+${k("const")} resposta = ${k("await")} fetch(${v('"https://contup-api.vercel.app/funcionarios"')}, {
+  ${k("headers")}: {
+    ${v('"Authorization"')}: \`Bearer \${token}\`
+  }
+});</pre>
+                        <div class="mt-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/40">
+                            <p class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 mb-2">Esqueceu o token?</p>
+                            <p class="text-xs text-amber-800 dark:text-amber-300/90 leading-relaxed">Se você esquecer de mandar o header <code>Authorization</code>, ou mandar um token errado/expirado, a API responde <code>401</code> com <code>code: "NAO_AUTORIZADO"</code>. Esse costuma ser o primeiro erro que todo mundo vê na primeira tentativa — é só verificar se o token foi salvo e enviado certinho.</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="bg-lightCard dark:bg-darkCard rounded-2xl border border-lightBorder dark:border-darkBorder shadow-sm mb-8 overflow-hidden">
+                    <div class="p-6 lg:p-8">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                            4. Como identificar erros
+                        </h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                            Quando algo dá errado, a API quase sempre responde nesse formato (junto com um status HTTP de erro, como 400, 401, 404 etc.):
+                        </p>
+                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner">{
+  ${k("status")}: ${v('"error"')},
+  ${k("code")}: ${v('"ENTRADA_INVALIDA"')},
+  ${k("message")}: ${v('"Dados invalidos."')}
+}</pre>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed mt-4">
+                            Na prática, basta checar se <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">status === "success"</code> para saber se deu certo, e usar o campo <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">message</code> para mostrar um aviso amigável ao usuário caso dê erro.
+                        </p>
+                        <div class="mt-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/40">
+                            <p class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 mb-2">Atenção</p>
+                            <p class="text-xs text-amber-800 dark:text-amber-300/90 leading-relaxed">Alguns endpoints específicos (indicados nas seções de cada módulo abaixo, ex: <code>contas-receber</code> e <code>lançamentos</code>) não seguem exatamente esse formato — sempre confira a seção "Possíveis Erros" do endpoint que você está usando.</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="bg-lightCard dark:bg-darkCard rounded-2xl border border-lightBorder dark:border-darkBorder shadow-sm overflow-hidden">
+                    <div class="p-6 lg:p-8">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-brand" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11H1l8-8 8 8h-8z"/><path d="M9 11v10"/></svg>
+                            5. Resumo do fluxo completo
+                        </h3>
+                        <ol class="list-decimal list-inside space-y-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            <li>Cadastrar o dono em <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">POST /auth/registrar-dono</code> (só na primeira vez, uma vez por empresa).</li>
+                            <li>Fazer login em <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">POST /auth/login</code> e guardar o <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">token</code>.</li>
+                            <li>Criar a empresa em <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">POST /empresas</code> (gera o plano de contas padrão automaticamente).</li>
+                            <li>A partir daqui, usar o token em todas as chamadas para os demais módulos: funcionários, plano de contas, lançamentos, contas a receber, relatórios e dashboard.</li>
+                        </ol>
+                    </div>
+                </article>
+            </section>
 
 ${MODULOS.map(renderModuloSection).join("\n")}
 
