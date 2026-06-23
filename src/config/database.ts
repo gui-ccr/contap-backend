@@ -7,6 +7,9 @@ if (!supabaseUrl || !supabaseKey) {
   console.error("⚠️ Faltam as variáveis de ambiente do Supabase no arquivo .env!");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(
+  supabaseUrl || 'https://mocked.supabase.co', 
+  supabaseKey || 'mock-key'
+);
 
 console.log("📦 Conexão com o Supabase inicializada com sucesso!");
