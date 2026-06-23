@@ -1,4 +1,4 @@
-import type { ILancamentoRepository } from "../../core/domain/repository/lancamento/ILancamentoRepository";
+import type { ILancamentoRepository } from "../../core/domain/repository/lancamento/ILancamentoRepository.js";
 
 export class ListarLancamentosUseCase {
   constructor(private lancamentosRepository: ILancamentoRepository) {}

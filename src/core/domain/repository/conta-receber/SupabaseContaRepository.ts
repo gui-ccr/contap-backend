@@ -1,7 +1,7 @@
 import {
   type IContaReceber,
   type IContaReceberRepository,
-} from "./IContaReceberRepository";
+} from "./IContaReceberRepository.js";
 import { supabase } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
