@@ -1167,6 +1167,20 @@ ${MODULOS.map(renderModuloSection).join("\n")}
         const setActive = (id) => {
             navLinks.forEach((l) => l.classList.toggle('active', l.dataset.target === id));
         };
+
+        // Smooth scroll sem alterar a URL com o # do id
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('data-target');
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    // O scroll-mt-28 no CSS já garante a margem no topo
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
         if ('IntersectionObserver' in window) {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
