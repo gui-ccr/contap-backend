@@ -16,6 +16,19 @@ Diferente de uma API comum, este backend não apenas salva dados; ele valida a *
 
 ---
 
+## 📖 Documentação Interativa da API
+
+Nossa API possui uma **documentação viva e completa** construída nativamente na aplicação (servida diretamente na rota raiz `/`). 
+
+* **Interface Premium**: Design responsivo com suporte a Tema Escuro (Dark Mode) e Claro (Light Mode).
+* **Navegação Fluida**: Menu lateral em computadores e Hamburger Menu otimizado para dispositivos móveis.
+* **Tudo Documentado**: Detalhamento de todos os endpoints, rotas de Autenticação (JWT), payloads de requisição/resposta (em formato JSON) e estruturas de entidades.
+
+**🌐 Acesse online (Produção Vercel)**: [https://contap-backend-3oovciu8k-batterspaces-projects.vercel.app](https://contap-backend-3oovciu8k-batterspaces-projects.vercel.app)
+*(Observação: domínios personalizados como `contup-api.vercel.app` podem levar algum tempo para propagar o DNS. Caso encontre problemas de conexão na sua rede, experimente o link direto do build acima).*
+
+---
+
 ## 🧠 Regras Contábeis Obrigatórias
 
 O Backend é o responsável por implementar e validar os seguintes pontos exigidos pelo projeto:
