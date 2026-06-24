@@ -139,33 +139,30 @@ const renderEndpoint = (ep: Endpoint): string => {
 
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                             <div class="min-w-0">
-                                ${
-                                  ep.pathParams
-                                    ? `<h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                ${ep.pathParams
+      ? `<h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                                     <svg class="w-4 h-4 text-brand" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m12 16 4-4-4-4"/><path d="M8 12h8"/></svg>
                                     Parâmetros de Rota
                                 </h3>${camposTabela(ep.pathParams, "Sem parâmetros de rota.")}`
-                                    : ""
-                                }
-                                ${
-                                  ep.queryParams
-                                    ? `<h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+      : ""
+    }
+                                ${ep.queryParams
+      ? `<h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                                     <svg class="w-4 h-4 text-brand" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                                     Query Params
                                 </h3>${camposTabela(ep.queryParams, "Sem parâmetros de query.")}`
-                                    : ""
-                                }
+      : ""
+    }
                                 <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                                     <svg class="w-4 h-4 text-brand" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
                                     Body (JSON)
                                 </h3>
                                 ${camposTabela(ep.body, "Sem corpo de requisição.")}
-                                ${
-                                  ep.bodyExemplo
-                                    ? `<h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Exemplo</h4>
+                                ${ep.bodyExemplo
+      ? `<h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Exemplo</h4>
                                 <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner">${ep.bodyExemplo}</pre>`
-                                    : ""
-                                }
+      : ""
+    }
                             </div>
 
                             <div class="min-w-0">
@@ -959,12 +956,9 @@ export const getDocsHtml = () => `
                 </span>
             </div>
 
-            <div class="flex items-center gap-4">
-                <button id="theme-toggle" class="p-2 rounded-xl bg-slate-100 dark:bg-darkCard hover:bg-slate-200 dark:hover:bg-darkBorder transition text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-200 dark:ring-darkBorder" title="Alternar Tema">
-                    <!-- Moon Icon -->
-                    <svg class="w-5 h-5 hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-                    <!-- Sun Icon -->
-                    <svg class="w-5 h-5 block dark:hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <div class="flex items-center gap-3 lg:gap-4">
+                <button id="mobile-menu-btn" class="flex lg:hidden items-center justify-center p-2 rounded-xl bg-slate-100 dark:bg-darkCard hover:bg-slate-200 dark:hover:bg-darkBorder transition text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-200 dark:ring-darkBorder" title="Menu">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                 </button>
             </div>
         </div>
@@ -972,9 +966,12 @@ export const getDocsHtml = () => `
 
     <div class="flex pt-[73px] max-w-[1600px] mx-auto">
 
+        <!-- Mobile Overlay -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/50 dark:bg-black/50 z-30 hidden lg:hidden backdrop-blur-sm transition-opacity mt-[73px]"></div>
+
         <!-- Sidebar Navigation -->
-        <aside class="hidden lg:block fixed w-72 h-[calc(100vh-73px)] bg-transparent overflow-y-auto pb-10">
-            <div class="p-6">
+        <aside id="sidebar" class="fixed z-40 w-72 h-[calc(100vh-73px)] bg-lightCard dark:bg-darkBg lg:bg-transparent flex flex-col border-r border-lightBorder dark:border-darkBorder lg:border-none transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div class="p-6 flex-1 overflow-y-auto custom-scrollbar pb-10">
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Primeiros Passos</p>
                 <nav class="space-y-1.5 mb-6">
                     <a href="#comecando" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-darkCard transition group" data-target="comecando">
@@ -986,6 +983,17 @@ export const getDocsHtml = () => `
                 <nav class="space-y-1.5">
 ${MODULOS.map(renderSidebarLink).join("\n")}
                 </nav>
+            </div>
+            
+            <!-- Theme Toggle -->
+            <div class="p-6 shrink-0 border-t border-lightBorder dark:border-darkBorder lg:border-transparent mt-auto bg-lightCard lg:bg-transparent dark:bg-darkBg">
+                <button id="theme-toggle" class="w-full flex items-center justify-center gap-3 p-3 rounded-xl bg-slate-100 dark:bg-darkCard hover:bg-slate-200 dark:hover:bg-darkBorder transition text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-200 dark:ring-darkBorder" title="Alternar Tema">
+                    <!-- Moon Icon -->
+                    <svg class="w-5 h-5 hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                    <!-- Sun Icon -->
+                    <svg class="w-5 h-5 block dark:hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                    <span class="font-medium text-sm">Alternar Tema</span>
+                </button>
             </div>
         </aside>
 
@@ -1141,7 +1149,18 @@ ${MODULOS.map(renderModuloSection).join("\n")}
 
     <script>
         const themeToggleBtn = document.getElementById('theme-toggle');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
         const html = document.documentElement;
+
+        const toggleSidebar = () => {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        };
+
+        mobileMenuBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
 
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'light') {
@@ -1177,6 +1196,10 @@ ${MODULOS.map(renderModuloSection).join("\n")}
                 if (targetSection) {
                     // O scroll-mt-28 no CSS já garante a margem no topo
                     targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                // Close sidebar on mobile
+                if (window.innerWidth < 1024 && !sidebar.classList.contains('-translate-x-full')) {
+                    toggleSidebar();
                 }
             });
         });
