@@ -1,25 +1,17 @@
-export interface IResumoContasReceber {
-  valorTotalReceberPendente: number;
-  valorTotalRecebido: number;
-}
-
-export interface IResumoResultado {
-  totalReceitas: number;
-  totalDespesas: number;
-  resultadoLiquido: number;
-}
-
-export interface IResumoDashboard {
-  totalLancamentos: number;
-  valorTotalReceberPendente: number;
-  valorTotalRecebido: number;
-  totalReceitas: number;
-  totalDespesas: number;
-  resultadoLiquido: number;
-}
+import type {
+  IDesempenhoMensal,
+  IFluxoCaixa,
+  IMovimentacaoRecente,
+  IPendenciaOperacional,
+  IReceitaCategoria,
+  IResumoDashboard,
+} from "../../entities/Dashboard.entity.js";
 
 export interface IDashboardRepository {
-  contarLancamentos(empresaId: string): Promise<number>;
-  obterResumoContasReceber(empresaId: string): Promise<IResumoContasReceber>;
-  obterResumoResultado(empresaId: string, dataInicio?: Date, dataFim?: Date): Promise<IResumoResultado>;
+  resumoMes(empresaId: string, mes: number, ano: number): Promise<IResumoDashboard>;
+  desempenhoAnual(empresaId: string, ano: number): Promise<IDesempenhoMensal[]>;
+  receitaPorCategoria(empresaId: string, mes: number, ano: number): Promise<IReceitaCategoria[]>;
+  fluxoCaixa(empresaId: string, dataInicio: string, dataFim: string): Promise<IFluxoCaixa[]>;
+  movimentacoesRecentes(empresaId: string, limite: number): Promise<IMovimentacaoRecente[]>;
+  pendenciasOperacionais(empresaId: string): Promise<IPendenciaOperacional[]>;
 }

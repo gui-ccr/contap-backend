@@ -2,8 +2,8 @@ import { type Request, type Response, type NextFunction } from "express";
 import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
 import { ErroEntradaInvalida } from "../core/errors/AppErrors.js";
 import { SupabaseDashboardRepository } from "../core/domain/repository/dashboard/SupabaseDashboardRepository.js";
-import { ObterResumoDashboardUseCase } from "../usecases/dashboard/ObterResumoDashboardUseCase.js";
-import { dashboardResumoQuerySchema } from "../schemas/Dashboard.schema.js";
+import { DashboardUseCases } from "../usecases/dashboard/DashboardUseCases.js";
+import { dashboardResumoQuerySchema, dashboardFluxoCaixaQuerySchema } from "../schemas/Dashboard.schema.js";
 
 function extrairEmpresaId(req: Request): string {
   const { empresaId } = (req as IRequestAutenticado).usuario;
@@ -14,23 +14,46 @@ function extrairEmpresaId(req: Request): string {
 }
 
 const dashboardRepository = new SupabaseDashboardRepository();
+const useCases = new DashboardUseCases(dashboardRepository);
 
 export class DashboardController {
   async resumo(req: Request, res: Response, next: NextFunction) {
     try {
       const empresaId = extrairEmpresaId(req);
-      const { dataInicio, dataFim } = dashboardResumoQuerySchema.parse(req.query);
-      const useCase = new ObterResumoDashboardUseCase(dashboardRepository);
+      const query = dashboardResumoQuerySchema.parse(req.query);
+      
+      const dataAtual = new Date();
+      const mes = query.mes || (dataAtual.getMonth() + 1);
+      const ano = query.ano || dataAtual.getFullYear();
 
-      const resumo = await useCase.execute({
-        empresaId,
-        ...(dataInicio !== undefined && { dataInicio: new Date(dataInicio) }),
-        ...(dataFim !== undefined && { dataFim: new Date(dataFim) }),
-      });
+      const resultado = await useCases.obterResumo(empresaId, mes, ano);
 
       return res.status(200).json({
         status: "success",
-        data: resumo,
+        data: resultado,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async fluxoCaixa(req: Request, res: Response, next: NextFunction) {
+    try {
+      const empresaId = extrairEmpresaId(req);
+      const query = dashboardFluxoCaixaQuerySchema.parse(req.query);
+      
+      const dataAtual = new Date();
+      const trintaDiasAtras = new Date();
+      trintaDiasAtras.setDate(dataAtual.getDate() - 30);
+      
+      const dataInicio = query.data_inicio || trintaDiasAtras.toISOString().split("T")[0]!;
+      const dataFim = query.data_fim || dataAtual.toISOString().split("T")[0]!;
+
+      const resultado = await useCases.obterFluxoCaixa(empresaId, dataInicio, dataFim);
+
+      return res.status(200).json({
+        status: "success",
+        data: resultado,
       });
     } catch (err) {
       next(err);

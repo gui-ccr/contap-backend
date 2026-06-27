@@ -827,24 +827,55 @@ const MODULOS: Modulo[] = [
         metodo: "GET",
         path: "/dashboard/resumo",
         auth: "Token JWT Requerido",
-        descricao: "Retorna um resumo consolidado da empresa: total de lançamentos, contas a receber pendentes/recebidas e resultado financeiro do período.",
+        descricao: "Retorna o Dashboard completo com resumo financeiro, desempenho anual, receitas por categoria, e métricas operacionais para a tela inicial.",
         queryParams: [
-          { nome: "dataInicio", tipo: "string", obrigatorio: false, descricao: "Qualquer data parseável pelo JS." },
-          { nome: "dataFim", tipo: "string", obrigatorio: false, descricao: "Qualquer data parseável pelo JS." },
+          { nome: "mes", tipo: "number", obrigatorio: false, descricao: "Mês (1-12) para o resumo. Padrão: mês atual." },
+          { nome: "ano", tipo: "number", obrigatorio: false, descricao: "Ano (>= 2020) para o resumo e desempenho. Padrão: ano atual." },
         ],
         respostaStatus: "200 OK",
         respostaExemplo: `{
   ${k("status")}: ${v('"success"')},
   ${k("data")}: {
-    ${k("totalLancamentos")}: ${v("42")},
-    ${k("valorTotalReceberPendente")}: ${v("1500.0")},
-    ${k("valorTotalRecebido")}: ${v("3000.0")},
-    ${k("totalReceitas")}: ${v("4500.0")},
-    ${k("totalDespesas")}: ${v("1200.0")},
-    ${k("resultadoLiquido")}: ${v("3300.0")}
+    ${k("resumo")}: {
+      ${k("saldoConsolidado")}: ${v("21000.00")},
+      ${k("receitasMes")}: ${v("5000.00")},
+      ${k("despesasMes")}: ${v("2000.00")},
+      ${k("lucroLiquido")}: ${v("3000.00")}
+    },
+    ${k("desempenhoAnual")}: [
+      { ${k("mes")}: ${v("1")}, ${k("ano")}: ${v("2026")}, ${k("receitas")}: ${v("5000")}, ${k("despesas")}: ${v("3000")} }
+    ],
+    ${k("receitaPorCategoria")}: [
+      { ${k("categoria")}: ${v('"Vendas"')}, ${k("valor")}: ${v("4000.00")}, ${k("percentual")}: ${v("80")} }
+    ],
+    ${k("movimentacoesRecentes")}: [],
+    ${k("pendenciasOperacionais")}: []
   }
 }`,
-        erros: [{ codigo: "400 ENTRADA_INVALIDA", quando: "Usuário sem empresa vinculada, ou datas em formato inválido." }],
+        erros: [{ codigo: "400 ENTRADA_INVALIDA", quando: "Usuário sem empresa vinculada, ou mês/ano inválidos." }],
+      },
+      {
+        metodo: "GET",
+        path: "/dashboard/fluxo-caixa",
+        auth: "Token JWT Requerido",
+        descricao: "Retorna o extrato diário de fluxo de caixa.",
+        queryParams: [
+          { nome: "data_inicio", tipo: "string", obrigatorio: false, descricao: "Data início (YYYY-MM-DD). Padrão: 30 dias atrás." },
+          { nome: "data_fim", tipo: "string", obrigatorio: false, descricao: "Data fim (YYYY-MM-DD). Padrão: Hoje." },
+        ],
+        respostaStatus: "200 OK",
+        respostaExemplo: `{
+  ${k("status")}: ${v('"success"')},
+  ${k("data")}: [
+    {
+      ${k("data")}: ${v('"2026-06-25"')},
+      ${k("entradas")}: ${v("1500.00")},
+      ${k("saidas")}: ${v("200.00")},
+      ${k("saldoDia")}: ${v("1300.00")}
+    }
+  ]
+}`,
+        erros: [{ codigo: "400 ENTRADA_INVALIDA", quando: "Datas inválidas." }],
       },
     ],
   },
