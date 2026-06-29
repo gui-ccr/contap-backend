@@ -137,6 +137,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
       atualizacao["data_nascimento"] = dados.dataNascimento;
     if (dados.fotoUrl !== undefined) atualizacao["foto_url"] = dados.fotoUrl;
     if (dados.cargo !== undefined) atualizacao["cargo"] = dados.cargo;
+    if (dados.empresaId !== undefined) atualizacao["empresa_id"] = dados.empresaId;
 
     const { data, error } = await supabase
       .from("usuarios")

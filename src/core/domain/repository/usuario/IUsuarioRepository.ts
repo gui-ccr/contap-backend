@@ -7,6 +7,7 @@ export interface IAtualizarFuncionarioInput {
   dataNascimento?: string;
   fotoUrl?: string;
   cargo?: string;
+  empresaId?: string;
 }
 
 export interface IUsuarioRepository {

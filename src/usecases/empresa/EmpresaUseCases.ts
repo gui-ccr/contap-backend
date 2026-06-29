@@ -16,6 +16,7 @@ export interface ICriarEmpresaInput {
   nomeFantasia: string;
   razaoSocial: string;
   cnpj: string;
+  usuarioId: string;
 }
 
 export type IAtualizarEmpresaUseCaseInput = Partial<ICriarEmpresaInput>;
@@ -53,6 +54,7 @@ export class CriarEmpresaUseCase {
   constructor(
     private empresaRepository: IEmpresaRepository,
     private planoContaRepository: IPlanoContaRepository,
+    private usuarioRepository: import("../../core/domain/repository/usuario/IUsuarioRepository.js").IUsuarioRepository,
   ) {}
 
   async execute(input: ICriarEmpresaInput): Promise<ICriarEmpresaOutput> {
@@ -85,6 +87,9 @@ export class CriarEmpresaUseCase {
       }));
 
       const contasCriadas = await this.planoContaRepository.salvarMuitos(contasPadrao);
+
+      // Vincula o usuário à empresa criada
+      await this.usuarioRepository.atualizar(input.usuarioId, { empresaId });
 
       return {
         empresa: empresaSalva,

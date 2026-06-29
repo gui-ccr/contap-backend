@@ -39,13 +39,22 @@ function planoContaDto(planoConta: PlanoConta) {
   };
 }
 
+import { SupabaseUsuarioRepository } from "../core/domain/repository/usuario/SupabaseUsuarioRepository.js";
+import { IRequestAutenticado } from "../middlewares/auth.middleware.js";
+
+const usuarioRepository = new SupabaseUsuarioRepository();
+
 export class EmpresaController {
   async criar(req: Request, res: Response, next: NextFunction) {
     try {
+      const requestAutenticado = req as IRequestAutenticado;
+      const usuarioId = requestAutenticado.usuario.id;
+
       const dadosValidados = criarEmpresaSchema.parse(req.body);
       const criarEmpresaUseCase = new CriarEmpresaUseCase(
         empresaRepository,
         planoContaRepository,
+        usuarioRepository,
       );
 
       const resultado = await criarEmpresaUseCase.execute({
@@ -53,6 +62,7 @@ export class EmpresaController {
         nomeFantasia: dadosValidados.nome_fantasia,
         razaoSocial: dadosValidados.razao_social,
         cnpj: dadosValidados.cnpj,
+        usuarioId,
       });
 
       return res.status(201).json({
