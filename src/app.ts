@@ -6,8 +6,17 @@ import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
 
+const corsOptions = {
+  origin: [
+    "http://localhost:3000",
+    "https://contaup-techbalance.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
 // Habilita o CORS para permitir requisições do Frontend
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
