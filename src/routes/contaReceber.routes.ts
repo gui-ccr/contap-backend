@@ -21,8 +21,8 @@ const receberUseCase = new ReceberContaUseCase(contaReceberRepository, criarLanc
 
 const controller = new ContaReceberController(criarUseCase, listarUseCase, receberUseCase);
 
-contaReceberRoutes.get('/conta-receber', controller.listar);
-contaReceberRoutes.post('/conta-receber', controller.criar);
-contaReceberRoutes.patch('/conta-receber/:id', controller.receber);
+contaReceberRoutes.get('/conta-receber', controller.listar.bind(controller));
+contaReceberRoutes.post('/conta-receber', controller.criar.bind(controller));
+contaReceberRoutes.patch('/conta-receber/:id', controller.receber.bind(controller));
 
 export default contaReceberRoutes;

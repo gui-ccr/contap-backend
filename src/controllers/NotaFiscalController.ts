@@ -21,7 +21,7 @@ export class NotaFiscalController {
 
   listarPorEmpresa = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const empresa_id = req.query.empresa_id as string;
+      const empresa_id = String(req.query.empresa_id ?? "");
       const notas = await this.listarUseCase.executarPorEmpresa(empresa_id);
       return res.status(200).json(notas);
     } catch (error) {
@@ -31,7 +31,7 @@ export class NotaFiscalController {
 
   listarPorReferencia = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { referencia_id } = req.params;
+      const referencia_id = String(req.params.referencia_id ?? "");
       const notas = await this.listarUseCase.executarPorReferencia(referencia_id);
       return res.status(200).json(notas);
     } catch (error) {
@@ -41,7 +41,7 @@ export class NotaFiscalController {
 
   deletar = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id } = req.params;
+      const id = String(req.params.id ?? "");
       await this.notaFiscalRepository.deletar(id);
       return res.status(204).send();
     } catch (error) {

@@ -8,6 +8,7 @@ interface ILoginInput {
 
 interface ILoginOutput {
   token: string;
+  empresa_id: string | null;
   usuario: {
     id: string;
     nome: string;

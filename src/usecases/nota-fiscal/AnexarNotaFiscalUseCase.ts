@@ -28,10 +28,10 @@ export class AnexarNotaFiscalUseCase {
       empresa_id: input.empresa_id,
       tipo_referencia: input.tipo_referencia,
       referencia_id: input.referencia_id,
-      numero_nota: input.numero_nota,
+      numero_nota: input.numero_nota ?? null,
       arquivo_url: input.arquivo_url,
       arquivo_nome: input.arquivo_nome,
-      emitida_em: input.emitida_em,
+      emitida_em: input.emitida_em ?? null,
     });
   }
 }

@@ -12,7 +12,9 @@ export class ContaReceberController {
 
   async criar(req: Request, res: Response, next: NextFunction) {
     try {
-      const resultado = await this.criarContaUseCase.executar(req.body);
+      const { empresaId } = (req as any).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
+      const resultado = await this.criarContaUseCase.executar({ ...req.body, empresa_id: empresaId });
       return res.status(201).json(resultado);
     } catch (error: any) {
       next(error);
@@ -21,9 +23,9 @@ export class ContaReceberController {
 
   async listar(req: Request, res: Response, next: NextFunction) {
     try {
-      // Pega o ID da empresa vindo da URL (ex: ?empresa_id=123)
-      const empresa_id = req.query.empresa_id as string;
-      const resultado = await this.listarContasUseCase.executar(empresa_id);
+      const { empresaId } = (req as any).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
+      const resultado = await this.listarContasUseCase.executar(empresaId);
       return res.status(200).json(resultado);
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
