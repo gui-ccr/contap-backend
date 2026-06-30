@@ -7,6 +7,8 @@ import { funcionarioRoutes } from './funcionario.routes.js';
 import contaReceberRoutes from './contaReceber.routes.js';
 import { relatorioRoutes } from './relatorio.routes.js';
 import { dashboardRoutes } from './dashboard.routes.js';
+import { notaFiscalRoutes } from './notaFiscal.routes.js';
+import { contaPagarRoutes } from './contaPagar.routes.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const routes = Router();
@@ -20,7 +22,9 @@ routes.use('/lancamentos', authMiddleware, lancamentoRoutes);
 routes.use('/plano-contas', authMiddleware, planoContaRoutes);
 routes.use('/funcionarios', authMiddleware, funcionarioRoutes);
 routes.use('/contas-receber', authMiddleware, contaReceberRoutes);
+routes.use('/contas-pagar', authMiddleware, contaPagarRoutes);
 routes.use('/relatorios', authMiddleware, relatorioRoutes);
 routes.use('/dashboard', authMiddleware, dashboardRoutes);
+routes.use('/notas-fiscais', authMiddleware, notaFiscalRoutes);
 
 export { routes };
