@@ -40,7 +40,7 @@ function planoContaDto(planoConta: PlanoConta) {
 }
 
 import { SupabaseUsuarioRepository } from "../core/domain/repository/usuario/SupabaseUsuarioRepository.js";
-import { IRequestAutenticado } from "../middlewares/auth.middleware.js";
+import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
 
 const usuarioRepository = new SupabaseUsuarioRepository();
 

@@ -206,7 +206,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
       .select(`
         id,
         valor, tipo,
-        lancamentos!inner(data_lancamento, historico, empresa_id),
+        lancamentos!inner(data_lancamento, descricao, empresa_id),
         plano_contas!inner(tipo)
       `)
       .eq("lancamentos.empresa_id", empresaId)
@@ -221,22 +221,19 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
     return (data || []).map((row: any) => ({
       id: row.id,
       data: row.lancamentos.data_lancamento,
-      descricao: row.lancamentos.historico || "Sem histórico",
+      descricao: row.lancamentos.descricao || "Sem descrição",
       valor: arredondarMoeda(Number(row.valor)),
       tipo: row.plano_contas.tipo,
     }));
   }
 
   async pendenciasOperacionais(empresaId: string): Promise<IPendenciaOperacional[]> {
-    // Contas a receber não liquidadas
     const { data, error } = await supabase
       .from("contas_receber")
-      .select(`
-        id, valor, vencimento, historico, clientes!inner(nome)
-      `)
+      .select(`id, valor, data_previsao, origem`)
       .eq("empresa_id", empresaId)
       .eq("recebido", false)
-      .order("vencimento", { ascending: true })
+      .order("data_previsao", { ascending: true })
       .limit(10);
 
     if (error) {
@@ -245,10 +242,10 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
 
     return (data || []).map((row: any) => ({
       id: row.id,
-      descricao: row.historico || "Recebimento",
+      descricao: row.origem || "Recebimento pendente",
       valor: arredondarMoeda(Number(row.valor)),
-      vencimento: row.vencimento,
-      cliente: row.clientes?.nome || "Cliente Não Identificado",
+      vencimento: row.data_previsao,
+      cliente: "—",
     }));
   }
 }

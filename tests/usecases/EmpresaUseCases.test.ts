@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Empresa } from "../../src/core/domain/entities/Empresa.entity.js";
 import { PlanoConta } from "../../src/core/domain/entities/PlanoConta.entity.js";
+import { Usuario } from "../../src/core/domain/entities/Usuarios.entity.js";
 import {
   type IAtualizarEmpresaInput,
   type IEmpresaRepository,
@@ -9,6 +10,7 @@ import {
   type IAtualizarPlanoContaInput,
   type IPlanoContaRepository,
 } from "../../src/core/domain/repository/plano-conta/IPlanoContaRepository.js";
+import { type IUsuarioRepository, type IAtualizarFuncionarioInput } from "../../src/core/domain/repository/usuario/IUsuarioRepository.js";
 import {
   CriarEmpresaUseCase,
   planoContasPadrao,
@@ -127,17 +129,39 @@ class PlanoContaRepositoryFake implements IPlanoContaRepository {
   }
 }
 
+class UsuarioRepositoryFake implements IUsuarioRepository {
+  usuarios = new Map<string, Usuario>();
+
+  async registrarAuth(_email: string, _senha: string): Promise<string> { return "usuario-1"; }
+  async loginAuth(_email: string, _senha: string): Promise<any> { return {}; }
+  async salvar(usuario: Usuario): Promise<void> { this.usuarios.set(usuario.id, usuario); }
+  async buscarPorId(id: string): Promise<Usuario | null> { return this.usuarios.get(id) ?? null; }
+  async buscarPorEmail(_email: string): Promise<Usuario | null> { return null; }
+  async listar(_empresaId: string): Promise<Usuario[]> { return []; }
+  async atualizar(id: string, dados: IAtualizarFuncionarioInput): Promise<Usuario | null> {
+    const u = this.usuarios.get(id);
+    if (!u) return null;
+    const atualizado = new Usuario({ id: u.id, nome: u.nome, email: u.email, cargo: u.cargo, senhaHash: "", ...(dados.empresaId && { empresaId: dados.empresaId }) });
+    this.usuarios.set(id, atualizado);
+    return atualizado;
+  }
+  async deletar(_id: string): Promise<Usuario | null> { return null; }
+}
+
 describe("CriarEmpresaUseCase", () => {
   it("cria a empresa e insere as 15 contas contabeis padrao vinculadas ao empresa_id", async () => {
     const empresaRepository = new EmpresaRepositoryFake();
     const planoContaRepository = new PlanoContaRepositoryFake();
-    const useCase = new CriarEmpresaUseCase(empresaRepository, planoContaRepository);
+    const usuarioRepository = new UsuarioRepositoryFake();
+    await usuarioRepository.salvar(new Usuario({ id: "usuario-1", nome: "Dono", email: "dono@test.com", cargo: "DONO", senhaHash: "" }));
+    const useCase = new CriarEmpresaUseCase(empresaRepository, planoContaRepository, usuarioRepository);
 
     const resultado = await useCase.execute({
       nome: "Pizzaria ContaAp",
       nomeFantasia: "ContaAp Pizza",
       razaoSocial: "Pizzaria ContaAp LTDA",
       cnpj: "12345678000199",
+      usuarioId: "usuario-1",
     });
 
     expect(resultado.empresa.id).toBe("empresa-1");
@@ -152,14 +176,17 @@ describe("CriarEmpresaUseCase", () => {
   it("remove a empresa criada se falhar ao inserir as contas padrao", async () => {
     const empresaRepository = new EmpresaRepositoryFake();
     const planoContaRepository = new PlanoContaRepositoryFake();
+    const usuarioRepository = new UsuarioRepositoryFake();
+    await usuarioRepository.salvar(new Usuario({ id: "usuario-1", nome: "Dono", email: "dono@test.com", cargo: "DONO", senhaHash: "" }));
     planoContaRepository.deveFalharAoSalvarMuitos = true;
-    const useCase = new CriarEmpresaUseCase(empresaRepository, planoContaRepository);
+    const useCase = new CriarEmpresaUseCase(empresaRepository, planoContaRepository, usuarioRepository);
 
     await expect(useCase.execute({
       nome: "Pizzaria ContaAp",
       nomeFantasia: "ContaAp Pizza",
       razaoSocial: "Pizzaria ContaAp LTDA",
       cnpj: "12345678000199",
+      usuarioId: "usuario-1",
     })).rejects.toThrow("Falha ao criar plano de contas");
 
     expect(empresaRepository.deletados).toContain("empresa-1");
