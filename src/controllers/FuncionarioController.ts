@@ -1,28 +1,26 @@
 import { type Request, type Response, type NextFunction } from "express";
-import { SupabaseUsuarioRepository } from "../core/domain/repository/usuario/SupabaseUsuarioRepository.js";
+import { SupabaseFuncionarioRepository } from "../core/domain/repository/funcionario/SupabaseFuncionarioRepository.js";
 import {
+  CriarFuncionarioUseCase,
   ListarFuncionariosUseCase,
   BuscarFuncionarioPorIdUseCase,
   AtualizarFuncionarioUseCase,
   DeletarFuncionarioUseCase,
 } from "../usecases/funcionario/FuncionarioUseCases.js";
-import { atualizarFuncionarioSchema, funcionarioIdParamSchema } from "../schemas/Usuarios.schema.js";
+import { atualizarFuncionarioSchema, registrarFuncionarioSchema, funcionarioIdParamSchema } from "../schemas/Usuarios.schema.js";
 import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
 import { ErroEntradaInvalida } from "../core/errors/AppErrors.js";
-import { type Usuario } from "../core/domain/entities/Usuarios.entity.js";
+import { type Funcionario } from "../core/domain/entities/Funcionario.entity.js";
 
-const usuarioRepository = new SupabaseUsuarioRepository();
+const funcionarioRepository = new SupabaseFuncionarioRepository();
 
-function funcionarioDto(usuario: Usuario) {
+function funcionarioDto(funcionario: Funcionario) {
   return {
-    id: usuario.id,
-    nome: usuario.nome,
-    email: usuario.email,
-    empresa_id: usuario.empresaId,
-    cargo: usuario.cargo,
-    cpf: usuario.cpf,
-    data_nascimento: usuario.dataNascimento,
-    foto_url: usuario.fotoUrl,
+    id: funcionario.id,
+    empresa_id: funcionario.empresaId,
+    nome: funcionario.nome,
+    cargo: funcionario.cargo,
+    email: funcionario.email,
   };
 }
 
@@ -35,10 +33,32 @@ function extrairEmpresaId(req: Request): string {
 }
 
 export class FuncionarioController {
+  async criar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const empresaId = extrairEmpresaId(req);
+      const dadosValidados = registrarFuncionarioSchema.parse({ ...req.body, empresa_id: empresaId });
+
+      const useCase = new CriarFuncionarioUseCase(funcionarioRepository);
+      const funcionario = await useCase.execute({
+        empresaId: empresaId,
+        nome: dadosValidados.nome,
+        cargo: dadosValidados.cargo,
+        email: dadosValidados.email,
+      });
+
+      return res.status(201).json({
+        status: "success",
+        data: funcionarioDto(funcionario),
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async listar(req: Request, res: Response, next: NextFunction) {
     try {
       const empresaId = extrairEmpresaId(req);
-      const useCase = new ListarFuncionariosUseCase(usuarioRepository);
+      const useCase = new ListarFuncionariosUseCase(funcionarioRepository);
       const funcionarios = await useCase.execute(empresaId);
 
       return res.status(200).json({
@@ -55,7 +75,7 @@ export class FuncionarioController {
       const { id } = funcionarioIdParamSchema.parse(req.params);
       const empresaId = extrairEmpresaId(req);
 
-      const useCase = new BuscarFuncionarioPorIdUseCase(usuarioRepository);
+      const useCase = new BuscarFuncionarioPorIdUseCase(funcionarioRepository);
       const funcionario = await useCase.execute({ id, empresaIdRequisitante: empresaId });
 
       return res.status(200).json({
@@ -73,16 +93,13 @@ export class FuncionarioController {
       const dadosValidados = atualizarFuncionarioSchema.parse(req.body);
       const empresaId = extrairEmpresaId(req);
 
-      const useCase = new AtualizarFuncionarioUseCase(usuarioRepository);
+      const useCase = new AtualizarFuncionarioUseCase(funcionarioRepository);
       const funcionario = await useCase.execute({
         id,
         empresaIdRequisitante: empresaId,
         dados: {
           ...(dadosValidados.nome !== undefined && { nome: dadosValidados.nome }),
           ...(dadosValidados.cargo !== undefined && { cargo: dadosValidados.cargo }),
-          ...(dadosValidados.cpf !== undefined && { cpf: dadosValidados.cpf }),
-          ...(dadosValidados.data_nascimento !== undefined && { dataNascimento: dadosValidados.data_nascimento }),
-          ...(dadosValidados.foto_url !== undefined && { fotoUrl: dadosValidados.foto_url }),
         },
       });
 
@@ -98,11 +115,10 @@ export class FuncionarioController {
   async deletar(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = funcionarioIdParamSchema.parse(req.params);
-      const { id: idRequisitante } = (req as IRequestAutenticado).usuario;
       const empresaId = extrairEmpresaId(req);
 
-      const useCase = new DeletarFuncionarioUseCase(usuarioRepository);
-      const funcionario = await useCase.execute({ id, idRequisitante, empresaIdRequisitante: empresaId });
+      const useCase = new DeletarFuncionarioUseCase(funcionarioRepository);
+      const funcionario = await useCase.execute({ id, empresaIdRequisitante: empresaId });
 
       return res.status(200).json({
         status: "success",

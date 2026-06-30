@@ -1,14 +1,38 @@
-import { type IUsuarioRepository, type IAtualizarFuncionarioInput } from "../../core/domain/repository/usuario/IUsuarioRepository.js";
-import { type Usuario } from "../../core/domain/entities/Usuarios.entity.js";
+import { type IFuncionarioRepository, type IAtualizarFuncionarioInput } from "../../core/domain/repository/funcionario/IFuncionarioRepository.js";
+import { type Funcionario } from "../../core/domain/entities/Funcionario.entity.js";
 import { ErroEntradaInvalida, ErroNaoAutorizado, ErroNaoEncontrado } from "../../core/errors/AppErrors.js";
+
+// ─── Criar Funcionário ──────────────────────────────────────────────────────────
+
+export interface ICriarFuncionarioInput {
+  empresaId: string;
+  nome: string;
+  cargo: string;
+  email: string;
+}
+
+export class CriarFuncionarioUseCase {
+  constructor(private readonly funcionarioRepository: IFuncionarioRepository) {}
+
+  async execute(dados: ICriarFuncionarioInput): Promise<Funcionario> {
+    // Para simplificar, importamos e criamos aqui mesmo a entidade local
+    // e repassamos para o repositório, mas evitar import circular.
+    // Como a entidade `Funcionario` já foi importada acima, só a instanciamos:
+    
+    // (O bypass da validação é feito internamente na entidade)
+    const { Funcionario } = await import("../../core/domain/entities/Funcionario.entity.js");
+    const novo = new Funcionario(dados);
+    return await this.funcionarioRepository.salvar(novo);
+  }
+}
 
 // ─── Listar Funcionários ────────────────────────────────────────────────────────
 
 export class ListarFuncionariosUseCase {
-  constructor(private readonly usuarioRepository: IUsuarioRepository) {}
+  constructor(private readonly funcionarioRepository: IFuncionarioRepository) {}
 
-  async execute(empresaId: string): Promise<Usuario[]> {
-    return this.usuarioRepository.listar(empresaId);
+  async execute(empresaId: string): Promise<Funcionario[]> {
+    return this.funcionarioRepository.listar(empresaId);
   }
 }
 
@@ -20,10 +44,10 @@ interface IBuscarFuncionarioInput {
 }
 
 export class BuscarFuncionarioPorIdUseCase {
-  constructor(private readonly usuarioRepository: IUsuarioRepository) {}
+  constructor(private readonly funcionarioRepository: IFuncionarioRepository) {}
 
-  async execute({ id, empresaIdRequisitante }: IBuscarFuncionarioInput): Promise<Usuario> {
-    const funcionario = await this.usuarioRepository.buscarPorId(id);
+  async execute({ id, empresaIdRequisitante }: IBuscarFuncionarioInput): Promise<Funcionario> {
+    const funcionario = await this.funcionarioRepository.buscarPorId(id);
 
     if (!funcionario) {
       throw new ErroNaoEncontrado("Funcionário não encontrado.");
@@ -46,10 +70,10 @@ interface IAtualizarFuncionarioUseCaseInput {
 }
 
 export class AtualizarFuncionarioUseCase {
-  constructor(private readonly usuarioRepository: IUsuarioRepository) {}
+  constructor(private readonly funcionarioRepository: IFuncionarioRepository) {}
 
-  async execute({ id, empresaIdRequisitante, dados }: IAtualizarFuncionarioUseCaseInput): Promise<Usuario> {
-    const funcionario = await this.usuarioRepository.buscarPorId(id);
+  async execute({ id, empresaIdRequisitante, dados }: IAtualizarFuncionarioUseCaseInput): Promise<Funcionario> {
+    const funcionario = await this.funcionarioRepository.buscarPorId(id);
 
     if (!funcionario) {
       throw new ErroNaoEncontrado("Funcionário não encontrado.");
@@ -63,7 +87,7 @@ export class AtualizarFuncionarioUseCase {
       throw new ErroEntradaInvalida("Não é permitido promover um funcionário ao cargo de DONO.");
     }
 
-    const atualizado = await this.usuarioRepository.atualizar(id, dados);
+    const atualizado = await this.funcionarioRepository.atualizar(id, dados);
 
     if (!atualizado) {
       throw new ErroNaoEncontrado("Não foi possível atualizar o funcionário.");
@@ -77,19 +101,14 @@ export class AtualizarFuncionarioUseCase {
 
 interface IDeletarFuncionarioInput {
   id: string;
-  idRequisitante: string;
   empresaIdRequisitante: string;
 }
 
 export class DeletarFuncionarioUseCase {
-  constructor(private readonly usuarioRepository: IUsuarioRepository) {}
+  constructor(private readonly funcionarioRepository: IFuncionarioRepository) {}
 
-  async execute({ id, idRequisitante, empresaIdRequisitante }: IDeletarFuncionarioInput): Promise<Usuario> {
-    if (id === idRequisitante) {
-      throw new ErroNaoAutorizado("Você não pode excluir a sua própria conta.");
-    }
-
-    const funcionario = await this.usuarioRepository.buscarPorId(id);
+  async execute({ id, empresaIdRequisitante }: IDeletarFuncionarioInput): Promise<Funcionario> {
+    const funcionario = await this.funcionarioRepository.buscarPorId(id);
 
     if (!funcionario) {
       throw new ErroNaoEncontrado("Funcionário não encontrado.");
@@ -99,7 +118,7 @@ export class DeletarFuncionarioUseCase {
       throw new ErroNaoAutorizado("Acesso negado: funcionário pertence a outra empresa.");
     }
 
-    const deletado = await this.usuarioRepository.deletar(id);
+    const deletado = await this.funcionarioRepository.deletar(id);
 
     if (!deletado) {
       throw new ErroNaoEncontrado("Não foi possível remover o funcionário.");
