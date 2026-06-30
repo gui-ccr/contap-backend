@@ -44,7 +44,7 @@ export class ContaPagarController {
 
   async pagar(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = req.params.id;
+      const id = req.params.id as string;
       if (!id) return res.status(400).json({ status: 'error', message: 'O ID da conta é obrigatório.' });
       
       const useCase = new PagarContaUseCase(contasPagarRepository, criarLancamentoUseCase, planoContaRepository);

@@ -25,7 +25,7 @@ export class RegistrarDonoUseCase {
             nome: input.nome,
             email: input.email,
             cargo: "DONO",
-            senhaHash: input.senhalimpa,
+            ativo: true,
         });
 
         await this.usuarioRepository.salvar(novoDono);

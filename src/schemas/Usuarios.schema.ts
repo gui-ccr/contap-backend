@@ -25,18 +25,14 @@ export const registrarFuncionarioSchema = z.object({
   nome: z.string().min(2, "O nome é obrigatório"),
   empresa_id: z.string().uuid("ID da empresa inválido"),
   cargo: z.enum(['GERENTE', 'CAIXA']),
-  cpf: z.string().regex(/^\d{11}$/, "CPF deve conter exatamente 11 dígitos numéricos").optional(),
-  data_nascimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data deve estar no formato YYYY-MM-DD").optional(),
-  foto_url: z.string().url("URL de foto inválida").optional(),
+  ativo: z.boolean().optional(),
 });
 
 // ─── Schema: Atualização de funcionário (todos os campos opcionais) ───────────
 export const atualizarFuncionarioSchema = z.object({
   nome: z.string().min(2, "O nome deve ter ao menos 2 caracteres").optional(),
   cargo: z.enum(['GERENTE', 'CAIXA']).optional(),
-  cpf: z.string().regex(/^\d{11}$/, "CPF deve conter exatamente 11 dígitos numéricos").optional(),
-  data_nascimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data deve estar no formato YYYY-MM-DD").optional(),
-  foto_url: z.string().url("URL de foto inválida").optional(),
+  ativo: z.boolean().optional(),
 }).refine(
   (data) => Object.keys(data).length > 0,
   { message: "Informe ao menos um campo para atualizar." }

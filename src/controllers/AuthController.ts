@@ -20,9 +20,7 @@ export class AuthController {
         senhaLimpa: dadosValidados.senha,
         empresaId: dadosValidados.empresa_id,
         cargo: dadosValidados.cargo,
-        ...(dadosValidados.cpf !== undefined && { cpf: dadosValidados.cpf }),
-        ...(dadosValidados.data_nascimento !== undefined && { dataNascimento: dadosValidados.data_nascimento }),
-        ...(dadosValidados.foto_url !== undefined && { fotoUrl: dadosValidados.foto_url }),
+        ...(dadosValidados.ativo !== undefined && { ativo: dadosValidados.ativo }),
       });
 
       return res.status(201).json({ status: 'success', message: 'Funcionário registrado com sucesso!' });

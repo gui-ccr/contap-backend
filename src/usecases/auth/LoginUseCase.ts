@@ -31,6 +31,7 @@ export class LoginUseCase {
 
     return {
       token: authResult.token,
+      empresa_id: usuario.empresaId || null,
       usuario: {
         id: usuario.id || "",
         nome: usuario.nome,

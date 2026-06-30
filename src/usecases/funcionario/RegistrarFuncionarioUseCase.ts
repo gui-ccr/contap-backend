@@ -8,9 +8,7 @@ export interface IRegistrarFuncionarioInput {
   senhaLimpa: string;
   empresaId: string;
   cargo: string;
-  cpf?: string;
-  dataNascimento?: string;
-  fotoUrl?: string;
+  ativo?: boolean;
 }
 
 export class RegistrarFuncionarioUseCase {
@@ -31,10 +29,7 @@ export class RegistrarFuncionarioUseCase {
       email: input.email,
       empresaId: input.empresaId,
       cargo: input.cargo,
-      senhaHash: input.senhaLimpa,
-      ...(input.cpf !== undefined && { cpf: input.cpf }),
-      ...(input.dataNascimento !== undefined && { dataNascimento: input.dataNascimento }),
-      ...(input.fotoUrl !== undefined && { fotoUrl: input.fotoUrl }),
+      ...(input.ativo !== undefined && { ativo: input.ativo }),
     });
 
     await this.usuarioRepository.salvar(novoFuncionario);

@@ -30,9 +30,7 @@ export class MeController {
             nome: usuario.nome,
             email: usuario.email,
             cargo: usuario.cargo,
-            foto_url: usuario.fotoUrl,
-            cpf: usuario.cpf,
-            data_nascimento: usuario.dataNascimento,
+            ativo: usuario.ativo,
           },
           empresa: empresa ? {
             id: empresa.id,

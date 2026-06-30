@@ -3,11 +3,9 @@ import { type IAuthResponse } from "../../../../mappers/AuthMapper.js";
 
 export interface IAtualizarFuncionarioInput {
   nome?: string;
-  cpf?: string;
-  dataNascimento?: string;
-  fotoUrl?: string;
   cargo?: string;
   empresaId?: string;
+  ativo?: boolean;
 }
 
 export interface IUsuarioRepository {

@@ -5,11 +5,8 @@ export interface IUsuarioProps {
   nome: string;
   email: string;
   empresaId?: string;
-  senhaHash: string;
   cargo: string;
-  cpf?: string;
-  dataNascimento?: string;
-  fotoUrl?: string;
+  ativo?: boolean;
 }
 
 export class Usuario {
@@ -19,7 +16,6 @@ export class Usuario {
     this.props = props;
     this.validarEmail();
     this.validarCargoEmpresa();
-    if (props.cpf !== undefined) this.validarCpf();
   }
 
   private validarEmail(): void {
@@ -34,19 +30,10 @@ export class Usuario {
     }
   }
 
-  private validarCpf(): void {
-    if (!/^\d{11}$/.test(this.props.cpf!)) {
-      throw new ErroEntradaInvalida("CPF inválido. Informe 11 dígitos numéricos sem pontuação.");
-    }
-  }
-
   get id() { return this.props.id; }
   get nome() { return this.props.nome; }
   get email() { return this.props.email; }
   get empresaId() { return this.props.empresaId; }
   get cargo() { return this.props.cargo; }
-  get senhaHash() { return this.props.senhaHash; }
-  get cpf() { return this.props.cpf; }
-  get dataNascimento() { return this.props.dataNascimento; }
-  get fotoUrl() { return this.props.fotoUrl; }
+  get ativo() { return this.props.ativo; }
 }
