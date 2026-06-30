@@ -89,7 +89,11 @@ export class CriarEmpresaUseCase {
       const contasCriadas = await this.planoContaRepository.salvarMuitos(contasPadrao);
 
       // Vincula o usuário à empresa criada
-      await this.usuarioRepository.atualizar(input.usuarioId, { empresaId });
+      const usuarioAtualizado = await this.usuarioRepository.atualizar(input.usuarioId, { empresaId });
+
+      if (!usuarioAtualizado) {
+        throw new ErroBancoDeDados("Não foi possível vincular o usuário à nova empresa.");
+      }
 
       return {
         empresa: empresaSalva,
