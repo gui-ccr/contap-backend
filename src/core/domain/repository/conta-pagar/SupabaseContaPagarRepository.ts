@@ -2,12 +2,12 @@ import {
   type IContaPagar,
   type IContaPagarRepository,
 } from "./IContaPagarRepository.js";
-import { supabase } from "../../../../config/database.js";
+import { supabaseAdmin } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 export class SupabaseContaPagarRepository implements IContaPagarRepository {
   async criar(dados: IContaPagar): Promise<IContaPagar> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("contas_pagar")
       .insert({
         empresa_id: dados.empresa_id,
@@ -38,7 +38,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
   }
 
   async listarPorEmpresa(empresa_id: string): Promise<IContaPagar[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("contas_pagar")
       .select("*")
       .eq("empresa_id", empresa_id)
@@ -65,7 +65,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
     id: string,
     data_pagamento: string,
   ): Promise<IContaPagar> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("contas_pagar")
       .update({ pago: true, data_pagamento })
       .eq("id", id)
@@ -90,7 +90,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
   }
 
   async buscarPorId(id: string): Promise<IContaPagar | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("contas_pagar")
       .select("*")
       .eq("id", id)

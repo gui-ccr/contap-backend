@@ -2,16 +2,16 @@ import {
   type IContaReceber,
   type IContaReceberRepository,
 } from "./IContaReceberRepository.js";
-import { supabase } from "../../../../config/database.js";
+import { supabaseAdmin } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 export class SupabaseContaReceberRepository implements IContaReceberRepository {
   async criar(dados: IContaReceber): Promise<IContaReceber> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("contas_receber")
       .insert({
         empresa_id: dados.empresa_id,
-        origin: dados.origem,
+        origem: dados.origem,
         valor: dados.valor,
         data_previsao: dados.data_previsao,
         recebido: dados.recebido,
@@ -29,7 +29,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
     return {
       id: data.id,
       empresa_id: data.empresa_id,
-      origem: data.origin,
+      origem: data.origem,
       valor: data.valor,
       data_previsao: data.data_previsao,
       recebido: data.recebido,
@@ -38,7 +38,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
   }
 
   async listarPorEmpresa(empresa_id: string): Promise<IContaReceber[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("contas_receber")
       .select("*")
       .eq("empresa_id", empresa_id)
@@ -53,7 +53,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
     return data.map((item) => ({
       id: item.id,
       empresa_id: item.empresa_id,
-      origem: item.origin,
+      origem: item.origem,
       valor: item.valor,
       data_previsao: item.data_previsao,
       recebido: item.recebido,
@@ -65,7 +65,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
     id: string,
     data_recebimento: string,
   ): Promise<IContaReceber> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("contas_receber")
       .update({ recebido: true, data_recebimento })
       .eq("id", id)
@@ -81,7 +81,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
     return {
       id: data.id,
       empresa_id: data.empresa_id,
-      origem: data.origin,
+      origem: data.origem,
       valor: data.valor,
       data_previsao: data.data_previsao,
       recebido: data.recebido,
@@ -90,7 +90,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
   }
 
   async buscarPorId(id: string): Promise<IContaReceber | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("contas_receber")
       .select("*")
       .eq("id", id)
@@ -105,7 +105,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       return {
         id: data.id,
         empresa_id: data.empresa_id,
-        origem: data.origin,
+        origem: data.origem,
         valor: data.valor,
         data_previsao: data.data_previsao,
         recebido: data.recebido,

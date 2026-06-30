@@ -14,12 +14,7 @@ function mapearUsuario(data: Record<string, unknown>): Usuario {
     email: data.email as string,
     ...(data.empresa_id != null && { empresaId: data.empresa_id as string }),
     cargo: data.cargo as string,
-    senhaHash: (data.senha_hash as string | null) ?? "",
-    ...(data.cpf != null && { cpf: data.cpf as string }),
-    ...(data.data_nascimento != null && {
-      dataNascimento: data.data_nascimento as string,
-    }),
-    ...(data.foto_url != null && { fotoUrl: data.foto_url as string }),
+    ...(data.ativo != null && { ativo: data.ativo as boolean }),
   });
 }
 
@@ -60,17 +55,13 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async salvar(usuario: Usuario): Promise<void> {
-    const { error } = await supabase.from("usuarios").insert({
+    const { error } = await supabaseAdmin.from("usuarios").insert({
       id: usuario.id,
       nome: usuario.nome,
       email: usuario.email,
       empresa_id: usuario.empresaId,
       cargo: usuario.cargo,
-      ...(usuario.cpf !== undefined && { cpf: usuario.cpf }),
-      ...(usuario.dataNascimento !== undefined && {
-        data_nascimento: usuario.dataNascimento,
-      }),
-      ...(usuario.fotoUrl !== undefined && { foto_url: usuario.fotoUrl }),
+      ...(usuario.ativo !== undefined && { ativo: usuario.ativo }),
     });
 
     if (error) {
@@ -81,7 +72,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async buscarPorId(id: string): Promise<Usuario | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("usuarios")
       .select("*")
       .eq("id", id)
@@ -93,7 +84,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async buscarPorEmail(email: string): Promise<Usuario | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("usuarios")
       .select("*")
       .eq("email", email)
@@ -110,7 +101,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async listar(empresaId: string): Promise<Usuario[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("usuarios")
       .select("*")
       .eq("empresa_id", empresaId);
@@ -130,14 +121,12 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
     id: string,
     dados: IAtualizarFuncionarioInput,
   ): Promise<Usuario | null> {
-    const atualizacao: Record<string, string> = {};
+    const atualizacao: Record<string, any> = {};
     if (dados.nome !== undefined) atualizacao["nome"] = dados.nome;
-    if (dados.cpf !== undefined) atualizacao["cpf"] = dados.cpf;
-    if (dados.dataNascimento !== undefined)
-      atualizacao["data_nascimento"] = dados.dataNascimento;
-    if (dados.fotoUrl !== undefined) atualizacao["foto_url"] = dados.fotoUrl;
     if (dados.cargo !== undefined) atualizacao["cargo"] = dados.cargo;
     if (dados.empresaId !== undefined) atualizacao["empresa_id"] = dados.empresaId;
+    // @ts-ignore
+    if (dados.ativo !== undefined) atualizacao["ativo"] = dados.ativo;
 
     const { data, error } = await supabaseAdmin
       .from("usuarios")
@@ -160,7 +149,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async deletar(id: string): Promise<Usuario | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("usuarios")
       .delete()
       .eq("id", id)

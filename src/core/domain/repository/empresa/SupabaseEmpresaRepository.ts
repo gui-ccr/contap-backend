@@ -1,4 +1,4 @@
-import { supabase } from "../../../../config/database.js";
+import { supabaseAdmin } from "../../../../config/database.js";
 import { Empresa } from "../../entities/Empresa.entity.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 import {
@@ -36,7 +36,7 @@ function montarDadosAtualizacao(dados: IAtualizarEmpresaInput) {
 
 export class SupabaseEmpresaRepository implements IEmpresaRepository {
   async salvar(empresa: Empresa): Promise<Empresa> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("empresas")
       .insert({
         nome: empresa.nome,
@@ -55,7 +55,7 @@ export class SupabaseEmpresaRepository implements IEmpresaRepository {
   }
 
   async listar(): Promise<Empresa[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("empresas")
       .select("*")
       .order("nome_fantasia", { ascending: true });
@@ -68,7 +68,7 @@ export class SupabaseEmpresaRepository implements IEmpresaRepository {
   }
 
   async buscarPorId(id: string): Promise<Empresa | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("empresas")
       .select("*")
       .eq("id", id)
@@ -84,7 +84,7 @@ export class SupabaseEmpresaRepository implements IEmpresaRepository {
   }
 
   async buscarPorCnpj(cnpj: string): Promise<Empresa | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("empresas")
       .select("*")
       .eq("cnpj", cnpj)
@@ -100,7 +100,7 @@ export class SupabaseEmpresaRepository implements IEmpresaRepository {
   }
 
   async atualizar(id: string, dados: IAtualizarEmpresaInput): Promise<Empresa | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("empresas")
       .update(montarDadosAtualizacao(dados))
       .eq("id", id)
@@ -117,7 +117,7 @@ export class SupabaseEmpresaRepository implements IEmpresaRepository {
   }
 
   async deletar(id: string): Promise<Empresa | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("empresas")
       .delete()
       .eq("id", id)
