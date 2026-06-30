@@ -1,4 +1,4 @@
-import { supabase } from "../../../../config/database.js";
+import { supabase, supabaseAdmin } from "../../../../config/database.js";
 import { Usuario } from "../../entities/Usuarios.entity.js";
 import {
   type IUsuarioRepository,
@@ -139,7 +139,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
     if (dados.cargo !== undefined) atualizacao["cargo"] = dados.cargo;
     if (dados.empresaId !== undefined) atualizacao["empresa_id"] = dados.empresaId;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("usuarios")
       .update(atualizacao)
       .eq("id", id)
@@ -147,8 +147,10 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
       .maybeSingle();
 
     if (error) {
+      console.error("🚨 Erro ao atualizar usuário:", JSON.stringify(error, null, 2));
+      console.error("🚨 ID do usuário:", id, "Dados:", atualizacao);
       throw new ErroBancoDeDados(
-        `Erro ao atualizar funcionário: ${error.message}`,
+        `Erro ao atualizar funcionário: ${error.message} (code: ${error.code})`,
       );
     }
 
