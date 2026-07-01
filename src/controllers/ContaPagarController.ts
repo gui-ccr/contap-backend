@@ -13,6 +13,8 @@ const planoContaRepository = new SupabasePlanoContaRepository();
 const lancamentoRepository = new SupabaseLancamentoRepository();
 const criarLancamentoUseCase = new CriarLancamentoUseCase(lancamentoRepository);
 
+import { AtualizarContaPagarUseCase } from '../usecases/conta-pagar/AtualizarContaPagarUseCase.js';
+
 export class ContaPagarController {
   async criar(req: Request, res: Response, next: NextFunction) {
     try {
@@ -54,6 +56,20 @@ export class ContaPagarController {
         message: 'Conta paga e lançamento contábil gerado!',
         dados: resultado
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async atualizar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id as string;
+      if (!id) return res.status(400).json({ status: 'error', message: 'O ID da conta é obrigatório.' });
+      
+      const useCase = new AtualizarContaPagarUseCase(contasPagarRepository);
+      const resultado = await useCase.executar(id, req.body);
+      
+      return res.status(200).json(resultado);
     } catch (error) {
       next(error);
     }

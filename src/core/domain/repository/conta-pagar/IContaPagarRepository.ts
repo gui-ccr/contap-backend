@@ -3,6 +3,7 @@ export interface IContaPagar {
   empresa_id: string;
   descricao: string;
   valor: number;
+  tipo: string;
   data_vencimento: string;
   pago: boolean;
   data_pagamento?: string | null;
@@ -13,4 +14,6 @@ export interface IContaPagarRepository {
   listarPorEmpresa(empresa_id: string): Promise<IContaPagar[]>;
   marcarComoPago(id: string, data_pagamento: string): Promise<IContaPagar>;
   buscarPorId(id: string): Promise<IContaPagar | null>;
+  atualizar(id: string, dados: Partial<IContaPagar>): Promise<IContaPagar>;
+  deletarPorDescricao(empresa_id: string, prefixoDescricao: string): Promise<void>;
 }

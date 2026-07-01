@@ -4,7 +4,7 @@ import {
   type IUsuarioRepository,
   type IAtualizarFuncionarioInput,
 } from "./IUsuarioRepository.js";
-import { ErroBancoDeDados, ErroNaoAutorizado } from "../../../errors/AppErrors.js";
+import { ErroBancoDeDados, ErroNaoAutorizado, ErroConflito } from "../../../errors/AppErrors.js";
 import { AuthMapper, type IAuthResponse } from "../../../../mappers/AuthMapper.js";
 
 function mapearUsuario(data: Record<string, unknown>): Usuario {
@@ -20,22 +20,21 @@ function mapearUsuario(data: Record<string, unknown>): Usuario {
 
 export class SupabaseUsuarioRepository implements IUsuarioRepository {
   async registrarAuth(email: string, senhaLimpa: string): Promise<string> {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: senhaLimpa,
+      email_confirm: true
     });
 
     if (error) {
-      console.error("🚨 Erro Supabase Auth no signUp:", error);
-      throw new ErroBancoDeDados(
-        `Erro ao registrar autenticação: ${error.message}`,
-      );
+      if (error.status === 422 || error.message.includes("already registered")) {
+        throw new ErroConflito("Este e-mail já está em uso.");
+      }
+      throw new Error(`Erro no Supabase Auth: ${error.message}`);
     }
 
     if (!data.user) {
-      throw new ErroBancoDeDados(
-        "Erro ao registrar autenticação: Usuário não retornado.",
-      );
+      throw new Error("Erro desconhecido: Usuário não retornado pelo Supabase Auth.");
     }
 
     return data.user.id;

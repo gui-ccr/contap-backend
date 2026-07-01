@@ -1,6 +1,7 @@
 import { type IFuncionarioRepository, type IAtualizarFuncionarioInput } from "../../core/domain/repository/funcionario/IFuncionarioRepository.js";
 import { type Funcionario } from "../../core/domain/entities/Funcionario.entity.js";
 import { ErroEntradaInvalida, ErroNaoAutorizado, ErroNaoEncontrado } from "../../core/errors/AppErrors.js";
+import { type IContaPagarRepository } from "../../core/domain/repository/conta-pagar/IContaPagarRepository.js";
 
 // ─── Criar Funcionário ──────────────────────────────────────────────────────────
 
@@ -9,20 +10,40 @@ export interface ICriarFuncionarioInput {
   nome: string;
   cargo: string;
   email: string;
+  cpfCnpj: string;
+  salario: number;
+  diaPagamento: number;
 }
 
 export class CriarFuncionarioUseCase {
-  constructor(private readonly funcionarioRepository: IFuncionarioRepository) {}
+  constructor(
+    private readonly funcionarioRepository: IFuncionarioRepository,
+    private readonly contaPagarRepository: IContaPagarRepository
+  ) {}
 
   async execute(dados: ICriarFuncionarioInput): Promise<Funcionario> {
-    // Para simplificar, importamos e criamos aqui mesmo a entidade local
-    // e repassamos para o repositório, mas evitar import circular.
-    // Como a entidade `Funcionario` já foi importada acima, só a instanciamos:
-    
-    // (O bypass da validação é feito internamente na entidade)
     const { Funcionario } = await import("../../core/domain/entities/Funcionario.entity.js");
     const novo = new Funcionario(dados);
-    return await this.funcionarioRepository.salvar(novo);
+    const salvo = await this.funcionarioRepository.criar(novo);
+
+    const dataAtual = new Date();
+    for (let i = 0; i < 12; i++) {
+      const dataVencimento = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + i, dados.diaPagamento);
+      const dia = String(dataVencimento.getDate()).padStart(2, '0');
+      const mes = String(dataVencimento.getMonth() + 1).padStart(2, '0');
+      const ano = dataVencimento.getFullYear();
+      
+      await this.contaPagarRepository.criar({
+        empresa_id: salvo.empresaId,
+        descricao: `[Salário] ${salvo.nome} - Mês ${mes}/${ano}`,
+        valor: salvo.salario,
+        tipo: "Salário",
+        data_vencimento: `${ano}-${mes}-${dia}`,
+        pago: false,
+      });
+    }
+
+    return salvo;
   }
 }
 
@@ -102,12 +123,16 @@ export class AtualizarFuncionarioUseCase {
 interface IDeletarFuncionarioInput {
   id: string;
   empresaIdRequisitante: string;
+  excluirContas?: boolean;
 }
 
 export class DeletarFuncionarioUseCase {
-  constructor(private readonly funcionarioRepository: IFuncionarioRepository) {}
+  constructor(
+    private readonly funcionarioRepository: IFuncionarioRepository,
+    private readonly contaPagarRepository?: IContaPagarRepository
+  ) {}
 
-  async execute({ id, empresaIdRequisitante }: IDeletarFuncionarioInput): Promise<Funcionario> {
+  async execute({ id, empresaIdRequisitante, excluirContas }: IDeletarFuncionarioInput): Promise<Funcionario> {
     const funcionario = await this.funcionarioRepository.buscarPorId(id);
 
     if (!funcionario) {
@@ -118,12 +143,12 @@ export class DeletarFuncionarioUseCase {
       throw new ErroNaoAutorizado("Acesso negado: funcionário pertence a outra empresa.");
     }
 
-    const deletado = await this.funcionarioRepository.deletar(id);
+    await this.funcionarioRepository.deletar(id);
 
-    if (!deletado) {
-      throw new ErroNaoEncontrado("Não foi possível remover o funcionário.");
+    if (excluirContas && this.contaPagarRepository) {
+      await this.contaPagarRepository.deletarPorDescricao(empresaIdRequisitante, `[Salário] ${funcionario.nome}`);
     }
 
-    return deletado;
+    return funcionario; // Returning the old entity instead of boolean
   }
 }

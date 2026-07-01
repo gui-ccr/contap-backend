@@ -2,12 +2,14 @@ import { type Request, type Response, type NextFunction } from 'express';
 import { CriarContaReceberUseCase } from '../usecases/conta-receber/CriarContaReceberUseCase.js';
 import { ListarContasReceberUseCase } from '../usecases/conta-receber/ListarContasReceberUseCase.js';
 import { ReceberContaUseCase } from '../usecases/conta-receber/ReceberContaUseCase.js';
+import { AtualizarContaReceberUseCase } from '../usecases/conta-receber/AtualizarContaReceberUseCase.js';
 
 export class ContaReceberController {
   constructor(
     private criarContaUseCase: CriarContaReceberUseCase,
     private listarContasUseCase: ListarContasReceberUseCase,
-    private receberContaUseCase: ReceberContaUseCase
+    private receberContaUseCase: ReceberContaUseCase,
+    private atualizarContaUseCase: AtualizarContaReceberUseCase
   ) {}
 
   async criar(req: Request, res: Response, next: NextFunction) {
@@ -48,6 +50,18 @@ export class ContaReceberController {
         message: "Conta recebida e lançamento contábil gerado com sucesso!",
         dados: resultado
       });
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async atualizar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id as string;
+      if (!id) return res.status(400).json({ error: "O ID da conta é obrigatório." });
+      
+      const resultado = await this.atualizarContaUseCase.executar(id, req.body);
+      return res.status(200).json(resultado);
     } catch (error: any) {
       next(error);
     }

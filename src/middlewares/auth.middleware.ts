@@ -1,5 +1,5 @@
 import { type Request, type Response, type NextFunction } from "express";
-import { supabase } from "../config/database.js";
+import { supabase, supabaseAdmin } from "../config/database.js";
 import {
   ErroBancoDeDados,
   ErroNaoAutorizado,
@@ -43,7 +43,9 @@ export async function authMiddleware(
       throw new ErroNaoAutorizado("Token inválido ou expirado.");
     }
 
-    const { data: usuarioData, error: dbError } = await supabase
+    // IMPORTANT: use supabaseAdmin to query the database, because the normal supabase
+    // client won't pass the JWT context automatically and RLS will block the request.
+    const { data: usuarioData, error: dbError } = await supabaseAdmin
       .from("usuarios")
       .select("empresa_id, cargo")
       .eq("id", user.id)

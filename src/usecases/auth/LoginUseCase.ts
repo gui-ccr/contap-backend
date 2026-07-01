@@ -8,6 +8,7 @@ interface ILoginInput {
 
 interface ILoginOutput {
   token: string;
+  refresh_token: string;
   empresa_id: string | null;
   usuario: {
     id: string;
@@ -31,6 +32,7 @@ export class LoginUseCase {
 
     return {
       token: authResult.token,
+      refresh_token: authResult.refreshToken,
       empresa_id: usuario.empresaId || null,
       usuario: {
         id: usuario.id || "",

@@ -8,6 +8,8 @@ import { SupabaseContaReceberRepository } from '../core/domain/repository/conta-
 import { SupabaseLancamentoRepository } from '../core/domain/repository/lancamento/SupabaseLancamentoRepository.js';
 import { SupabasePlanoContaRepository } from '../core/domain/repository/plano-conta/SupabasePlanoContaRepository.js';
 
+import { AtualizarContaReceberUseCase } from '../usecases/conta-receber/AtualizarContaReceberUseCase.js';
+
 const contaReceberRoutes = Router();
 
 const contaReceberRepository = new SupabaseContaReceberRepository();
@@ -18,11 +20,13 @@ const criarLancamentoUseCase = new CriarLancamentoUseCase(lancamentoRepository);
 const criarUseCase = new CriarContaReceberUseCase(contaReceberRepository);
 const listarUseCase = new ListarContasReceberUseCase(contaReceberRepository);
 const receberUseCase = new ReceberContaUseCase(contaReceberRepository, criarLancamentoUseCase, planoContaRepository);
+const atualizarUseCase = new AtualizarContaReceberUseCase(contaReceberRepository);
 
-const controller = new ContaReceberController(criarUseCase, listarUseCase, receberUseCase);
+const controller = new ContaReceberController(criarUseCase, listarUseCase, receberUseCase, atualizarUseCase);
 
 contaReceberRoutes.get('/conta-receber', controller.listar.bind(controller));
 contaReceberRoutes.post('/conta-receber', controller.criar.bind(controller));
 contaReceberRoutes.patch('/conta-receber/:id', controller.receber.bind(controller));
+contaReceberRoutes.put('/conta-receber/:id', controller.atualizar.bind(controller));
 
 export default contaReceberRoutes;

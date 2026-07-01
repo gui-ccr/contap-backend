@@ -1,0 +1,65 @@
+import { supabase } from "../../../../config/database.js";
+import { Cargo } from "../../entities/Cargo.entity.js";
+import { ErroInterno, ErroNaoEncontrado } from "../../../errors/AppErrors.js";
+import type { ICargoRepository } from "./ICargoRepository.js";
+
+export class SupabaseCargoRepository implements ICargoRepository {
+  async criar(cargo: Cargo): Promise<Cargo> {
+    const { data, error } = await supabase
+      .from("cargos")
+      .insert([
+        {
+          empresa_id: cargo.empresaId,
+          nome: cargo.nome,
+          descricao: cargo.descricao,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Erro ao criar cargo:", error);
+      throw new ErroInterno("Erro ao salvar cargo no banco de dados.");
+    }
+
+    return new Cargo(data);
+  }
+
+  async listar(empresa_id: string): Promise<Cargo[]> {
+    const { data, error } = await supabase
+      .from("cargos")
+      .select("*")
+      .eq("empresa_id", empresa_id)
+      .order("criado_em", { ascending: true });
+
+    if (error) {
+      console.error("Erro ao listar cargos:", error);
+      throw new ErroInterno("Erro ao buscar cargos.");
+    }
+
+    return (data || []).map((row) => new Cargo(row));
+  }
+
+  async buscarPorId(id: string): Promise<Cargo | null> {
+    const { data, error } = await supabase
+      .from("cargos")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erro ao buscar cargo:", error);
+      throw new ErroInterno("Erro ao buscar cargo.");
+    }
+
+    return data ? new Cargo(data) : null;
+  }
+
+  async deletar(id: string): Promise<void> {
+    const { error } = await supabase.from("cargos").delete().eq("id", id);
+    if (error) {
+      console.error("Erro ao deletar cargo:", error);
+      throw new ErroInterno("Erro ao deletar cargo no banco de dados.");
+    }
+  }
+}

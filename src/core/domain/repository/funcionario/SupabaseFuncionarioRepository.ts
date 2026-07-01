@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "../../../../config/database.js";
 import { Funcionario } from "../../entities/Funcionario.entity.js";
 import { type IFuncionarioRepository, type IAtualizarFuncionarioInput } from "./IFuncionarioRepository.js";
-import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
+import { ErroBancoDeDados, ErroEntradaInvalida } from "../../../errors/AppErrors.js";
 
 function mapearFuncionario(data: Record<string, unknown>): Funcionario {
   return new Funcionario({
@@ -10,20 +10,26 @@ function mapearFuncionario(data: Record<string, unknown>): Funcionario {
     nome: data.nome as string,
     cargo: data.cargo as string,
     email: data.email as string,
+    cpfCnpj: data.cpf_cnpj as string,
+    salario: Number(data.salario) || 0,
+    diaPagamento: Number(data.dia_pagamento) || 1,
   });
 }
 
 export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
-  async salvar(funcionario: Funcionario): Promise<Funcionario> {
+  async criar(funcionario: Funcionario): Promise<Funcionario> {
     const { data, error } = await supabaseAdmin.from("funcionarios").insert({
       empresa_id: funcionario.empresaId,
       nome: funcionario.nome,
       cargo: funcionario.cargo,
       email: funcionario.email,
+      cpf_cnpj: funcionario.cpfCnpj,
+      salario: funcionario.salario,
+      dia_pagamento: funcionario.diaPagamento,
     }).select().single();
 
     if (error) {
-      throw new ErroBancoDeDados(`Erro ao salvar funcionário: ${error.message}`);
+      throw new ErroBancoDeDados(`Erro ao criar funcionário: ${error.message}`);
     }
 
     return mapearFuncionario(data);
@@ -53,11 +59,13 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
     return (data ?? []).map((row) => mapearFuncionario(row as Record<string, unknown>));
   }
 
-  async atualizar(id: string, dados: IAtualizarFuncionarioInput): Promise<Funcionario | null> {
+  async atualizar(id: string, dados: IAtualizarFuncionarioInput): Promise<Funcionario> {
     const atualizacao: Record<string, any> = {};
     if (dados.nome !== undefined) atualizacao["nome"] = dados.nome;
     if (dados.cargo !== undefined) atualizacao["cargo"] = dados.cargo;
-    if (dados.email !== undefined) atualizacao["email"] = dados.email;
+    if (dados.cpfCnpj !== undefined) atualizacao["cpf_cnpj"] = dados.cpfCnpj;
+    if (dados.salario !== undefined) atualizacao["salario"] = dados.salario;
+    if (dados.diaPagamento !== undefined) atualizacao["dia_pagamento"] = dados.diaPagamento;
 
     const { data, error } = await supabaseAdmin
       .from("funcionarios")
@@ -69,24 +77,18 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
     if (error) {
       throw new ErroBancoDeDados(`Erro ao atualizar funcionário: ${error.message}`);
     }
-
-    if (!data) return null;
+    if (!data) throw new ErroEntradaInvalida("Funcionário não encontrado.");
     return mapearFuncionario(data as Record<string, unknown>);
   }
 
-  async deletar(id: string): Promise<Funcionario | null> {
-    const { data, error } = await supabaseAdmin
+  async deletar(id: string): Promise<void> {
+    const { error } = await supabaseAdmin
       .from("funcionarios")
       .delete()
-      .eq("id", id)
-      .select()
-      .maybeSingle();
+      .eq("id", id);
 
     if (error) {
       throw new ErroBancoDeDados(`Erro ao deletar funcionário: ${error.message}`);
     }
-
-    if (!data) return null;
-    return mapearFuncionario(data as Record<string, unknown>);
   }
 }

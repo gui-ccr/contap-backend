@@ -11,13 +11,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // Cliente padrão (com RLS ativo) — usado para auth
 export const supabase = createClient(
   supabaseUrl || 'https://mocked.supabase.co',
-  supabaseAnonKey || 'mock-key'
+  supabaseAnonKey || 'mock-key',
+  { auth: { persistSession: false } }
 );
 
 // Cliente admin (service_role, bypass de RLS) — usado para operações de servidor
 export const supabaseAdmin = createClient(
   supabaseUrl || 'https://mocked.supabase.co',
-  supabaseServiceKey || 'mock-key'
+  supabaseServiceKey || 'mock-key',
+  { auth: { persistSession: false } }
 );
 
 console.log("📦 Conexão com o Supabase inicializada com sucesso!");

@@ -1,18 +1,19 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { SupabaseUsuarioRepository } from '../core/domain/repository/usuario/SupabaseUsuarioRepository.js';
-import { RegistrarFuncionarioUseCase } from '../usecases/funcionario/RegistrarFuncionarioUseCase.js';
+import { RegistrarUsuarioUseCase } from '../usecases/auth/RegistrarUsuarioUseCase.js';
 import { RegistrarDonoUseCase } from '../usecases/auth/RegistrarDonoUseCase.js';
 import { LoginUseCase } from '../usecases/auth/LoginUseCase.js';
-import { registrarFuncionarioSchema, registrarDonoSchema } from '../schemas/Usuarios.schema.js';
+import { registrarUsuarioSchema, registrarDonoSchema } from '../schemas/Usuarios.schema.js';
+import { type IRequestAutenticado } from '../middlewares/auth.middleware.js';
 
 const usuarioRepository = new SupabaseUsuarioRepository();
 
 export class AuthController {
-  async registrarFuncionario(req: Request, res: Response, next: NextFunction) {
+  async registrarUsuario(req: Request, res: Response, next: NextFunction) {
     try {
-      const dadosValidados = registrarFuncionarioSchema.parse(req.body);
+      const dadosValidados = registrarUsuarioSchema.parse(req.body);
 
-      const useCase = new RegistrarFuncionarioUseCase(usuarioRepository);
+      const useCase = new RegistrarUsuarioUseCase(usuarioRepository);
 
       await useCase.execute({
         nome: dadosValidados.nome,
@@ -57,6 +58,79 @@ export class AuthController {
       });
 
       return res.status(200).json({ status: 'success', data: resultado });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async listarUsuarios(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: reqUsuarioId, empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Empresa não vinculada' });
+
+      const usuarios = await usuarioRepository.listar(empresaId);
+      
+      const dtos = usuarios
+        .filter(u => u.id !== reqUsuarioId)
+        .map(u => ({
+          id: u.id,
+          nome: u.nome,
+          email: u.email,
+          cargo: u.cargo,
+          ativo: u.ativo
+        }));
+
+      return res.status(200).json({ status: 'success', data: dtos });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async atualizarUsuario(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Empresa não vinculada' });
+
+      // O usuario pode atualizar nome, cargo, ativo
+      const usuario = await usuarioRepository.atualizar(id, {
+        nome: req.body.nome,
+        cargo: req.body.cargo,
+        ativo: req.body.ativo,
+        empresaId: empresaId,
+      });
+
+      if (!usuario) {
+        return res.status(404).json({ status: 'error', message: 'Usuário não encontrado' });
+      }
+
+      return res.status(200).json({ status: 'success', data: usuario });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deletarUsuario(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Empresa não vinculada' });
+
+      const excluirContas = req.query.excluirContas === 'true';
+
+      const usuario = await usuarioRepository.deletar(id);
+
+      if (!usuario) {
+        return res.status(404).json({ status: 'error', message: 'Usuário não encontrado' });
+      }
+
+      if (excluirContas) {
+        const { SupabaseContaPagarRepository } = await import('../core/domain/repository/conta-pagar/SupabaseContaPagarRepository.js');
+        const contaPagarRepository = new SupabaseContaPagarRepository();
+        await contaPagarRepository.deletarPorDescricao(empresaId, `[Salário] ${usuario.nome}`);
+      }
+
+      return res.status(200).json({ status: 'success', message: 'Usuário removido com sucesso' });
     } catch (err) {
       next(err);
     }

@@ -9,6 +9,7 @@ import { relatorioRoutes } from './relatorio.routes.js';
 import { dashboardRoutes } from './dashboard.routes.js';
 import { notaFiscalRoutes } from './notaFiscal.routes.js';
 import { contaPagarRoutes } from './contaPagar.routes.js';
+import { cargoRoutes } from './cargo.routes.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const routes = Router();
@@ -26,5 +27,6 @@ routes.use('/contas-pagar', authMiddleware, contaPagarRoutes);
 routes.use('/relatorios', authMiddleware, relatorioRoutes);
 routes.use('/dashboard', authMiddleware, dashboardRoutes);
 routes.use('/notas-fiscais', authMiddleware, notaFiscalRoutes);
+routes.use('/cargos', authMiddleware, cargoRoutes);
 
 export { routes };

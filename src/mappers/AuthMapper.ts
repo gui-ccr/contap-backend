@@ -3,6 +3,7 @@ import { ErroMapeamento } from '../core/errors/AppErrors.js';
 
 export interface IAuthResponse {
   token: string;
+  refreshToken: string;
   usuarioId: string;
 }
 
@@ -14,7 +15,7 @@ export class AuthMapper {
    */
   static toFrontend(session: Session | null, user: User | null): IAuthResponse {
     
-    if (!session || !session.access_token) {
+    if (!session || !session.access_token || !session.refresh_token) {
       throw new ErroMapeamento("Falha no mapeamento: Token de acesso ausente.");
     }
 
@@ -24,6 +25,7 @@ export class AuthMapper {
 
     return {
       token: session.access_token,
+      refreshToken: session.refresh_token,
       usuarioId: user.id
     };
   }

@@ -2,7 +2,7 @@ import { type IUsuarioRepository } from "../../core/domain/repository/usuario/IU
 import { Usuario } from "../../core/domain/entities/Usuarios.entity.js";
 import { ErroConflito } from "../../core/errors/AppErrors.js";
 
-export interface IRegistrarFuncionarioInput {
+export interface IRegistrarUsuarioInput {
   nome: string;
   email: string;
   senhaLimpa: string;
@@ -11,10 +11,10 @@ export interface IRegistrarFuncionarioInput {
   ativo?: boolean;
 }
 
-export class RegistrarFuncionarioUseCase {
+export class RegistrarUsuarioUseCase {
   constructor(private readonly usuarioRepository: IUsuarioRepository) {}
 
-  async execute(input: IRegistrarFuncionarioInput): Promise<void> {
+  async execute(input: IRegistrarUsuarioInput): Promise<void> {
     const usuarioExistente = await this.usuarioRepository.buscarPorEmail(input.email);
 
     if (usuarioExistente) {
@@ -23,7 +23,7 @@ export class RegistrarFuncionarioUseCase {
 
     const authId = await this.usuarioRepository.registrarAuth(input.email, input.senhaLimpa);
 
-    const novoFuncionario = new Usuario({
+    const novoUsuario = new Usuario({
       id: authId,
       nome: input.nome,
       email: input.email,
@@ -32,6 +32,6 @@ export class RegistrarFuncionarioUseCase {
       ...(input.ativo !== undefined && { ativo: input.ativo }),
     });
 
-    await this.usuarioRepository.salvar(novoFuncionario);
+    await this.usuarioRepository.salvar(novoUsuario);
   }
 }

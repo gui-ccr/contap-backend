@@ -13,12 +13,13 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
         empresa_id: dados.empresa_id,
         descricao: dados.descricao,
         valor: dados.valor,
+        tipo: dados.tipo,
         data_vencimento: dados.data_vencimento,
         pago: dados.pago,
         data_pagamento: dados.data_pagamento,
       })
-      .select("*")
-      .single();
+      .select()
+      .maybeSingle();
 
     if (error) {
       throw new ErroBancoDeDados(
@@ -26,11 +27,16 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       );
     }
 
+    if (!data) {
+      throw new ErroBancoDeDados("Conta a pagar criada, mas sem retorno de dados.");
+    }
+
     return {
       id: data.id,
       empresa_id: data.empresa_id,
       descricao: data.descricao,
       valor: data.valor,
+      tipo: data.tipo,
       data_vencimento: data.data_vencimento,
       pago: data.pago,
       data_pagamento: data.data_pagamento,
@@ -50,14 +56,15 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       );
     }
 
-    return data.map((item) => ({
-      id: item.id,
-      empresa_id: item.empresa_id,
-      descricao: item.descricao,
-      valor: item.valor,
-      data_vencimento: item.data_vencimento,
-      pago: item.pago,
-      data_pagamento: item.data_pagamento,
+    return (data || []).map((c: any) => ({
+      id: c.id,
+      empresa_id: c.empresa_id,
+      descricao: c.descricao,
+      valor: c.valor,
+      tipo: c.tipo,
+      data_vencimento: c.data_vencimento,
+      pago: c.pago,
+      data_pagamento: c.data_pagamento,
     }));
   }
 
@@ -70,7 +77,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       .update({ pago: true, data_pagamento })
       .eq("id", id)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       throw new ErroBancoDeDados(
@@ -78,11 +85,16 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       );
     }
 
+    if (!data) {
+      throw new ErroBancoDeDados("Conta a pagar atualizada, mas sem retorno de dados.");
+    }
+
     return {
       id: data.id,
       empresa_id: data.empresa_id,
       descricao: data.descricao,
       valor: data.valor,
+      tipo: data.tipo,
       data_vencimento: data.data_vencimento,
       pago: data.pago,
       data_pagamento: data.data_pagamento,
@@ -97,9 +109,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       .maybeSingle();
 
     if (error) {
-      throw new ErroBancoDeDados(
-        `Erro ao buscar conta a pagar por ID: ${error.message}`,
-      );
+      throw new ErroBancoDeDados(`Erro ao buscar conta por ID: ${error.message}`);
     }
 
     if (!data) return null;
@@ -109,9 +119,50 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       empresa_id: data.empresa_id,
       descricao: data.descricao,
       valor: data.valor,
+      tipo: data.tipo,
       data_vencimento: data.data_vencimento,
       pago: data.pago,
       data_pagamento: data.data_pagamento,
     };
+  }
+
+  async atualizar(id: string, dados: Partial<IContaPagar>): Promise<IContaPagar> {
+    const { data, error } = await supabaseAdmin
+      .from("contas_pagar")
+      .update(dados)
+      .eq("id", id)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      throw new ErroBancoDeDados(`Erro ao atualizar conta a pagar: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new ErroBancoDeDados("Conta a pagar atualizada, mas sem retorno de dados.");
+    }
+
+    return {
+      id: data.id,
+      empresa_id: data.empresa_id,
+      descricao: data.descricao,
+      valor: data.valor,
+      tipo: data.tipo,
+      data_vencimento: data.data_vencimento,
+      pago: data.pago,
+      data_pagamento: data.data_pagamento,
+    };
+  }
+
+  async deletarPorDescricao(empresa_id: string, prefixoDescricao: string): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from("contas_pagar")
+      .delete()
+      .eq("empresa_id", empresa_id)
+      .like("descricao", `${prefixoDescricao}%`);
+
+    if (error) {
+      throw new ErroBancoDeDados(`Erro ao deletar contas a pagar: ${error.message}`);
+    }
   }
 }

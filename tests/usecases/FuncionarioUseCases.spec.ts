@@ -9,6 +9,9 @@ const funcionarioMock = new Funcionario({
   email: "joao@teste.com",
   empresaId: "empresa-1",
   cargo: "GERENTE",
+  cpfCnpj: "12345678901",
+  salario: 1000,
+  diaPagamento: 5,
 });
 
 describe("Funcionario Use Cases", () => {
@@ -16,7 +19,7 @@ describe("Funcionario Use Cases", () => {
 
   beforeEach(() => {
     funcionarioRepoMock = {
-      salvar: vi.fn(),
+      criar: vi.fn(),
       buscarPorId: vi.fn(),
       listar: vi.fn(),
       atualizar: vi.fn(),

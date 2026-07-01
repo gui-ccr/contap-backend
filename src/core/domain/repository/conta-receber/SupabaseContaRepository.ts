@@ -13,12 +13,13 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
         empresa_id: dados.empresa_id,
         origem: dados.origem,
         valor: dados.valor,
+        tipo: dados.tipo,
         data_previsao: dados.data_previsao,
         recebido: dados.recebido,
         data_recebimento: dados.data_recebimento,
       })
-      .select("*")
-      .single();
+      .select()
+      .maybeSingle();
 
     if (error) {
       throw new ErroBancoDeDados(
@@ -26,11 +27,16 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       );
     }
 
+    if (!data) {
+      throw new ErroBancoDeDados("Conta a receber criada, mas sem retorno de dados.");
+    }
+
     return {
       id: data.id,
       empresa_id: data.empresa_id,
       origem: data.origem,
       valor: data.valor,
+      tipo: data.tipo,
       data_previsao: data.data_previsao,
       recebido: data.recebido,
       data_recebimento: data.data_recebimento,
@@ -50,14 +56,15 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       );
     }
 
-    return data.map((item) => ({
-      id: item.id,
-      empresa_id: item.empresa_id,
-      origem: item.origem,
-      valor: item.valor,
-      data_previsao: item.data_previsao,
-      recebido: item.recebido,
-      data_recebimento: item.data_recebimento,
+    return (data || []).map((c: any) => ({
+      id: c.id,
+      empresa_id: c.empresa_id,
+      origem: c.origem,
+      valor: c.valor,
+      tipo: c.tipo,
+      data_previsao: c.data_previsao,
+      recebido: c.recebido,
+      data_recebimento: c.data_recebimento,
     }));
   }
 
@@ -70,7 +77,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       .update({ recebido: true, data_recebimento })
       .eq("id", id)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       throw new ErroBancoDeDados(
@@ -78,11 +85,16 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       );
     }
 
+    if (!data) {
+      throw new ErroBancoDeDados("Conta a receber atualizada, mas sem retorno de dados.");
+    }
+
     return {
       id: data.id,
       empresa_id: data.empresa_id,
       origem: data.origem,
       valor: data.valor,
+      tipo: data.tipo,
       data_previsao: data.data_previsao,
       recebido: data.recebido,
       data_recebimento: data.data_recebimento,
@@ -96,20 +108,49 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       .eq("id", id)
       .maybeSingle();
 
-      if(error){
-        throw new ErroBancoDeDados(`Erro ao buscar conta a receber por ID: ${error.message}`);
-      }
+    if (error) {
+      throw new ErroBancoDeDados(`Erro ao buscar conta a receber por ID: ${error.message}`);
+    }
 
-      if(!data) return null;
+    if (!data) return null;
 
-      return {
-        id: data.id,
-        empresa_id: data.empresa_id,
-        origem: data.origem,
-        valor: data.valor,
-        data_previsao: data.data_previsao,
-        recebido: data.recebido,
-        data_recebimento: data.data_recebimento,
-      };
+    return {
+      id: data.id,
+      empresa_id: data.empresa_id,
+      origem: data.origem,
+      valor: data.valor,
+      tipo: data.tipo,
+      data_previsao: data.data_previsao,
+      recebido: data.recebido,
+      data_recebimento: data.data_recebimento,
+    };
+  }
+
+  async atualizar(id: string, dados: Partial<IContaReceber>): Promise<IContaReceber> {
+    const { data, error } = await supabaseAdmin
+      .from("contas_receber")
+      .update(dados)
+      .eq("id", id)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      throw new ErroBancoDeDados(`Erro ao atualizar conta a receber: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new ErroBancoDeDados("Conta a receber atualizada, mas sem retorno de dados.");
+    }
+
+    return {
+      id: data.id,
+      empresa_id: data.empresa_id,
+      origem: data.origem,
+      valor: data.valor,
+      tipo: data.tipo,
+      data_previsao: data.data_previsao,
+      recebido: data.recebido,
+      data_recebimento: data.data_recebimento,
+    };
   }
 }

@@ -6,6 +6,9 @@ export interface IFuncionarioProps {
   nome: string;
   cargo: string;
   email: string;
+  cpfCnpj: string;
+  salario: number;
+  diaPagamento: number;
 }
 
 export class Funcionario {
@@ -27,4 +30,7 @@ export class Funcionario {
   get nome() { return this.props.nome; }
   get cargo() { return this.props.cargo; }
   get email() { return this.props.email; }
+  get cpfCnpj() { return this.props.cpfCnpj; }
+  get salario() { return this.props.salario; }
+  get diaPagamento() { return this.props.diaPagamento; }
 }
