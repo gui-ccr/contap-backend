@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\-])[A-Za-z\d@$!%*?&\-]{6,}$/;
 
 // ─── Schema: Perfil completo (tabela pública "usuarios") ───────────────────────
 export const criarUsuariosSchema = z.object({

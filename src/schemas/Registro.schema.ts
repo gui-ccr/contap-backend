@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\-])[A-Za-z\d@$!%*?&\-]{6,}$/;
 
 const DadosRegistroSchema = z.object({
     nome: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
