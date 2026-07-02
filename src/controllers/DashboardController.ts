@@ -23,10 +23,13 @@ export class DashboardController {
       const query = dashboardResumoQuerySchema.parse(req.query);
       
       const dataAtual = new Date();
-      const mes = query.mes || (dataAtual.getMonth() + 1);
-      const ano = query.ano || dataAtual.getFullYear();
+      const trintaDiasAtras = new Date();
+      trintaDiasAtras.setDate(dataAtual.getDate() - 30);
+      
+      const dataInicio = query.data_inicio || trintaDiasAtras.toISOString().split("T")[0]!;
+      const dataFim = query.data_fim || dataAtual.toISOString().split("T")[0]!;
 
-      const resultado = await useCases.obterResumo(empresaId, mes, ano);
+      const resultado = await useCases.obterResumo(empresaId, dataInicio, dataFim);
 
       return res.status(200).json({
         status: "success",

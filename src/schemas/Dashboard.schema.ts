@@ -5,8 +5,8 @@ const dataQuerySchema = z.string().refine((date) => !Number.isNaN(Date.parse(dat
 });
 
 export const dashboardResumoQuerySchema = z.object({
-  mes: z.coerce.number().min(1).max(12).optional(),
-  ano: z.coerce.number().min(2020).optional(),
+  data_inicio: dataQuerySchema.optional(),
+  data_fim: dataQuerySchema.optional(),
 });
 
 export const dashboardFluxoCaixaQuerySchema = z.object({

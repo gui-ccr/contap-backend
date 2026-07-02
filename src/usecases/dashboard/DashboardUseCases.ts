@@ -13,8 +13,8 @@ export class DashboardUseCases {
 
   async obterResumo(
     empresaId: string,
-    mes: number,
-    ano: number
+    dataInicio: string,
+    dataFim: string
   ): Promise<{
     resumo: IResumoDashboard;
     desempenhoAnual: IDesempenhoMensal[];
@@ -29,10 +29,10 @@ export class DashboardUseCases {
       movimentacoesRecentes,
       pendenciasOperacionais,
     ] = await Promise.all([
-      this.dashboardRepository.resumoMes(empresaId, mes, ano),
-      this.dashboardRepository.desempenhoAnual(empresaId, ano),
-      this.dashboardRepository.receitaPorCategoria(empresaId, mes, ano),
-      this.dashboardRepository.movimentacoesRecentes(empresaId, 10),
+      this.dashboardRepository.resumoPeriodo(empresaId, dataInicio, dataFim),
+      this.dashboardRepository.desempenhoPeriodo(empresaId, dataInicio, dataFim),
+      this.dashboardRepository.receitaPorCategoriaPeriodo(empresaId, dataInicio, dataFim),
+      this.dashboardRepository.movimentacoesRecentes(empresaId, 10, dataInicio, dataFim),
       this.dashboardRepository.pendenciasOperacionais(empresaId),
     ]);
 
