@@ -78,7 +78,8 @@ export class AuthController {
           nome: u.nome,
           email: u.email,
           cargo: u.cargo,
-          ativo: u.ativo
+          ativo: u.ativo,
+          foto_url: u.foto_url ?? null
         }));
 
       return res.status(200).json({ status: 'success', data: dtos });

@@ -1,10 +1,10 @@
-import { supabase } from "../../../../config/database.js";
+import { supabaseAdmin } from "../../../../config/database.js";
 import { Notificacao } from "../../entities/Notificacao.entity.js";
 import type { INotificacaoRepository } from "./INotificacaoRepository.js";
 
 export class SupabaseNotificacaoRepository implements INotificacaoRepository {
   async criar(notificacao: Notificacao): Promise<Notificacao> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("notificacoes")
       .insert([
         {
@@ -33,7 +33,7 @@ export class SupabaseNotificacaoRepository implements INotificacaoRepository {
   }
 
   async listarPorEmpresa(empresa_id: string): Promise<Notificacao[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("notificacoes")
       .select("*")
       .eq("empresa_id", empresa_id)
@@ -58,7 +58,7 @@ export class SupabaseNotificacaoRepository implements INotificacaoRepository {
   }
 
   async marcarComoLida(id: string): Promise<Notificacao | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("notificacoes")
       .update({ lida: true })
       .eq("id", id)
@@ -81,7 +81,7 @@ export class SupabaseNotificacaoRepository implements INotificacaoRepository {
   }
 
   async contarNaoLidas(empresa_id: string): Promise<number> {
-    const { count, error } = await supabase
+    const { count, error } = await supabaseAdmin
       .from("notificacoes")
       .select("*", { count: "exact", head: true })
       .eq("empresa_id", empresa_id)

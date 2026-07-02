@@ -1,11 +1,11 @@
-import { supabase } from "../../../../config/database.js";
+import { supabaseAdmin } from "../../../../config/database.js";
 import { Cargo } from "../../entities/Cargo.entity.js";
 import { ErroInterno, ErroNaoEncontrado } from "../../../errors/AppErrors.js";
 import type { ICargoRepository } from "./ICargoRepository.js";
 
 export class SupabaseCargoRepository implements ICargoRepository {
   async criar(cargo: Cargo): Promise<Cargo> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("cargos")
       .insert([
         {
@@ -26,7 +26,7 @@ export class SupabaseCargoRepository implements ICargoRepository {
   }
 
   async listar(empresa_id: string): Promise<Cargo[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("cargos")
       .select("*")
       .eq("empresa_id", empresa_id)
@@ -41,7 +41,7 @@ export class SupabaseCargoRepository implements ICargoRepository {
   }
 
   async buscarPorId(id: string): Promise<Cargo | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("cargos")
       .select("*")
       .eq("id", id)
@@ -60,7 +60,7 @@ export class SupabaseCargoRepository implements ICargoRepository {
     if (dados.nome !== undefined) atualizacao.nome = dados.nome;
     if (dados.descricao !== undefined) atualizacao.descricao = dados.descricao;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("cargos")
       .update(atualizacao)
       .eq("id", id)
@@ -76,7 +76,7 @@ export class SupabaseCargoRepository implements ICargoRepository {
   }
 
   async deletar(id: string): Promise<void> {
-    const { error } = await supabase.from("cargos").delete().eq("id", id);
+    const { error } = await supabaseAdmin.from("cargos").delete().eq("id", id);
     if (error) {
       console.error("Erro ao deletar cargo:", error);
       throw new ErroInterno("Erro ao deletar cargo no banco de dados.");
