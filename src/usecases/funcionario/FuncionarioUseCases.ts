@@ -44,6 +44,17 @@ export class CriarFuncionarioUseCase {
       });
     }
 
+    const { SupabaseNotificacaoRepository } = await import("../../core/domain/repository/notificacao/SupabaseNotificacaoRepository.js");
+    const { CriarNotificacaoUseCase } = await import("../notificacao/CriarNotificacaoUseCase.js");
+    
+    const notificacaoRepo = new SupabaseNotificacaoRepository();
+    const criarNotificacao = new CriarNotificacaoUseCase(notificacaoRepo);
+    await criarNotificacao.executar({
+      empresa_id: salvo.empresaId,
+      titulo: "Novo Funcionário",
+      mensagem: `O funcionário "${salvo.nome}" foi cadastrado com sucesso.`,
+    });
+
     return salvo;
   }
 }

@@ -20,12 +20,21 @@ export class ReceberContaUseCase {
       "1.1.01",
       conta.empresa_id,
     );
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(conta.tipo);
+    let contaReceita = null;
     
-    const contaReceita =
-      await this.planoContaRepository.buscarPorCodigoEEmpresa(
+    if (isUuid) {
+      contaReceita = await this.planoContaRepository.buscarPorId(conta.tipo);
+    }
+    
+    if (!contaReceita) {
+      // Legacy fallback for old records
+      contaReceita = await this.planoContaRepository.buscarPorCodigoEEmpresa(
         "4.1.01",
         conta.empresa_id,
       );
+    }
 
     if (!contaCaixa) {
       throw new ErroEntradaInvalida(
@@ -63,6 +72,17 @@ export class ReceberContaUseCase {
           valor: conta.valor,
         },
       ],
+    });
+
+    const { SupabaseNotificacaoRepository } = await import("../../core/domain/repository/notificacao/SupabaseNotificacaoRepository.js");
+    const { CriarNotificacaoUseCase } = await import("../notificacao/CriarNotificacaoUseCase.js");
+    
+    const notificacaoRepo = new SupabaseNotificacaoRepository();
+    const criarNotificacao = new CriarNotificacaoUseCase(notificacaoRepo);
+    await criarNotificacao.executar({
+      empresa_id: conta.empresa_id,
+      titulo: "Conta Recebida",
+      mensagem: `O recebimento de "${conta.origem}" no valor de R$ ${conta.valor} foi baixado e contabilizado.`,
     });
 
     return contaAtualizada;

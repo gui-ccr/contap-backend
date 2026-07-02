@@ -14,18 +14,32 @@ export class GerarBalancoPatrimonialUseCase {
     // 1. Busca os saldos patrimoniais já consolidados pelo banco de dados
     const saldos = await this.relatorioRepository.obterSaldosPatrimoniais(empresaId, dataBase);
 
-    // 2. Calcula os totais com segurança matemática
+    // 2. Busca as receitas e despesas para calcular o Resultado do Exercício
+    // (Assumindo desde o início dos tempos ou início do ano, mas como não temos fechamento anual, usaremos tudo até dataBase)
+    const dataInicio = new Date(0); // 1970 (tudo até a data base)
+    const saldosResultado = await this.relatorioRepository.obterSaldosResultado(empresaId, dataInicio, dataBase);
+    
+    const totalReceitas = this.somarSaldos(saldosResultado.receitas);
+    const totalDespesas = this.somarSaldos(saldosResultado.despesas);
+    const lucroOuPrejuizo = Number((totalReceitas - totalDespesas).toFixed(2));
+
+    // Injetar o Lucro/Prejuízo no Patrimônio Líquido
+    saldos.patrimonioLiquido.push({
+      codigo: "3.9.99", // Código genérico para Resultado do Exercício
+      nome: "Lucro/Prejuízo Acumulado",
+      saldo: lucroOuPrejuizo
+    });
+
+    // 3. Calcula os totais com segurança matemática
     const totalAtivo = this.somarSaldos(saldos.ativos);
     const totalPassivo = this.somarSaldos(saldos.passivos);
     const totalPL = this.somarSaldos(saldos.patrimonioLiquido);
 
-    // 3. Auditoria do Balanço: Ativo DEVE ser igual ao Passivo + PL
-    // Usamos toFixed(2) para garantir que 0.01 de diferença em JS não quebre o balanço
+    // 4. Auditoria do Balanço: Ativo DEVE ser igual ao Passivo + PL
     const somaPassivoPL = Number((totalPassivo + totalPL).toFixed(2));
     const equacaoValida = totalAtivo === somaPassivoPL;
 
-    // 4. Retorna o contrato exigido, respeitando a regra de não estourar erro (crash), 
-    // mas sinalizando via 'equacaoValida' caso haja anomalia nos dados.
+    // 5. Retorna o contrato exigido
     return {
       empresaId,
       dataBase,

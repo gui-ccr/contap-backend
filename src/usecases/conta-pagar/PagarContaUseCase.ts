@@ -23,11 +23,20 @@ export class PagarContaUseCase {
       conta.empresa_id,
     );
 
-    const contaDespesa =
-      await this.planoContaRepository.buscarPorCodigoEEmpresa(
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(conta.tipo);
+    let contaDespesa = null;
+    
+    if (isUuid) {
+      contaDespesa = await this.planoContaRepository.buscarPorId(conta.tipo);
+    }
+    
+    if (!contaDespesa) {
+      // Legacy fallback for old records like "Salário"
+      contaDespesa = await this.planoContaRepository.buscarPorCodigoEEmpresa(
         "5.1.01",
         conta.empresa_id,
       );
+    }
 
     if (!contaCaixa) {
       throw new ErroEntradaInvalida(
@@ -63,6 +72,17 @@ export class PagarContaUseCase {
           valor: conta.valor,
         },
       ],
+    });
+
+    const { SupabaseNotificacaoRepository } = await import("../../core/domain/repository/notificacao/SupabaseNotificacaoRepository.js");
+    const { CriarNotificacaoUseCase } = await import("../notificacao/CriarNotificacaoUseCase.js");
+    
+    const notificacaoRepo = new SupabaseNotificacaoRepository();
+    const criarNotificacao = new CriarNotificacaoUseCase(notificacaoRepo);
+    await criarNotificacao.executar({
+      empresa_id: conta.empresa_id,
+      titulo: "Conta Paga",
+      mensagem: `A conta "${conta.descricao}" no valor de R$ ${conta.valor} foi paga e contabilizada.`,
     });
 
     return contaAtualizada;

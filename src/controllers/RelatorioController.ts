@@ -22,11 +22,14 @@ export class RelatorioController {
       const empresaId = extrairEmpresaId(req);
       const { dataInicio, dataFim } = dreQuerySchema.parse(req.query);
 
+      const dataFimDre = new Date(dataFim);
+      dataFimDre.setUTCHours(23, 59, 59, 999);
+
       const useCase = new GerarDREUseCase(relatorioRepository);
       const dre = await useCase.execute({
         empresaId,
         dataInicio: new Date(dataInicio),
-        dataFim: new Date(dataFim),
+        dataFim: dataFimDre,
       });
 
       return res.status(200).json({ status: "success", data: dre });
@@ -40,14 +43,18 @@ export class RelatorioController {
       const empresaId = extrairEmpresaId(req);
       const { dataBase } = balancoPatrimonialQuerySchema.parse(req.query);
 
+      const dataFimBalanco = new Date(dataBase);
+      dataFimBalanco.setUTCHours(23, 59, 59, 999);
+
       const useCase = new GerarBalancoPatrimonialUseCase(relatorioRepository);
       const balanco = await useCase.execute({
         empresaId,
-        dataBase: new Date(dataBase),
+        dataBase: dataFimBalanco,
       });
 
       return res.status(200).json({ status: "success", data: balanco });
     } catch (err) {
+      console.error("ERRO NO BALANCO:", err);
       next(err);
     }
   }
