@@ -6,6 +6,7 @@ export interface IAtualizarFuncionarioInput {
   cargo?: string;
   empresaId?: string;
   ativo?: boolean;
+  foto_url?: string | null;
 }
 
 export interface IUsuarioRepository {

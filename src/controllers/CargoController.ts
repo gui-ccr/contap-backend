@@ -42,4 +42,18 @@ export class CargoController {
       return res.status(200).json({ status: 'success', message: 'Cargo deletado com sucesso.' });
     } catch (error) { next(error); }
   }
+
+  async atualizar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
+      
+      const id = req.params.id as string;
+      const { AtualizarCargoUseCase } = await import('../usecases/cargo/CargoUseCases.js');
+      const useCase = new AtualizarCargoUseCase(cargoRepository);
+      const resultado = await useCase.executar(id, empresaId, req.body);
+      
+      return res.status(200).json({ status: 'success', data: resultado.toJSON() });
+    } catch (error) { next(error); }
+  }
 }

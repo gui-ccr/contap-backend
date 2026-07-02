@@ -27,6 +27,7 @@ function funcionarioDto(funcionario: Funcionario) {
     cpf_cnpj: funcionario.cpfCnpj,
     salario: funcionario.salario,
     dia_pagamento: funcionario.diaPagamento,
+    foto_url: funcionario.foto_url,
   };
 }
 
@@ -50,12 +51,13 @@ export class FuncionarioController {
         cpf_cnpj: z.string().min(11, "CPF/CNPJ inválido"),
         salario: z.number().min(0, "O salário não pode ser negativo"),
         dia_pagamento: z.number().min(1).max(31, "Dia de pagamento inválido"),
+        foto_url: z.string().url("URL da foto inválida").optional().nullable(),
       });
       
       const dadosValidados = criarSchema.parse(req.body);
 
       const useCase = new CriarFuncionarioUseCase(funcionarioRepository, contaPagarRepository);
-      const funcionario = await useCase.execute({
+      const input: any = {
         empresaId: empresaId,
         nome: dadosValidados.nome,
         cargo: dadosValidados.cargo,
@@ -63,7 +65,13 @@ export class FuncionarioController {
         cpfCnpj: dadosValidados.cpf_cnpj,
         salario: dadosValidados.salario,
         diaPagamento: dadosValidados.dia_pagamento,
-      });
+      };
+      
+      if (dadosValidados.foto_url) {
+        input.foto_url = dadosValidados.foto_url;
+      }
+
+      const funcionario = await useCase.execute(input);
 
       return res.status(201).json({
         status: "success",
@@ -115,6 +123,7 @@ export class FuncionarioController {
         cpf_cnpj: z.string().optional(),
         salario: z.number().optional(),
         dia_pagamento: z.number().min(1).max(31).optional(),
+        foto_url: z.string().url().optional().nullable(),
       }).refine((data) => Object.keys(data).length > 0, { message: "Informe algo para atualizar" });
 
       const dadosValidados = atualizarSchema.parse(req.body);
@@ -130,6 +139,7 @@ export class FuncionarioController {
           ...(dadosValidados.cpf_cnpj !== undefined && { cpfCnpj: dadosValidados.cpf_cnpj }),
           ...(dadosValidados.salario !== undefined && { salario: dadosValidados.salario }),
           ...(dadosValidados.dia_pagamento !== undefined && { diaPagamento: dadosValidados.dia_pagamento }),
+          ...(dadosValidados.foto_url !== undefined && { foto_url: dadosValidados.foto_url }),
         },
       });
 

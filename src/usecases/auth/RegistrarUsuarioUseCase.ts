@@ -9,12 +9,13 @@ export interface IRegistrarUsuarioInput {
   empresaId: string;
   cargo: string;
   ativo?: boolean;
+  foto_url?: string;
 }
 
 export class RegistrarUsuarioUseCase {
   constructor(private readonly usuarioRepository: IUsuarioRepository) {}
 
-  async execute(input: IRegistrarUsuarioInput): Promise<void> {
+  async execute(input: IRegistrarUsuarioInput): Promise<string> {
     const usuarioExistente = await this.usuarioRepository.buscarPorEmail(input.email);
 
     if (usuarioExistente) {
@@ -30,8 +31,10 @@ export class RegistrarUsuarioUseCase {
       empresaId: input.empresaId,
       cargo: input.cargo,
       ...(input.ativo !== undefined && { ativo: input.ativo }),
+      ...(input.foto_url && { foto_url: input.foto_url }),
     });
 
     await this.usuarioRepository.salvar(novoUsuario);
+    return authId;
   }
 }

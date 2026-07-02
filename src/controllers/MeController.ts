@@ -31,6 +31,7 @@ export class MeController {
             email: usuario.email,
             cargo: usuario.cargo,
             ativo: usuario.ativo,
+            foto_url: usuario.foto_url,
           },
           empresa: empresa ? {
             id: empresa.id,

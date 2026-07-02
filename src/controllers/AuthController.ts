@@ -15,16 +15,17 @@ export class AuthController {
 
       const useCase = new RegistrarUsuarioUseCase(usuarioRepository);
 
-      await useCase.execute({
+      const authId = await useCase.execute({
         nome: dadosValidados.nome,
         email: dadosValidados.email,
         senhaLimpa: dadosValidados.senha,
         empresaId: dadosValidados.empresa_id,
         cargo: dadosValidados.cargo,
         ...(dadosValidados.ativo !== undefined && { ativo: dadosValidados.ativo }),
+        ...(dadosValidados.foto_url && { foto_url: dadosValidados.foto_url }),
       });
 
-      return res.status(201).json({ status: 'success', message: 'Funcionário registrado com sucesso!' });
+      return res.status(201).json({ status: 'success', message: 'Funcionário registrado com sucesso!', data: { id: authId } });
     } catch (err) {
       next(err);
     }
@@ -92,12 +93,12 @@ export class AuthController {
       const { empresaId } = (req as IRequestAutenticado).usuario;
       if (!empresaId) return res.status(403).json({ status: 'error', message: 'Empresa não vinculada' });
 
-      // O usuario pode atualizar nome, cargo, ativo
-      const usuario = await usuarioRepository.atualizar(id, {
+      const usuario = await usuarioRepository.atualizar(id as string, {
         nome: req.body.nome,
         cargo: req.body.cargo,
         ativo: req.body.ativo,
         empresaId: empresaId,
+        foto_url: req.body.foto_url,
       });
 
       if (!usuario) {
@@ -118,7 +119,7 @@ export class AuthController {
 
       const excluirContas = req.query.excluirContas === 'true';
 
-      const usuario = await usuarioRepository.deletar(id);
+      const usuario = await usuarioRepository.deletar(id as string);
 
       if (!usuario) {
         return res.status(404).json({ status: 'error', message: 'Usuário não encontrado' });

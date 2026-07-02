@@ -9,6 +9,7 @@ export interface IFuncionarioProps {
   cpfCnpj: string;
   salario: number;
   diaPagamento: number;
+  foto_url?: string | null;
 }
 
 export class Funcionario {
@@ -33,4 +34,5 @@ export class Funcionario {
   get cpfCnpj() { return this.props.cpfCnpj; }
   get salario() { return this.props.salario; }
   get diaPagamento() { return this.props.diaPagamento; }
+  get foto_url() { return this.props.foto_url; }
 }

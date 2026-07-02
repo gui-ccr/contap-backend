@@ -9,6 +9,7 @@ export const criarUsuariosSchema = z.object({
   nome: z.string().min(2, "O nome é obrigatório"),
   email: z.string().email("Formato de e-mail inválido"),
   cargo: z.string().min(1, "O cargo é obrigatório"),
+  foto_url: z.string().url("URL da foto inválida").optional(),
 });
 
 // ─── Schema: Entrada do endpoint de registro de usuário ───────────────────
@@ -19,6 +20,7 @@ export const registrarUsuarioSchema = z.object({
   empresa_id: z.string().uuid("ID da empresa inválido"),
   cargo: z.string().min(1, "O cargo é obrigatório"),
   ativo: z.boolean().optional(),
+  foto_url: z.string().url("URL da foto inválida").optional().nullable(),
 });
 
 // ─── Schema: Atualização de funcionário (todos os campos opcionais) ───────────
@@ -26,6 +28,7 @@ export const atualizarFuncionarioSchema = z.object({
   nome: z.string().min(2, "O nome deve ter ao menos 2 caracteres").optional(),
   cargo: z.enum(['GERENTE', 'CAIXA']).optional(),
   ativo: z.boolean().optional(),
+  foto_url: z.string().url("URL da foto inválida").optional(),
 }).refine(
   (data) => Object.keys(data).length > 0,
   { message: "Informe ao menos um campo para atualizar." }

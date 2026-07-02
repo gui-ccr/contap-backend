@@ -15,6 +15,7 @@ function mapearUsuario(data: Record<string, unknown>): Usuario {
     ...(data.empresa_id != null && { empresaId: data.empresa_id as string }),
     cargo: data.cargo as string,
     ...(data.ativo != null && { ativo: data.ativo as boolean }),
+    foto_url: data.foto_url as string | null,
   });
 }
 
@@ -61,6 +62,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
       empresa_id: usuario.empresaId,
       cargo: usuario.cargo,
       ...(usuario.ativo !== undefined && { ativo: usuario.ativo }),
+      ...(usuario.foto_url && { foto_url: usuario.foto_url }),
     });
 
     if (error) {
@@ -126,7 +128,8 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
     if (dados.empresaId !== undefined) atualizacao["empresa_id"] = dados.empresaId;
     // @ts-ignore
     if (dados.ativo !== undefined) atualizacao["ativo"] = dados.ativo;
-
+    if (dados.foto_url !== undefined) atualizacao["foto_url"] = dados.foto_url;
+    
     const { data, error } = await supabaseAdmin
       .from("usuarios")
       .update(atualizacao)

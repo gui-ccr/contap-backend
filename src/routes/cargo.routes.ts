@@ -9,6 +9,7 @@ cargoRoutes.use(authMiddleware);
 
 cargoRoutes.post("/", controller.criar);
 cargoRoutes.get("/", controller.listar);
+cargoRoutes.put("/:id", controller.atualizar);
 cargoRoutes.delete("/:id", controller.deletar);
 
 export { cargoRoutes };

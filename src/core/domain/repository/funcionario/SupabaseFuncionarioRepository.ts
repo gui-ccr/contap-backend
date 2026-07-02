@@ -13,6 +13,7 @@ function mapearFuncionario(data: Record<string, unknown>): Funcionario {
     cpfCnpj: data.cpf_cnpj as string,
     salario: Number(data.salario) || 0,
     diaPagamento: Number(data.dia_pagamento) || 1,
+    foto_url: data.foto_url as string | null,
   });
 }
 
@@ -26,6 +27,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
       cpf_cnpj: funcionario.cpfCnpj,
       salario: funcionario.salario,
       dia_pagamento: funcionario.diaPagamento,
+      foto_url: funcionario.foto_url,
     }).select().single();
 
     if (error) {
@@ -66,6 +68,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
     if (dados.cpfCnpj !== undefined) atualizacao["cpf_cnpj"] = dados.cpfCnpj;
     if (dados.salario !== undefined) atualizacao["salario"] = dados.salario;
     if (dados.diaPagamento !== undefined) atualizacao["dia_pagamento"] = dados.diaPagamento;
+    if (dados.foto_url !== undefined) atualizacao["foto_url"] = dados.foto_url;
 
     const { data, error } = await supabaseAdmin
       .from("funcionarios")

@@ -13,6 +13,7 @@ export interface ICriarFuncionarioInput {
   cpfCnpj: string;
   salario: number;
   diaPagamento: number;
+  foto_url?: string;
 }
 
 export class CriarFuncionarioUseCase {

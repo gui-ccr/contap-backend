@@ -7,6 +7,7 @@ export interface IUsuarioProps {
   empresaId?: string;
   cargo: string;
   ativo?: boolean;
+  foto_url?: string | null;
 }
 
 export class Usuario {
@@ -36,4 +37,5 @@ export class Usuario {
   get empresaId() { return this.props.empresaId; }
   get cargo() { return this.props.cargo; }
   get ativo() { return this.props.ativo; }
+  get foto_url() { return this.props.foto_url; }
 }
