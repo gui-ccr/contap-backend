@@ -1,7 +1,7 @@
 import type { IContaReceberRepository } from "../../core/domain/repository/conta-receber/IContaReceberRepository.js";
 import { CriarLancamentoUseCase } from "../lancamento/CriarLancamentoUseCase.js";
 import { type IPlanoContaRepository } from "../../core/domain/repository/plano-conta/IPlanoContaRepository.js";
-import { ErroEntradaInvalida } from "../../core/errors/AppErrors.js";
+import { ErroEntradaInvalida, ErroNaoAutorizado } from "../../core/errors/AppErrors.js";
 export class ReceberContaUseCase {
   constructor(
     private contasReceberRepository: IContaReceberRepository,
@@ -9,10 +9,14 @@ export class ReceberContaUseCase {
     private planoContaRepository: IPlanoContaRepository,
   ) {}
 
-  async executar(id: string) {
+  async executar(id: string, empresaId: string) {
     const conta = await this.contasReceberRepository.buscarPorId(id);
 
     if (!conta) throw new Error("Conta a receber não encontrada.");
+
+    if (conta.empresa_id !== empresaId) {
+      throw new ErroNaoAutorizado("Você não tem permissão para alterar esta conta.");
+    }
 
     if (conta.recebido)
       throw new Error("Esta conta já foi baixada/recebida anteriormente.");

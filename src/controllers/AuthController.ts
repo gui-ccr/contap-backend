@@ -12,6 +12,8 @@ export class AuthController {
   async registrarUsuario(req: Request, res: Response, next: NextFunction) {
     try {
       const dadosValidados = registrarUsuarioSchema.parse(req.body);
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Empresa não vinculada' });
 
       const useCase = new RegistrarUsuarioUseCase(usuarioRepository);
 
@@ -19,7 +21,7 @@ export class AuthController {
         nome: dadosValidados.nome,
         email: dadosValidados.email,
         senhaLimpa: dadosValidados.senha,
-        empresaId: dadosValidados.empresa_id,
+        empresaId,
         cargo: dadosValidados.cargo,
         ...(dadosValidados.ativo !== undefined && { ativo: dadosValidados.ativo }),
         ...(dadosValidados.foto_url && { foto_url: dadosValidados.foto_url }),

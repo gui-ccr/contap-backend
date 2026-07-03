@@ -53,7 +53,7 @@ describe("Contas a Receber - Casos de Uso", () => {
       });
 
       const useCase = new ReceberContaUseCase(cRepo, mockCriarLancamentoUseCase, pRepo);
-      await useCase.executar("1");
+      await useCase.executar("1", "emp");
       expect(cRepo.marcarComoRecebido).toHaveBeenCalled();
       expect(mockCriarLancamentoUseCase.execute).toHaveBeenCalled();
     });

@@ -44,8 +44,11 @@ export class ContaReceberController {
         return res.status(400).json({ error: "O ID da conta é obrigatório." });
       }
 
-      const resultado = await this.receberContaUseCase.executar(id);
-      
+      const { empresaId } = (req as any).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
+
+      const resultado = await this.receberContaUseCase.executar(id, empresaId);
+
       return res.status(200).json({
         message: "Conta recebida e lançamento contábil gerado com sucesso!",
         dados: resultado
@@ -59,8 +62,10 @@ export class ContaReceberController {
     try {
       const id = req.params.id as string;
       if (!id) return res.status(400).json({ error: "O ID da conta é obrigatório." });
-      
-      const resultado = await this.atualizarContaUseCase.executar(id, req.body);
+      const { empresaId } = (req as any).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
+
+      const resultado = await this.atualizarContaUseCase.executar(id, empresaId, req.body);
       return res.status(200).json(resultado);
     } catch (error: any) {
       next(error);

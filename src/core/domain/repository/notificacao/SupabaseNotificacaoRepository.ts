@@ -57,11 +57,12 @@ export class SupabaseNotificacaoRepository implements INotificacaoRepository {
     );
   }
 
-  async marcarComoLida(id: string): Promise<Notificacao | null> {
+  async marcarComoLida(id: string, empresa_id: string): Promise<Notificacao | null> {
     const { data, error } = await supabaseAdmin
       .from("notificacoes")
       .update({ lida: true })
       .eq("id", id)
+      .eq("empresa_id", empresa_id)
       .select()
       .single();
 

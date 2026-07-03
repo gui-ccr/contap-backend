@@ -48,10 +48,12 @@ export class ContaPagarController {
     try {
       const id = req.params.id as string;
       if (!id) return res.status(400).json({ status: 'error', message: 'O ID da conta é obrigatório.' });
-      
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
+
       const useCase = new PagarContaUseCase(contasPagarRepository, criarLancamentoUseCase, planoContaRepository);
-      const resultado = await useCase.executar(id);
-      
+      const resultado = await useCase.executar(id, empresaId);
+
       return res.status(200).json({
         message: 'Conta paga e lançamento contábil gerado!',
         dados: resultado
@@ -65,10 +67,12 @@ export class ContaPagarController {
     try {
       const id = req.params.id as string;
       if (!id) return res.status(400).json({ status: 'error', message: 'O ID da conta é obrigatório.' });
-      
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
+
       const useCase = new AtualizarContaPagarUseCase(contasPagarRepository);
-      const resultado = await useCase.executar(id, req.body);
-      
+      const resultado = await useCase.executar(id, empresaId, req.body);
+
       return res.status(200).json(resultado);
     } catch (error) {
       next(error);

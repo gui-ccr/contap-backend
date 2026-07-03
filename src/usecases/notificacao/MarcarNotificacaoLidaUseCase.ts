@@ -3,8 +3,8 @@ import type { INotificacaoRepository } from "../../core/domain/repository/notifi
 export class MarcarNotificacaoLidaUseCase {
   constructor(private notificacaoRepository: INotificacaoRepository) {}
 
-  async executar(id: string) {
-    const notificacao = await this.notificacaoRepository.marcarComoLida(id);
+  async executar(id: string, empresaId: string) {
+    const notificacao = await this.notificacaoRepository.marcarComoLida(id, empresaId);
     if (!notificacao) throw new Error("Notificação não encontrada");
 
     return {

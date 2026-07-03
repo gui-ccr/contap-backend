@@ -17,7 +17,6 @@ export const registrarUsuarioSchema = z.object({
   email: z.string().email("Formato de e-mail inválido"),
   senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   nome: z.string().min(2, "O nome é obrigatório"),
-  empresa_id: z.string().uuid("ID da empresa inválido"),
   cargo: z.string().min(1, "O cargo é obrigatório"),
   ativo: z.boolean().optional(),
   foto_url: z.string().url("URL da foto inválida").optional().nullable(),

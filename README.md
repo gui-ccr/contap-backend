@@ -46,6 +46,20 @@ O Backend é o responsável por implementar e validar os seguintes pontos exigid
 
 ---
 
+## 🔒 Segurança Multi-tenant (Autorização)
+
+Este backend é **multi-tenant**: várias empresas compartilham o mesmo banco de dados, isoladas apenas por `empresa_id`. Como usamos `supabaseAdmin` (service role) em todas as queries, o **RLS do Supabase é ignorado** — todo o isolamento entre empresas depende exclusivamente do código Node.
+
+**Regra de ouro:** `empresaId` NUNCA é aceito do cliente (`req.body`, `req.params`, `req.query`). Ele é sempre derivado do JWT autenticado:
+
+1. `authMiddleware` (`src/middlewares/auth.middleware.ts`) valida o token via Supabase e busca `empresa_id`/`cargo` do usuário na tabela `usuarios`, populando `req.usuario.empresaId`.
+2. Todo controller que lê/edita um recurso deve usar `(req as IRequestAutenticado).usuario.empresaId` — nunca um `empresa_id` vindo da requisição.
+3. Em rotas com `:id` (editar/deletar um registro específico), o registro deve ser buscado no banco e comparado (`registro.empresa_id === usuario.empresaId`) antes de qualquer mutação, lançando `ErroNaoAutorizado` caso divirja. Ver `PlanoContaController`, `EmpresaController` e `middlewares/roles.middleware.ts` (`requireEmpresa`, `requireDonoDaEmpresaTarget`) como referência do padrão.
+
+Ao criar uma rota/usecase novo que manipula dados de empresa, siga esse padrão — é a única barreira real contra um usuário autenticado de uma empresa acessar/alterar dados de outra.
+
+---
+
 ## 🏗️ Arquitetura e Módulos de Lógica (Clean Architecture & DDD)
 
 Para garantir que o código se mantenha limpo, testável e fácil de manter (Clean Code), o back-end está dividido em contextos isolados. Cada peça tem uma responsabilidade única:

@@ -188,7 +188,7 @@ const MODULOS: Modulo[] = [
     titulo: "Autenticação",
     icone: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>`,
     descricao:
-      'Endpoints públicos, <strong class="text-slate-900 dark:text-white">não exigem</strong> header <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">Authorization</code>. Usados para login e para o cadastro inicial de donos/empresas e de funcionários.',
+      'Login e cadastro inicial de donos. <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">/login</code> e <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">/registrar-dono</code> são as únicas rotas públicas deste módulo. Cadastro de funcionário (<code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">/registrar-usuario</code>) exige token e cargo DONO.',
     endpoints: [
       {
         metodo: "POST",
@@ -249,35 +249,33 @@ const MODULOS: Modulo[] = [
       },
       {
         metodo: "POST",
-        path: "/auth/registrar-funcionario",
-        auth: "Rota Pública",
+        path: "/auth/registrar-usuario",
+        auth: "Token JWT Requerido (cargo DONO)",
         descricao:
-          "Cria um funcionário (GERENTE ou CAIXA) já vinculado a uma empresa existente. Apesar do nome sugerir uso autenticado, esta rota é pública — qualquer chamador que souber o <code>empresa_id</code> pode registrar um funcionário nela.",
+          "Cria um funcionário (cargo definido pelo dono) já vinculado à empresa do usuário autenticado. A empresa é sempre a do dono que faz a chamada — <code>empresa_id</code> não é aceito no body, evitando que um cliente vincule o novo usuário a outra empresa.",
         body: [
           { nome: "nome", tipo: "string", obrigatorio: true, descricao: "Mínimo 2 caracteres." },
           { nome: "email", tipo: "string", obrigatorio: true, descricao: "E-mail válido e único." },
           { nome: "senha", tipo: "string", obrigatorio: true, descricao: "Mínimo 6 caracteres." },
-          { nome: "empresa_id", tipo: "string (UUID)", obrigatorio: true, descricao: "Empresa à qual o funcionário será vinculado." },
-          { nome: "cargo", tipo: "'GERENTE' | 'CAIXA'", obrigatorio: true, descricao: "Cargo do funcionário (DONO não é permitido aqui)." },
-          { nome: "cpf", tipo: "string", obrigatorio: false, descricao: "Exatamente 11 dígitos numéricos." },
-          { nome: "data_nascimento", tipo: "string", obrigatorio: false, descricao: "Formato YYYY-MM-DD." },
+          { nome: "cargo", tipo: "string", obrigatorio: true, descricao: "Cargo do funcionário (nome livre, exceto 'DONO', que é reservado)." },
+          { nome: "ativo", tipo: "boolean", obrigatorio: false, descricao: "" },
           { nome: "foto_url", tipo: "string (URL)", obrigatorio: false, descricao: "URL válida da foto de perfil." },
         ],
         bodyExemplo: `{
   ${k("nome")}: ${v('"Maria Caixa"')},
   ${k("email")}: ${v('"maria@acmecorp.com"')},
   ${k("senha")}: ${v('"senha123"')},
-  ${k("empresa_id")}: ${v('"f47ac10b-58cc-4372-..."')},
-  ${k("cargo")}: ${v('"CAIXA"')},
-  ${k("cpf")}: ${v('"12345678901"')}
+  ${k("cargo")}: ${v('"CAIXA"')}
 }`,
         respostaStatus: "201 Created",
         respostaExemplo: `{
   ${k("status")}: ${v('"success"')},
-  ${k("message")}: ${v('"Funcionário registrado com sucesso!"')}
+  ${k("message")}: ${v('"Funcionário registrado com sucesso!"')},
+  ${k("data")}: { ${k("id")}: ${v('"uuid"')} }
 }`,
         erros: [
-          { codigo: "400 ENTRADA_INVALIDA", quando: "Campos inválidos no schema Zod ou na validação de domínio (e-mail sem @, CPF com tamanho incorreto etc.)." },
+          { codigo: "400 ENTRADA_INVALIDA", quando: "Campos inválidos no schema Zod." },
+          { codigo: "403 NAO_AUTORIZADO", quando: "Usuário autenticado não é DONO, ou não possui empresa vinculada." },
           { codigo: "409 CONFLITO", quando: "E-mail já cadastrado." },
         ],
       },
@@ -288,7 +286,7 @@ const MODULOS: Modulo[] = [
     titulo: "Empresas",
     icone: `<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/>`,
     descricao:
-      "CRUD de empresas. Todas as rotas exigem JWT. Não há filtro por usuário — qualquer usuário autenticado pode listar/ver qualquer empresa.",
+      "CRUD de empresas. Todas as rotas exigem JWT. O acesso é restrito à própria empresa do usuário autenticado: <code>empresaId</code> é sempre derivado do token (nunca de parâmetros da requisição), e rotas com <code>:id</code> validam que o id corresponde à empresa do usuário logado (<code>requireDonoDaEmpresaTarget</code>), retornando <code>403</code> caso contrário.",
     endpoints: [
       {
         metodo: "POST",
@@ -333,7 +331,8 @@ const MODULOS: Modulo[] = [
         metodo: "GET",
         path: "/empresas",
         auth: "Token JWT Requerido",
-        descricao: "Lista todas as empresas cadastradas no sistema (sem filtro por usuário).",
+        descricao:
+          "Retorna, em formato de lista, apenas a empresa vinculada ao usuário autenticado (<code>req.usuario.empresaId</code>, derivado do token). Não é possível listar empresas de terceiros. Se o usuário ainda não tiver empresa vinculada, retorna lista vazia.",
         respostaStatus: "200 OK",
         respostaExemplo: `{
   ${k("status")}: ${v('"success"')},
@@ -347,8 +346,9 @@ const MODULOS: Modulo[] = [
         metodo: "GET",
         path: "/empresas/:id",
         auth: "Token JWT Requerido",
-        descricao: "Busca uma empresa pelo ID.",
-        pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da empresa." }],
+        descricao:
+          "Busca uma empresa pelo ID. O <code>:id</code> só é aceito se corresponder à empresa do usuário autenticado (<code>requireDonoDaEmpresaTarget</code>) — não é possível consultar empresas de outros usuários/tenants.",
+        pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da empresa. Deve ser igual ao empresaId do usuário autenticado." }],
         respostaStatus: "200 OK",
         respostaExemplo: `{
   ${k("status")}: ${v('"success"')},
@@ -356,16 +356,17 @@ const MODULOS: Modulo[] = [
 }`,
         erros: [
           { codigo: "400 ENTRADA_INVALIDA", quando: "ID com formato inválido." },
+          { codigo: "403 NAO_AUTORIZADO", quando: "O ID informado não corresponde à empresa do usuário autenticado." },
           { codigo: "404 NAO_ENCONTRADO", quando: "Empresa não existe." },
         ],
       },
       {
         metodo: "PUT",
         path: "/empresas/:id",
-        auth: "Token JWT Requerido",
+        auth: "Token JWT Requerido (cargo DONO)",
         descricao:
-          'Atualiza dados da empresa. <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">PUT</code> e <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">PATCH</code> apontam para o <strong>mesmo handler</strong> — não há diferença de comportamento entre os dois verbos. Todos os campos são opcionais, mas é obrigatório enviar ao menos um.',
-        pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da empresa." }],
+          'Atualiza dados da empresa. <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">PUT</code> e <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">PATCH</code> apontam para o <strong>mesmo handler</strong> — não há diferença de comportamento entre os dois verbos. Todos os campos são opcionais, mas é obrigatório enviar ao menos um. Restrito ao cargo <code>DONO</code> e ao <code>:id</code> correspondente à própria empresa do usuário (<code>requireDonoDaEmpresaTarget</code>).',
+        pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da empresa. Deve ser igual ao empresaId do usuário autenticado." }],
         body: [
           { nome: "nome", tipo: "string", obrigatorio: false, descricao: "Mínimo 2 caracteres se enviado." },
           { nome: "nome_fantasia", tipo: "string", obrigatorio: false, descricao: "Mínimo 2 caracteres se enviado." },
@@ -379,6 +380,7 @@ const MODULOS: Modulo[] = [
 }`,
         erros: [
           { codigo: "400 ENTRADA_INVALIDA", quando: "Nenhum campo enviado, ou campo com formato inválido." },
+          { codigo: "403 NAO_AUTORIZADO", quando: "Usuário não é DONO, ou o ID informado não corresponde à empresa do usuário autenticado." },
           { codigo: "404 NAO_ENCONTRADO", quando: "Empresa não existe." },
           { codigo: "409 CONFLITO", quando: "Novo CNPJ já pertence a outra empresa." },
         ],
@@ -387,9 +389,10 @@ const MODULOS: Modulo[] = [
       {
         metodo: "DELETE",
         path: "/empresas/:id",
-        auth: "Token JWT Requerido",
-        descricao: "Remove uma empresa.",
-        pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da empresa." }],
+        auth: "Token JWT Requerido (cargo DONO)",
+        descricao:
+          "Remove uma empresa. Restrito ao cargo <code>DONO</code> e ao <code>:id</code> correspondente à própria empresa do usuário (<code>requireDonoDaEmpresaTarget</code>).",
+        pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da empresa. Deve ser igual ao empresaId do usuário autenticado." }],
         respostaStatus: "200 OK",
         respostaExemplo: `{
   ${k("status")}: ${v('"success"')},
@@ -398,6 +401,7 @@ const MODULOS: Modulo[] = [
 }`,
         erros: [
           { codigo: "400 ENTRADA_INVALIDA", quando: "ID com formato inválido." },
+          { codigo: "403 NAO_AUTORIZADO", quando: "Usuário não é DONO, ou o ID informado não corresponde à empresa do usuário autenticado." },
           { codigo: "404 NAO_ENCONTRADO", quando: "Empresa não existe." },
         ],
       },
@@ -408,7 +412,7 @@ const MODULOS: Modulo[] = [
     titulo: "Funcionários",
     icone: `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
     descricao:
-      'Gestão de funcionários da empresa do usuário autenticado. Não há endpoint de criação aqui — funcionários são criados via <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">POST /auth/registrar-funcionario</code>. Todas as rotas exigem que o usuário logado tenha <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">empresaId</code> no token.',
+      'Gestão de funcionários da empresa do usuário autenticado. Não há endpoint de criação aqui — funcionários são criados via <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">POST /auth/registrar-usuario</code> (exige cargo DONO). Todas as rotas exigem que o usuário logado tenha <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">empresaId</code> no token.',
     endpoints: [
       {
         metodo: "GET",
@@ -487,21 +491,20 @@ const MODULOS: Modulo[] = [
     id: "plano-contas",
     titulo: "Plano de Contas",
     icone: `<path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.1-2.8-2.8L7 14"/>`,
-    descricao: "CRUD do plano de contas contábil (Ativo, Passivo, PL, Receita, Despesa) usado nos lançamentos e relatórios.",
+    descricao:
+      "CRUD do plano de contas contábil (Ativo, Passivo, PL, Receita, Despesa) usado nos lançamentos e relatórios. Todas as rotas operam apenas sobre a empresa do usuário autenticado (<code>empresaId</code> derivado do token, nunca do request).",
     endpoints: [
       {
         metodo: "POST",
         path: "/plano-contas",
         auth: "Token JWT Requerido",
-        descricao: "Cria uma nova conta contábil para uma empresa.",
+        descricao: "Cria uma nova conta contábil para a empresa do usuário autenticado.",
         body: [
-          { nome: "empresa_id", tipo: "string (UUID)", obrigatorio: true, descricao: "Empresa à qual a conta pertence." },
           { nome: "codigo", tipo: "string", obrigatorio: true, descricao: "Código contábil (ex: 1.1.01). Único por empresa." },
           { nome: "nome", tipo: "string", obrigatorio: true, descricao: "Mínimo 3 caracteres." },
           { nome: "tipo", tipo: "'ATIVO'|'PASSIVO'|'PL'|'RECEITA'|'DESPESA'", obrigatorio: true, descricao: "Categoria contábil da conta." },
         ],
         bodyExemplo: `{
-  ${k("empresa_id")}: ${v('"uuid"')},
   ${k("codigo")}: ${v('"1.1.02"')},
   ${k("nome")}: ${v('"Banco Conta Corrente"')},
   ${k("tipo")}: ${v('"ATIVO"')}
@@ -521,8 +524,7 @@ const MODULOS: Modulo[] = [
         metodo: "GET",
         path: "/plano-contas",
         auth: "Token JWT Requerido",
-        descricao: "Lista contas contábeis. Se o filtro de empresa não for informado, retorna contas de todas as empresas.",
-        queryParams: [{ nome: "empresa_id", tipo: "string (UUID)", obrigatorio: false, descricao: "Filtra as contas por empresa." }],
+        descricao: "Lista as contas contábeis da empresa do usuário autenticado. Não é possível listar contas de outras empresas.",
         respostaStatus: "200 OK",
         respostaExemplo: `{
   ${k("status")}: ${v('"success"')},
@@ -534,11 +536,14 @@ const MODULOS: Modulo[] = [
         metodo: "GET",
         path: "/plano-contas/:id",
         auth: "Token JWT Requerido",
-        descricao: "Busca uma conta contábil pelo ID.",
+        descricao: "Busca uma conta contábil pelo ID. Retorna 403 se a conta pertencer a outra empresa.",
         pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da conta." }],
         respostaStatus: "200 OK",
         respostaExemplo: `{ ${k("status")}: ${v('"success"')}, ${k("data")}: { ${k("id")}: ${v('"uuid"')}, ${k("codigo")}: ${v('"1.1.02"')}, ${k("nome")}: ${v('"Banco Conta Corrente"')}, ${k("tipo")}: ${v('"ATIVO"')} } }`,
-        erros: [{ codigo: "404 NAO_ENCONTRADO", quando: "Conta não existe." }],
+        erros: [
+          { codigo: "403 NAO_AUTORIZADO", quando: "A conta pertence a outra empresa." },
+          { codigo: "404 NAO_ENCONTRADO", quando: "Conta não existe." },
+        ],
       },
       {
         metodo: "PUT",
@@ -548,7 +553,6 @@ const MODULOS: Modulo[] = [
           'Atualiza uma conta contábil. <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">PUT</code> e <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">PATCH</code> usam o mesmo handler. Todos os campos opcionais, mas exige ao menos um.',
         pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da conta." }],
         body: [
-          { nome: "empresa_id", tipo: "string (UUID)", obrigatorio: false, descricao: "" },
           { nome: "codigo", tipo: "string", obrigatorio: false, descricao: "Revalidado como único na empresa se alterado." },
           { nome: "nome", tipo: "string", obrigatorio: false, descricao: "Mínimo 3 caracteres." },
           { nome: "tipo", tipo: "'ATIVO'|'PASSIVO'|'PL'|'RECEITA'|'DESPESA'", obrigatorio: false, descricao: "" },
@@ -557,6 +561,7 @@ const MODULOS: Modulo[] = [
         respostaExemplo: `{ ${k("status")}: ${v('"success"')}, ${k("data")}: { ${k("id")}: ${v('"uuid"')}, ${k("codigo")}: ${v('"1.1.02"')}, ${k("nome")}: ${v('"Banco Conta Corrente"')}, ${k("tipo")}: ${v('"ATIVO"')} } }`,
         erros: [
           { codigo: "400 ENTRADA_INVALIDA", quando: "Nenhum campo enviado." },
+          { codigo: "403 NAO_AUTORIZADO", quando: "A conta pertence a outra empresa." },
           { codigo: "404 NAO_ENCONTRADO", quando: "Conta não existe." },
           { codigo: "409 CONFLITO", quando: "Novo código já usado por outra conta da mesma empresa." },
         ],
@@ -565,7 +570,7 @@ const MODULOS: Modulo[] = [
         metodo: "DELETE",
         path: "/plano-contas/:id",
         auth: "Token JWT Requerido",
-        descricao: "Remove uma conta contábil.",
+        descricao: "Remove uma conta contábil. Retorna 403 se a conta pertencer a outra empresa.",
         pathParams: [{ nome: "id", tipo: "string (UUID)", obrigatorio: true, descricao: "ID da conta." }],
         respostaStatus: "200 OK",
         respostaExemplo: `{
@@ -573,7 +578,10 @@ const MODULOS: Modulo[] = [
   ${k("message")}: ${v('"Conta contabil removida com sucesso."')},
   ${k("data")}: { ${k("id")}: ${v('"uuid"')}, ${k("codigo")}: ${v('"1.1.02"')}, ${k("nome")}: ${v('"Banco Conta Corrente"')} }
 }`,
-        erros: [{ codigo: "404 NAO_ENCONTRADO", quando: "Conta não existe." }],
+        erros: [
+          { codigo: "403 NAO_AUTORIZADO", quando: "A conta pertence a outra empresa." },
+          { codigo: "404 NAO_ENCONTRADO", quando: "Conta não existe." },
+        ],
       },
     ],
   },
@@ -681,23 +689,23 @@ const MODULOS: Modulo[] = [
     titulo: "Contas a Receber",
     icone: `<circle cx="12" cy="12" r="10"/><path d="M16 8v8H8"/><path d="m8 8 8 8"/>`,
     descricao:
-      'Controle de valores a receber. <strong class="text-amber-600 dark:text-amber-400">Importante:</strong> assim como em lançamentos, o router interno já define paths com <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">/conta-receber</code> e é remontado sob <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">/contas-receber</code>, resultando em paths finais com segmento duplicado.',
+      'Controle de valores a receber, sempre escopado à empresa do usuário autenticado (<code>empresaId</code> vem do token, nunca do request). <strong class="text-amber-600 dark:text-amber-400">Importante:</strong> assim como em lançamentos, o router interno já define paths com <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">/conta-receber</code> e é remontado sob <code class="bg-slate-100 dark:bg-darkBorder px-1 rounded">/contas-receber</code>, resultando em paths finais com segmento duplicado.',
     endpoints: [
       {
         metodo: "POST",
         path: "/contas-receber/conta-receber",
         auth: "Token JWT Requerido",
-        descricao: "Registra uma nova conta a receber pendente.",
+        descricao: "Registra uma nova conta a receber pendente para a empresa do usuário autenticado.",
         body: [
-          { nome: "empresa_id", tipo: "string (UUID)", obrigatorio: true, descricao: "" },
           { nome: "origem", tipo: "string", obrigatorio: true, descricao: "Mínimo 2 caracteres. Descreve o cliente/origem da receita." },
           { nome: "valor", tipo: "number", obrigatorio: true, descricao: "Valor positivo." },
+          { nome: "tipo", tipo: "string", obrigatorio: true, descricao: "Forma de recebimento (ex: Pix, Boleto)." },
           { nome: "data_previsao", tipo: "string", obrigatorio: true, descricao: "Data parseável (recomendado YYYY-MM-DD)." },
         ],
         bodyExemplo: `{
-  ${k("empresa_id")}: ${v('"uuid"')},
   ${k("origem")}: ${v('"Cliente João Silva"')},
   ${k("valor")}: ${v("500.0")},
+  ${k("tipo")}: ${v('"Pix"')},
   ${k("data_previsao")}: ${v('"2026-07-01"')}
 }`,
         respostaStatus: "201 Created",
@@ -712,6 +720,7 @@ const MODULOS: Modulo[] = [
 }`,
         erros: [
           { codigo: "400 ENTRADA_INVALIDA", quando: "Campos ausentes/inválidos (validado dentro do use case)." },
+          { codigo: "403 NAO_AUTORIZADO", quando: "Usuário sem empresa vinculada." },
           { codigo: "500 ERRO_BANCO_DE_DADOS", quando: "Falha ao persistir." },
         ],
         notas: [
@@ -723,24 +732,20 @@ const MODULOS: Modulo[] = [
         metodo: "GET",
         path: "/contas-receber/conta-receber",
         auth: "Token JWT Requerido",
-        descricao: "Lista as contas a receber de uma empresa, ordenadas por data de previsão (ascendente).",
-        queryParams: [{ nome: "empresa_id", tipo: "string", obrigatorio: true, descricao: "Obrigatório nesta rota (não validado por Zod, apenas checado manualmente)." }],
+        descricao: "Lista as contas a receber da empresa do usuário autenticado, ordenadas por data de previsão (ascendente). Não é possível listar contas de outra empresa.",
         respostaStatus: "200 OK",
         respostaExemplo: `[
   { ${k("id")}: ${v('"uuid"')}, ${k("empresa_id")}: ${v('"uuid"')}, ${k("origem")}: ${v('"string"')}, ${k("valor")}: ${v("500.0")}, ${k("data_previsao")}: ${v('"2026-07-01"')}, ${k("recebido")}: ${v("false")}, ${k("data_recebimento")}: ${v("null")} }
 ]`,
-        erros: [{ codigo: "400", quando: "Query param <code>empresa_id</code> não informado." }],
-        notas: [
-          '<strong class="text-red-500">Este endpoint quebra o padrão de erro da API.</strong> Em vez do envelope global <code>{status, code, message}</code>, qualquer erro aqui retorna diretamente <code>400 { error: "&lt;mensagem&gt;" }</code>. Trate esse formato separadamente no frontend.',
-        ],
+        erros: [{ codigo: "403", quando: "Usuário sem empresa vinculada." }],
       },
       {
         metodo: "PATCH",
         path: "/contas-receber/conta-receber/:id",
         auth: "Token JWT Requerido",
         descricao:
-          "Dá baixa em uma conta a receber (marca como recebida) e gera automaticamente um lançamento contábil (Débito em Caixa <code>1.1.01</code>, Crédito em Receita <code>4.1.01</code>).",
-        pathParams: [{ nome: "id", tipo: "string", obrigatorio: true, descricao: "ID da conta a receber. Não validado como UUID, apenas checado como não-vazio." }],
+          "Dá baixa em uma conta a receber (marca como recebida) e gera automaticamente um lançamento contábil (Débito em Caixa <code>1.1.01</code>, Crédito em Receita <code>4.1.01</code>). Só funciona se a conta pertencer à empresa do usuário autenticado.",
+        pathParams: [{ nome: "id", tipo: "string", obrigatorio: true, descricao: "ID da conta a receber." }],
         respostaStatus: "200 OK",
         respostaExemplo: `{
   ${k("message")}: ${v('"Conta recebida e lançamento contábil gerado com sucesso!"')},
@@ -752,10 +757,33 @@ const MODULOS: Modulo[] = [
 }`,
         erros: [
           { codigo: "400", quando: "ID não informado na rota, ou plano de contas padrão (Caixa <code>1.1.01</code> / Receita <code>4.1.01</code>) não configurado para a empresa." },
-          { codigo: "500 (na prática)", quando: '"Conta a receber não encontrada" e "Conta já foi recebida anteriormente" são lançados como <code>Error</code> simples, não como <code>ErroAplicacao</code> — por isso caem no <code>catch</code> genérico do middleware e retornam <strong>500</strong>, não 404/409 como seria esperado.' },
+          { codigo: "403 NAO_AUTORIZADO", quando: "A conta pertence a outra empresa." },
         ],
         notas: [
           '<strong class="text-red-500">Inconsistência conhecida:</strong> erros de regra de negócio previsíveis ("não encontrada", "já recebida") retornam status 500 em vez de 404/409. O frontend não deve assumir que 500 sempre significa falha de servidor neste endpoint específico — inspecione a <code>message</code> retornada.',
+        ],
+      },
+      {
+        metodo: "PUT",
+        path: "/contas-receber/conta-receber/:id",
+        auth: "Token JWT Requerido",
+        descricao:
+          "Atualiza dados de uma conta a receber ainda não recebida. Bloqueia edição se a conta já tiver sido recebida, ou se pertencer a outra empresa.",
+        pathParams: [{ nome: "id", tipo: "string", obrigatorio: true, descricao: "ID da conta a receber." }],
+        body: [
+          { nome: "origem", tipo: "string", obrigatorio: false, descricao: "Mínimo 2 caracteres se enviado." },
+          { nome: "valor", tipo: "number", obrigatorio: false, descricao: "Valor positivo." },
+          { nome: "tipo", tipo: "string", obrigatorio: false, descricao: "" },
+          { nome: "data_previsao", tipo: "string", obrigatorio: false, descricao: "Formato YYYY-MM-DD." },
+        ],
+        respostaStatus: "200 OK",
+        respostaExemplo: `{
+  ${k("id")}: ${v('"uuid"')}, ${k("empresa_id")}: ${v('"uuid"')}, ${k("origem")}: ${v('"string"')},
+  ${k("valor")}: ${v("500.0")}, ${k("data_previsao")}: ${v('"2026-07-01"')}, ${k("recebido")}: ${v("false")}
+}`,
+        erros: [
+          { codigo: "400", quando: "Conta a receber não encontrada, ou já recebida (não pode mais ser editada)." },
+          { codigo: "403 NAO_AUTORIZADO", quando: "A conta pertence a outra empresa." },
         ],
       },
     ],
