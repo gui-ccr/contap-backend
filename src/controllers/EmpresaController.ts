@@ -41,6 +41,7 @@ function planoContaDto(planoConta: PlanoConta) {
 
 import { SupabaseUsuarioRepository } from "../core/domain/repository/usuario/SupabaseUsuarioRepository.js";
 import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
+import { ErroNaoAutorizado } from "../core/errors/AppErrors.js";
 
 const usuarioRepository = new SupabaseUsuarioRepository();
 
@@ -78,14 +79,20 @@ export class EmpresaController {
     }
   }
 
-  async listar(_req: Request, res: Response, next: NextFunction) {
+  async listar(req: Request, res: Response, next: NextFunction) {
     try {
-      const listarEmpresasUseCase = new ListarEmpresasUseCase(empresaRepository);
-      const empresas = await listarEmpresasUseCase.execute();
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+
+      if (!empresaId) {
+        return res.status(200).json({ status: "success", data: [] });
+      }
+
+      const buscarEmpresaPorIdUseCase = new BuscarEmpresaPorIdUseCase(empresaRepository);
+      const empresa = await buscarEmpresaPorIdUseCase.execute(empresaId);
 
       return res.status(200).json({
         status: "success",
-        data: empresas.map(empresaDto),
+        data: [empresaDto(empresa)],
       });
     } catch (error: any) {
       next(error);
@@ -95,6 +102,12 @@ export class EmpresaController {
   async buscarPorId(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = empresaIdParamSchema.parse(req.params);
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+
+      if (!empresaId || empresaId !== id) {
+        throw new ErroNaoAutorizado("Você não tem permissão para acessar esta empresa.");
+      }
+
       const buscarEmpresaPorIdUseCase = new BuscarEmpresaPorIdUseCase(empresaRepository);
       const empresa = await buscarEmpresaPorIdUseCase.execute(id);
 
@@ -110,6 +123,12 @@ export class EmpresaController {
   async atualizar(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = empresaIdParamSchema.parse(req.params);
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+
+      if (!empresaId || empresaId !== id) {
+        throw new ErroNaoAutorizado("Você não tem permissão para alterar esta empresa.");
+      }
+
       const dadosValidados = atualizarEmpresaSchema.parse(req.body);
       const atualizarEmpresaUseCase = new AtualizarEmpresaUseCase(empresaRepository);
 
@@ -132,6 +151,12 @@ export class EmpresaController {
   async deletar(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = empresaIdParamSchema.parse(req.params);
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+
+      if (!empresaId || empresaId !== id) {
+        throw new ErroNaoAutorizado("Você não tem permissão para remover esta empresa.");
+      }
+
       const deletarEmpresaUseCase = new DeletarEmpresaUseCase(empresaRepository);
       const empresa = await deletarEmpresaUseCase.execute(id);
 

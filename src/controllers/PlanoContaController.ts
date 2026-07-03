@@ -4,7 +4,6 @@ import { SupabasePlanoContaRepository } from "../core/domain/repository/plano-co
 import {
   atualizarPlanoContaSchema,
   criarPlanoContaSchema,
-  listarPlanoContaQuerySchema,
   planoContaIdParamSchema,
 } from "../schemas/planoContaSchema.js";
 import {
@@ -14,6 +13,8 @@ import {
   DeletarPlanoContaUseCase,
   ListarPlanoContasUseCase,
 } from "../usecases/plano-conta/PlanoContaUseCases.js";
+import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
+import { ErroNaoAutorizado } from "../core/errors/AppErrors.js";
 
 const planoContaRepository = new SupabasePlanoContaRepository();
 
@@ -30,11 +31,16 @@ function planoContaDto(planoConta: PlanoConta) {
 export class PlanoContaController {
   async criar(req: Request, res: Response, next: NextFunction) {
     try {
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) {
+        throw new ErroNaoAutorizado("Associe sua conta a uma empresa antes de continuar.");
+      }
+
       const dadosValidados = criarPlanoContaSchema.parse(req.body);
       const criarPlanoContaUseCase = new CriarPlanoContaUseCase(planoContaRepository);
 
       const planoConta = await criarPlanoContaUseCase.execute({
-        empresaId: dadosValidados.empresa_id,
+        empresaId,
         codigo: dadosValidados.codigo,
         nome: dadosValidados.nome,
         tipo: dadosValidados.tipo,
@@ -52,9 +58,13 @@ export class PlanoContaController {
 
   async listar(req: Request, res: Response, next: NextFunction) {
     try {
-      const { empresa_id } = listarPlanoContaQuerySchema.parse(req.query);
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      if (!empresaId) {
+        throw new ErroNaoAutorizado("Associe sua conta a uma empresa antes de continuar.");
+      }
+
       const listarPlanoContasUseCase = new ListarPlanoContasUseCase(planoContaRepository);
-      const planoContas = await listarPlanoContasUseCase.execute(empresa_id);
+      const planoContas = await listarPlanoContasUseCase.execute(empresaId);
 
       return res.status(200).json({
         status: "success",
@@ -68,8 +78,13 @@ export class PlanoContaController {
   async buscarPorId(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = planoContaIdParamSchema.parse(req.params);
+      const { empresaId } = (req as IRequestAutenticado).usuario;
       const buscarPlanoContaPorIdUseCase = new BuscarPlanoContaPorIdUseCase(planoContaRepository);
       const planoConta = await buscarPlanoContaPorIdUseCase.execute(id);
+
+      if (!empresaId || planoConta.empresaId !== empresaId) {
+        throw new ErroNaoAutorizado("Você não tem permissão para acessar esta conta contábil.");
+      }
 
       return res.status(200).json({
         status: "success",
@@ -83,11 +98,18 @@ export class PlanoContaController {
   async atualizar(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = planoContaIdParamSchema.parse(req.params);
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      const buscarPlanoContaPorIdUseCase = new BuscarPlanoContaPorIdUseCase(planoContaRepository);
+      const planoContaAtual = await buscarPlanoContaPorIdUseCase.execute(id);
+
+      if (!empresaId || planoContaAtual.empresaId !== empresaId) {
+        throw new ErroNaoAutorizado("Você não tem permissão para alterar esta conta contábil.");
+      }
+
       const dadosValidados = atualizarPlanoContaSchema.parse(req.body);
       const atualizarPlanoContaUseCase = new AtualizarPlanoContaUseCase(planoContaRepository);
 
       const planoConta = await atualizarPlanoContaUseCase.execute(id, {
-        ...(dadosValidados.empresa_id !== undefined && { empresaId: dadosValidados.empresa_id }),
         ...(dadosValidados.codigo !== undefined && { codigo: dadosValidados.codigo }),
         ...(dadosValidados.nome !== undefined && { nome: dadosValidados.nome }),
         ...(dadosValidados.tipo !== undefined && { tipo: dadosValidados.tipo }),
@@ -105,6 +127,14 @@ export class PlanoContaController {
   async deletar(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = planoContaIdParamSchema.parse(req.params);
+      const { empresaId } = (req as IRequestAutenticado).usuario;
+      const buscarPlanoContaPorIdUseCase = new BuscarPlanoContaPorIdUseCase(planoContaRepository);
+      const planoContaAtual = await buscarPlanoContaPorIdUseCase.execute(id);
+
+      if (!empresaId || planoContaAtual.empresaId !== empresaId) {
+        throw new ErroNaoAutorizado("Você não tem permissão para remover esta conta contábil.");
+      }
+
       const deletarPlanoContaUseCase = new DeletarPlanoContaUseCase(planoContaRepository);
       const planoConta = await deletarPlanoContaUseCase.execute(id);
 

@@ -48,6 +48,18 @@ export class SupabaseNotaFiscalRepository implements INotaFiscalRepository {
     return (data ?? []) as NotaFiscal[];
   }
 
+  async buscarPorId(id: string): Promise<NotaFiscal | null> {
+    const { data, error } = await supabaseAdmin
+      .from("notas_fiscais")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) throw new ErroBancoDeDados(`Erro ao buscar nota fiscal por ID: ${error.message}`);
+
+    return (data ?? null) as NotaFiscal | null;
+  }
+
   async deletar(id: string): Promise<void> {
     const { error } = await supabaseAdmin
       .from("notas_fiscais")
