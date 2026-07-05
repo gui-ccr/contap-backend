@@ -1,5 +1,18 @@
 import { ErroEntradaInvalida } from "../../errors/AppErrors.js";
 
+export interface IConfigFolha {
+  descontos: {
+    inss: { calculo_automatico: boolean; valor_fixo: number | null };
+    fgts: { calculo_automatico: boolean };
+    irrf: { dependentes: number };
+  };
+  beneficios: {
+    vale_transporte: { ativo: boolean; valor_desconto: number };
+    vale_refeicao: { ativo: boolean; valor_desconto: number };
+    plano_saude: { ativo: boolean; valor_desconto: number };
+  };
+}
+
 export interface IFuncionarioProps {
   id?: string;
   empresaId: string;
@@ -10,6 +23,7 @@ export interface IFuncionarioProps {
   salario: number;
   diaPagamento?: number;
   dataAdmissao: string;
+  config_folha?: IConfigFolha;
   foto_url?: string | null;
 }
 
@@ -36,5 +50,6 @@ export class Funcionario {
   get salario() { return this.props.salario; }
   get diaPagamento() { return this.props.diaPagamento ?? 5; }
   get dataAdmissao() { return this.props.dataAdmissao; }
+  get config_folha() { return this.props.config_folha; }
   get foto_url() { return this.props.foto_url; }
 }

@@ -1,5 +1,5 @@
 import { type IFuncionarioRepository, type IAtualizarFuncionarioInput } from "../../core/domain/repository/funcionario/IFuncionarioRepository.js";
-import { type Funcionario } from "../../core/domain/entities/Funcionario.entity.js";
+import { type Funcionario, type IConfigFolha } from "../../core/domain/entities/Funcionario.entity.js";
 import { ErroEntradaInvalida, ErroNaoAutorizado, ErroNaoEncontrado } from "../../core/errors/AppErrors.js";
 import { type IContaPagarRepository } from "../../core/domain/repository/conta-pagar/IContaPagarRepository.js";
 
@@ -14,6 +14,7 @@ export interface ICriarFuncionarioInput {
   salario: number;
   diaPagamento?: number;
   dataAdmissao: string;
+  config_folha?: IConfigFolha;
   foto_url?: string;
 }
 
@@ -49,16 +50,17 @@ export class CriarFuncionarioUseCase {
 
     // Procurar ou criar conta de "Despesas com Salários"
     const { SupabasePlanoContaRepository } = await import("../../core/domain/repository/plano-conta/SupabasePlanoContaRepository.js");
+    const { PlanoConta } = await import("../../core/domain/entities/PlanoConta.entity.js");
     const planoRepo = new SupabasePlanoContaRepository();
     
     let contaSalario = await planoRepo.buscarPorCodigoEEmpresa("5.1.04", salvo.empresaId);
     if (!contaSalario) {
-      contaSalario = await planoRepo.criar({
+      contaSalario = await planoRepo.salvar(new PlanoConta({
         empresaId: salvo.empresaId,
         codigo: "5.1.04",
         nome: "Despesas com Salários",
         tipo: "DESPESA"
-      });
+      }));
     }
 
     const dataAdmissao = new Date(dados.dataAdmissao + "T00:00:00");
@@ -72,28 +74,8 @@ export class CriarFuncionarioUseCase {
     const diasTrabalhados = diasNoMes - diaAdmissao + 1;
     const salarioProporcional = (salvo.salario / 30) * diasTrabalhados;
 
-    for (let i = 0; i < 12; i++) {
-      // O primeiro pagamento (i=0) é no mês SEGUINTE ao da admissão
-      const dataVencimento = getQuintoDiaUtil(anoAdmissao, mesAdmissao + 1 + i);
-      
-      const dia = String(dataVencimento.getDate()).padStart(2, '0');
-      const mesStr = String(dataVencimento.getMonth() + 1).padStart(2, '0');
-      const anoStr = dataVencimento.getFullYear();
-      
-      const valorPagamento = i === 0 ? salarioProporcional : salvo.salario;
-      const mesReferencia = new Date(anoAdmissao, mesAdmissao + i, 1);
-      const mesRefStr = String(mesReferencia.getMonth() + 1).padStart(2, '0');
-      const anoRefStr = mesReferencia.getFullYear();
-      
-      await this.contaPagarRepository.criar({
-        empresa_id: salvo.empresaId,
-        descricao: `[Salário] ${salvo.nome} - Ref. ${mesRefStr}/${anoRefStr}`,
-        valor: valorPagamento,
-        tipo: contaSalario.id!, // UUID correto
-        data_vencimento: `${anoStr}-${mesStr}-${dia}`,
-        pago: false,
-      });
-    }
+    // A geração de salários não ocorre mais na criação do funcionário.
+    // Ela ocorrerá na rotina de Fechamento de Folha Mensal (FecharFolhaMesUseCase).
 
     const { SupabaseNotificacaoRepository } = await import("../../core/domain/repository/notificacao/SupabaseNotificacaoRepository.js");
     const { CriarNotificacaoUseCase } = await import("../notificacao/CriarNotificacaoUseCase.js");

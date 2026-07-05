@@ -1,4 +1,4 @@
-import { type Funcionario } from "../../entities/Funcionario.entity.js";
+import { type Funcionario, type IConfigFolha } from "../../entities/Funcionario.entity.js";
 
 export interface IAtualizarFuncionarioInput {
   nome?: string;
@@ -7,6 +7,7 @@ export interface IAtualizarFuncionarioInput {
   salario?: number;
   diaPagamento?: number;
   dataAdmissao?: string;
+  config_folha?: IConfigFolha;
   foto_url?: string | null;
 }
 

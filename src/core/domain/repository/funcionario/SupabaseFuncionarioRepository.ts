@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "../../../../config/database.js";
-import { Funcionario } from "../../entities/Funcionario.entity.js";
+import { Funcionario, type IConfigFolha } from "../../entities/Funcionario.entity.js";
 import { type IFuncionarioRepository, type IAtualizarFuncionarioInput } from "./IFuncionarioRepository.js";
 import { ErroBancoDeDados, ErroEntradaInvalida } from "../../../errors/AppErrors.js";
 
@@ -13,7 +13,8 @@ function mapearFuncionario(data: Record<string, unknown>): Funcionario {
     cpfCnpj: data.cpf_cnpj as string,
     salario: Number(data.salario) || 0,
     diaPagamento: Number(data.dia_pagamento) || 5,
-    dataAdmissao: data.data_admissao as string || new Date().toISOString().split('T')[0],
+    dataAdmissao: String(data.data_admissao || new Date().toISOString().split('T')[0]),
+    config_folha: data.config_folha as IConfigFolha | undefined,
     foto_url: data.foto_url as string | null,
   });
 }
@@ -29,6 +30,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
       salario: funcionario.salario,
       dia_pagamento: funcionario.diaPagamento,
       data_admissao: funcionario.dataAdmissao,
+      config_folha: funcionario.config_folha,
       foto_url: funcionario.foto_url,
     }).select().single();
 
@@ -71,6 +73,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
     if (dados.salario !== undefined) atualizacao["salario"] = dados.salario;
     if (dados.diaPagamento !== undefined) atualizacao["dia_pagamento"] = dados.diaPagamento;
     if (dados.dataAdmissao !== undefined) atualizacao["data_admissao"] = dados.dataAdmissao;
+    if (dados.config_folha !== undefined) atualizacao["config_folha"] = dados.config_folha;
     if (dados.foto_url !== undefined) atualizacao["foto_url"] = dados.foto_url;
 
     const { data, error } = await supabaseAdmin

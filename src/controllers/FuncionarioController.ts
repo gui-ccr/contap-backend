@@ -12,10 +12,13 @@ import { type IRequestAutenticado } from "../middlewares/auth.middleware.js";
 import { ErroEntradaInvalida } from "../core/errors/AppErrors.js";
 import { type Funcionario } from "../core/domain/entities/Funcionario.entity.js";
 import { SupabaseContaPagarRepository } from "../core/domain/repository/conta-pagar/SupabaseContaPagarRepository.js";
+import { SupabaseHoleriteRepository } from "../core/domain/repository/holerite/SupabaseHoleriteRepository.js";
+import { FecharFolhaMesUseCase } from "../usecases/funcionario/FecharFolhaMesUseCase.js";
 import { z } from "zod";
 
 const funcionarioRepository = new SupabaseFuncionarioRepository();
 const contaPagarRepository = new SupabaseContaPagarRepository();
+const holeriteRepository = new SupabaseHoleriteRepository();
 
 function funcionarioDto(funcionario: Funcionario) {
   return {
@@ -28,9 +31,23 @@ function funcionarioDto(funcionario: Funcionario) {
     salario: funcionario.salario,
     dia_pagamento: funcionario.diaPagamento,
     data_admissao: funcionario.dataAdmissao,
+    config_folha: funcionario.config_folha,
     foto_url: funcionario.foto_url,
   };
 }
+
+const configFolhaSchema = z.object({
+  descontos: z.object({
+    inss: z.object({ calculo_automatico: z.boolean(), valor_fixo: z.number().nullable() }),
+    fgts: z.object({ calculo_automatico: z.boolean() }),
+    irrf: z.object({ dependentes: z.number() }),
+  }),
+  beneficios: z.object({
+    vale_transporte: z.object({ ativo: z.boolean(), valor_desconto: z.number() }),
+    vale_refeicao: z.object({ ativo: z.boolean(), valor_desconto: z.number() }),
+    plano_saude: z.object({ ativo: z.boolean(), valor_desconto: z.number() }),
+  }),
+});
 
 function extrairEmpresaId(req: Request): string {
   const { empresaId } = (req as IRequestAutenticado).usuario;
@@ -53,6 +70,7 @@ export class FuncionarioController {
         salario: z.number().min(0, "O salário não pode ser negativo"),
         dia_pagamento: z.number().min(1).max(31, "Dia de pagamento inválido").optional().default(5),
         data_admissao: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de admissão inválida" }),
+        config_folha: configFolhaSchema.optional(),
         foto_url: z.string().url("URL da foto inválida").optional().nullable(),
       });
       
@@ -68,6 +86,7 @@ export class FuncionarioController {
         salario: dadosValidados.salario,
         diaPagamento: dadosValidados.dia_pagamento,
         dataAdmissao: dadosValidados.data_admissao,
+        config_folha: dadosValidados.config_folha,
       };
       
       if (dadosValidados.foto_url) {
@@ -127,6 +146,7 @@ export class FuncionarioController {
         salario: z.number().optional(),
         dia_pagamento: z.number().min(1).max(31).optional(),
         data_admissao: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de admissão inválida" }).optional(),
+        config_folha: configFolhaSchema.optional(),
         foto_url: z.string().url().optional().nullable(),
       }).refine((data) => Object.keys(data).length > 0, { message: "Informe algo para atualizar" });
 
@@ -144,6 +164,7 @@ export class FuncionarioController {
           ...(dadosValidados.salario !== undefined && { salario: dadosValidados.salario }),
           ...(dadosValidados.dia_pagamento !== undefined && { diaPagamento: dadosValidados.dia_pagamento }),
           ...(dadosValidados.data_admissao !== undefined && { dataAdmissao: dadosValidados.data_admissao }),
+          ...(dadosValidados.config_folha !== undefined && { config_folha: dadosValidados.config_folha }),
           ...(dadosValidados.foto_url !== undefined && { foto_url: dadosValidados.foto_url }),
         },
       });
@@ -171,6 +192,54 @@ export class FuncionarioController {
         status: "success",
         message: "Funcionário removido com sucesso.",
         data: funcionarioDto(funcionario),
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async fecharFolha(req: Request, res: Response, next: NextFunction) {
+    try {
+      const empresaId = extrairEmpresaId(req);
+      const schema = z.object({
+        mes: z.number().min(1).max(12),
+        ano: z.number().min(2000),
+      });
+
+      const { mes, ano } = schema.parse(req.body);
+
+      const useCase = new FecharFolhaMesUseCase(
+        funcionarioRepository,
+        contaPagarRepository,
+        holeriteRepository
+      );
+
+      const resultado = await useCase.execute({ empresaIdRequisitante: empresaId, mes, ano });
+
+      return res.status(200).json({
+        status: "success",
+        data: resultado,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async listarHolerites(req: Request, res: Response, next: NextFunction) {
+    try {
+      const empresaId = extrairEmpresaId(req);
+      const mes = Number(req.query.mes);
+      const ano = Number(req.query.ano);
+
+      if (!mes || !ano) {
+        throw new ErroEntradaInvalida("Mês e ano são obrigatórios na query.");
+      }
+
+      const holerites = await holeriteRepository.listarPorMesAno(empresaId, mes, ano);
+
+      return res.status(200).json({
+        status: "success",
+        data: holerites,
       });
     } catch (err) {
       next(err);

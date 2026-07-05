@@ -12,6 +12,7 @@ const funcionarioMock = new Funcionario({
   cpfCnpj: "12345678901",
   salario: 1000,
   diaPagamento: 5,
+  dataAdmissao: "2024-01-01",
 });
 
 describe("Funcionario Use Cases", () => {

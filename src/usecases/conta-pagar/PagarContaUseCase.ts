@@ -39,12 +39,13 @@ export class PagarContaUseCase {
       if (conta.tipo === "Salário" || conta.descricao.includes("[Salário]")) {
         contaDespesa = await this.planoContaRepository.buscarPorCodigoEEmpresa("5.1.04", conta.empresa_id);
         if (!contaDespesa) {
-          contaDespesa = await this.planoContaRepository.criar({
+          const { PlanoConta } = await import("../../core/domain/entities/PlanoConta.entity.js");
+          contaDespesa = await this.planoContaRepository.salvar(new PlanoConta({
             empresaId: conta.empresa_id,
             codigo: "5.1.04",
             nome: "Despesas com Salários",
             tipo: "DESPESA"
-          });
+          }));
         }
       } else {
         contaDespesa = await this.planoContaRepository.buscarPorCodigoEEmpresa("5.1.01", conta.empresa_id);

@@ -6,3 +6,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando com sucesso na porta ${PORT}`);
   console.log(`Acesse: http://localhost:${PORT}`);
 });
+// trigger restart
