@@ -55,6 +55,12 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async salvar(usuario: Usuario): Promise<void> {
+    if (usuario.empresaId) {
+      await supabaseAdmin.auth.admin.updateUserById(usuario.id, {
+        user_metadata: { empresa_id: usuario.empresaId }
+      });
+    }
+
     const { error } = await supabaseAdmin.from("usuarios").insert({
       id: usuario.id,
       nome: usuario.nome,
@@ -125,7 +131,12 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
     const atualizacao: Record<string, any> = {};
     if (dados.nome !== undefined) atualizacao["nome"] = dados.nome;
     if (dados.cargo !== undefined) atualizacao["cargo"] = dados.cargo;
-    if (dados.empresaId !== undefined) atualizacao["empresa_id"] = dados.empresaId;
+    if (dados.empresaId !== undefined) {
+      atualizacao["empresa_id"] = dados.empresaId;
+      await supabaseAdmin.auth.admin.updateUserById(id, {
+        user_metadata: { empresa_id: dados.empresaId }
+      });
+    }
     // @ts-ignore
     if (dados.ativo !== undefined) atualizacao["ativo"] = dados.ativo;
     if (dados.foto_url !== undefined) atualizacao["foto_url"] = dados.foto_url;
