@@ -4,6 +4,7 @@
   "description": "Este repositório contém a **Camada de Negócio** do sistema ContaAp. Sua principal função é atuar como o cérebro contábil da aplicação, garantindo que todos os lançamentos financeiros da pizzaria sigam as normas técnicas de contabilidade.",
   "main": "src/server.ts",
   "scripts": {
+    "start": "tsx src/server.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "dev": "tsx watch src/server.ts"
