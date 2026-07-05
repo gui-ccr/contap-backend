@@ -25,12 +25,25 @@ export class SupabaseHistoricoLoginRepository {
       .from("historico_logins")
       .select("*")
       .eq("usuario_id", usuarioId)
+      .eq("status", "ok")
       .order("criado_em", { ascending: false })
-      .limit(10);
+      .limit(50);
 
     if (error) {
       throw new ErroBancoDeDados(`Erro ao listar histórico de logins: ${error.message}`);
     }
-    return data ?? [];
+    
+    if (!data) return [];
+
+    // Agrupar por dispositivo e IP para simular "Sessões Ativas" únicas
+    const sessoesUnicas = new Map<string, any>();
+    for (const login of data) {
+      const key = `${login.dispositivo}-${login.ip}`;
+      if (!sessoesUnicas.has(key)) {
+        sessoesUnicas.set(key, login);
+      }
+    }
+
+    return Array.from(sessoesUnicas.values()).slice(0, 5);
   }
 }
