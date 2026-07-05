@@ -1092,11 +1092,11 @@ ${MODULOS.map(renderSidebarLink).join("\n")}
                         <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                             Toda chamada à API começa com esta URL base (já em produção, sem precisar rodar nada localmente):
                         </p>
-                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner mb-4">https://contup-api.vercel.app</pre>
+                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner mb-4">https://nginx-production-6d15.up.railway.app</pre>
                         <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
                             Cada endpoint deste documento é só um "caminho" que vai depois dessa URL. Por exemplo, o endpoint <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">POST /auth/login</code> deve ser chamado em:
                         </p>
-                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner mt-4">https://contup-api.vercel.app/auth/login</pre>
+                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner mt-4">https://nginx-production-6d15.up.railway.app/auth/login</pre>
                         <div class="mt-6 p-4 rounded-xl bg-slate-100 dark:bg-[#15181e] border border-lightBorder dark:border-darkBorder text-sm text-slate-600 dark:text-slate-300">
                             Dica: salve essa URL numa variável de ambiente do projeto frontend (ex: <code class="bg-slate-200 dark:bg-darkBorder px-1.5 py-0.5 rounded text-xs">NEXT_PUBLIC_API_URL</code>) em vez de espalhar o link fixo pelo código. Assim, se a URL mudar um dia, você troca em um lugar só.
                         </div>
@@ -1112,7 +1112,7 @@ ${MODULOS.map(renderSidebarLink).join("\n")}
                         <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                             Use o <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">fetch</code> (já existe no navegador, não precisa instalar nada) ou uma biblioteca como <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">axios</code>. Exemplo de login com <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">fetch</code>:
                         </p>
-                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner">${k("const")} resposta = ${k("await")} fetch(${v('"https://contup-api.vercel.app/auth/login"')}, {
+                        <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner">${k("const")} resposta = ${k("await")} fetch(${v('"https://nginx-production-6d15.up.railway.app/auth/login"')}, {
   ${k("method")}: ${v('"POST"')},
   ${k("headers")}: { ${v('"Content-Type"')}: ${v('"application/json"')} },
   ${k("body")}: JSON.stringify({
@@ -1149,7 +1149,7 @@ ${'/* { status: "success", data: { token: "...", usuario: {...} } } */'}</pre>
                         </ol>
                         <pre class="bg-slate-900 dark:bg-[#0f1115] border border-slate-800 dark:border-darkBorder p-4 rounded-xl text-sm font-mono overflow-x-auto text-slate-300 shadow-inner">${k("const")} token = localStorage.getItem(${v('"token"')});
 
-${k("const")} resposta = ${k("await")} fetch(${v('"https://contup-api.vercel.app/funcionarios"')}, {
+${k("const")} resposta = ${k("await")} fetch(${v('"https://nginx-production-6d15.up.railway.app/funcionarios"')}, {
   ${k("headers")}: {
     ${v('"Authorization"')}: \`Bearer \${token}\`
   }
