@@ -184,6 +184,35 @@ const v = (s: string) => `<span class="text-yellow-300">${s}</span>`;
 
 const MODULOS: Modulo[] = [
   {
+    id: "seguranca",
+    titulo: "Segurança & DDoS (Nginx)",
+    icone: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/>`,
+    descricao: 'Para garantir resiliência contra ataques de força bruta, implementamos um <strong>API Gateway</strong> na nuvem (Railway) usando <code class="bg-slate-100 dark:bg-darkBorder px-1.5 py-0.5 rounded text-brand-dark dark:text-brand">Nginx</code>. Ele atua como um Proxy Reverso com <strong>Rate Limiting</strong> estrito configurado para 5 requisições/segundo por IP.',
+    endpoints: [
+      {
+        metodo: "GET",
+        path: "Bloqueio Automático (Rate Limit)",
+        auth: "Infraestrutura",
+        descricao: 'Qualquer tentativa de sobrecarregar a API com múltiplas requisições simultâneas (acima de 10 requests em rajada) será interceptada <strong>antes</strong> de atingir o servidor Node.js. O Nginx derruba a conexão instantaneamente para economizar CPU/Memória do Backend.',
+        respostaStatus: "429 Too Many Requests",
+        respostaExemplo: `<html>
+  <head><title>429 Too Many Requests</title></head>
+  <body>
+    <center><h1>429 Too Many Requests</h1></center>
+    <hr><center>nginx</center>
+  </body>
+</html>`,
+        erros: [
+          { codigo: "429 TOO_MANY_REQUESTS", quando: "O IP do cliente excede a taxa de 5 requisições por segundo configurada na <code>limit_req_zone</code> do Nginx." },
+        ],
+        notas: [
+          'Esta é uma camada de infraestrutura (Reverse Proxy) e não uma rota Express. A validação ocorre a nível de rede no Railway.',
+          'Protege rotas sensíveis como <code>POST /auth/login</code> contra ataques de dicionário e brute force.'
+        ]
+      }
+    ]
+  },
+  {
     id: "auth",
     titulo: "Autenticação",
     icone: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>`,
