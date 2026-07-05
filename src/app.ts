@@ -6,11 +6,14 @@ import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "https://contaup-techbalance.vercel.app"
-  ],
+  // Em produção, APENAS o frontend da Vercel é permitido.
+  // Em desenvolvimento (local), qualquer frontend (localhost, postman, etc) é permitido.
+  origin: isProduction 
+    ? ["https://contaup-techbalance.vercel.app"] 
+    : "*",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
