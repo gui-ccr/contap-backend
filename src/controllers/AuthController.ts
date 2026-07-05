@@ -120,8 +120,13 @@ export class AuthController {
 
   async desconectarTodas(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id: reqUsuarioId } = (req as IRequestAutenticado).usuario;
-      const { error } = await supabaseAdmin.auth.admin.signOut(reqUsuarioId, 'global');
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        throw new Error('Token ausente');
+      }
+      const jwt = authHeader.split(' ')[1];
+
+      const { error } = await supabaseAdmin.auth.admin.signOut(jwt, 'global');
       if (error) {
         throw new Error(`Erro ao deslogar dispositivos: ${error.message}`);
       }
