@@ -55,7 +55,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async salvar(usuario: Usuario): Promise<void> {
-    if (usuario.empresaId) {
+    if (usuario.id && usuario.empresaId) {
       await supabaseAdmin.auth.admin.updateUserById(usuario.id, {
         user_metadata: { empresa_id: usuario.empresaId }
       });
