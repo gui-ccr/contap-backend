@@ -125,6 +125,9 @@ export class AuthController {
         throw new Error('Token ausente');
       }
       const jwt = authHeader.split(' ')[1];
+      if (!jwt) {
+        throw new Error('Formato de token inválido');
+      }
 
       const { error } = await supabaseAdmin.auth.admin.signOut(jwt, 'global');
       if (error) {
