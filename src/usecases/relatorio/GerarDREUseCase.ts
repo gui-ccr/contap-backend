@@ -15,8 +15,9 @@ export class GerarDREUseCase {
 
     const totalReceitas = this.somarSaldos(saldos.receitas);
     const totalDespesas = this.somarSaldos(saldos.despesas);
+    const totalCustos = this.somarSaldos(saldos.custos);
 
-    const resultadoLiquido = Number((totalReceitas - totalDespesas).toFixed(2));
+    const resultadoLiquido = Number((totalReceitas - totalDespesas - totalCustos).toFixed(2));
 
     return {
       empresaId,
@@ -24,8 +25,10 @@ export class GerarDREUseCase {
       dataFim,
       receitas: saldos.receitas,
       despesas: saldos.despesas,
+      custos: saldos.custos,
       totalReceitas,
       totalDespesas,
+      totalCustos,
       resultadoLiquido
     };
   }

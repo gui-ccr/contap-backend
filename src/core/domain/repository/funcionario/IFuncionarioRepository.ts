@@ -6,6 +6,7 @@ export interface IAtualizarFuncionarioInput {
   cpfCnpj?: string;
   salario?: number;
   diaPagamento?: number;
+  dataAdmissao?: string;
   foto_url?: string | null;
 }
 

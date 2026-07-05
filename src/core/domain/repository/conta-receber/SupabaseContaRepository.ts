@@ -17,6 +17,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
         data_previsao: dados.data_previsao,
         recebido: dados.recebido,
         data_recebimento: dados.data_recebimento,
+        valor_pago: dados.valor_pago,
       })
       .select()
       .maybeSingle();
@@ -40,6 +41,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       data_previsao: data.data_previsao,
       recebido: data.recebido,
       data_recebimento: data.data_recebimento,
+      valor_pago: data.valor_pago,
     };
   }
 
@@ -65,16 +67,21 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       data_previsao: c.data_previsao,
       recebido: c.recebido,
       data_recebimento: c.data_recebimento,
+      valor_pago: c.valor_pago,
     }));
   }
 
   async marcarComoRecebido(
     id: string,
     data_recebimento: string,
+    valor_pago?: number,
   ): Promise<IContaReceber> {
+    const payload: any = { recebido: true, data_recebimento };
+    if (valor_pago !== undefined) payload.valor_pago = valor_pago;
+
     const { data, error } = await supabaseAdmin
       .from("contas_receber")
-      .update({ recebido: true, data_recebimento })
+      .update(payload)
       .eq("id", id)
       .select()
       .maybeSingle();
@@ -98,6 +105,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       data_previsao: data.data_previsao,
       recebido: data.recebido,
       data_recebimento: data.data_recebimento,
+      valor_pago: data.valor_pago,
     };
   }
 
@@ -123,6 +131,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       data_previsao: data.data_previsao,
       recebido: data.recebido,
       data_recebimento: data.data_recebimento,
+      valor_pago: data.valor_pago,
     };
   }
 
@@ -151,6 +160,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
       data_previsao: data.data_previsao,
       recebido: data.recebido,
       data_recebimento: data.data_recebimento,
+      valor_pago: data.valor_pago,
     };
   }
 }

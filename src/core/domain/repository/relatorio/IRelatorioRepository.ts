@@ -8,6 +8,7 @@ export interface IRelatorioRepository {
   obterSaldosResultado(empresaId: string, dataInicio: Date, dataFim: Date): Promise<{
     receitas: ISaldoContaAgregado[];
     despesas: ISaldoContaAgregado[];
+    custos: ISaldoContaAgregado[];
   }>;
 
   /**

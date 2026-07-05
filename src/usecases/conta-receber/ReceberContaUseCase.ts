@@ -9,7 +9,7 @@ export class ReceberContaUseCase {
     private planoContaRepository: IPlanoContaRepository,
   ) {}
 
-  async executar(id: string, empresaId: string) {
+  async executar(id: string, empresaId: string, valor_pago?: number) {
     const conta = await this.contasReceberRepository.buscarPorId(id);
 
     if (!conta) throw new Error("Conta a receber não encontrada.");
@@ -57,25 +57,50 @@ export class ReceberContaUseCase {
       await this.contasReceberRepository.marcarComoRecebido(
         id,
         dataAtualString,
+        valor_pago
       );
 
+    const valorOriginal = conta.valor;
+    const valorRealizado = valor_pago !== undefined ? valor_pago : valorOriginal;
+    const juros = valorRealizado > valorOriginal ? valorRealizado - valorOriginal : 0;
+
+    let contaJuros = null;
+    if (juros > 0) {
+      contaJuros = await this.planoContaRepository.buscarPorCodigoEEmpresa(
+        "4.1.02", // Supondo que 4.1.02 seja Receitas Financeiras/Juros
+        conta.empresa_id,
+      );
+      if (!contaJuros) {
+        contaJuros = contaReceita; // Fallback
+      }
+    }
+
+    const partidas: any[] = [
+      {
+        contaId: contaCaixa.id!, 
+        tipo: "D",
+        valor: valorRealizado,
+      },
+      {
+        contaId: contaReceita.id!, 
+        tipo: "C",
+        valor: valorOriginal,
+      },
+    ];
+
+    if (juros > 0 && contaJuros) {
+      partidas.push({
+        contaId: contaJuros.id!,
+        tipo: "C",
+        valor: juros,
+      });
+    }
 
     await this.criarLancamentoUseCase.execute({
       empresaId: conta.empresa_id,
       dataLancamento: new Date(dataAtualString),
-      descricao: `Recebimento automático referente a: ${conta.origem}`,
-      partidas: [
-        {
-          contaId: contaCaixa.id!, 
-          tipo: "D",
-          valor: conta.valor,
-        },
-        {
-          contaId: contaReceita.id!, 
-          tipo: "C",
-          valor: conta.valor,
-        },
-      ],
+      descricao: `Recebimento de: ${conta.origem}` + (juros > 0 ? ` (com juros de R$ ${juros.toFixed(2)})` : ''),
+      partidas: partidas,
     });
 
     const { SupabaseNotificacaoRepository } = await import("../../core/domain/repository/notificacao/SupabaseNotificacaoRepository.js");
@@ -86,7 +111,7 @@ export class ReceberContaUseCase {
     await criarNotificacao.executar({
       empresa_id: conta.empresa_id,
       titulo: "Conta Recebida",
-      mensagem: `O recebimento de "${conta.origem}" no valor de R$ ${conta.valor} foi baixado e contabilizado.`,
+      mensagem: `O recebimento de "${conta.origem}" no valor original de R$ ${valorOriginal} foi baixado` + (juros > 0 ? ` com juros, totalizando R$ ${valorRealizado}` : '') + ` e contabilizado.`,
     });
 
     return contaAtualizada;

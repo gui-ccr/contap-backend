@@ -12,7 +12,8 @@ function mapearFuncionario(data: Record<string, unknown>): Funcionario {
     email: data.email as string,
     cpfCnpj: data.cpf_cnpj as string,
     salario: Number(data.salario) || 0,
-    diaPagamento: Number(data.dia_pagamento) || 1,
+    diaPagamento: Number(data.dia_pagamento) || 5,
+    dataAdmissao: data.data_admissao as string || new Date().toISOString().split('T')[0],
     foto_url: data.foto_url as string | null,
   });
 }
@@ -27,6 +28,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
       cpf_cnpj: funcionario.cpfCnpj,
       salario: funcionario.salario,
       dia_pagamento: funcionario.diaPagamento,
+      data_admissao: funcionario.dataAdmissao,
       foto_url: funcionario.foto_url,
     }).select().single();
 
@@ -68,6 +70,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
     if (dados.cpfCnpj !== undefined) atualizacao["cpf_cnpj"] = dados.cpfCnpj;
     if (dados.salario !== undefined) atualizacao["salario"] = dados.salario;
     if (dados.diaPagamento !== undefined) atualizacao["dia_pagamento"] = dados.diaPagamento;
+    if (dados.dataAdmissao !== undefined) atualizacao["data_admissao"] = dados.dataAdmissao;
     if (dados.foto_url !== undefined) atualizacao["foto_url"] = dados.foto_url;
 
     const { data, error } = await supabaseAdmin

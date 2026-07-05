@@ -1,6 +1,6 @@
 import { ErroEntradaInvalida } from "../../errors/AppErrors.js";
 
-export type TipoContaContabil = 'ATIVO' | 'PASSIVO' | 'PL' | 'RECEITA' | 'DESPESA';
+export type TipoContaContabil = 'ATIVO' | 'PASSIVO' | 'PL' | 'RECEITA' | 'DESPESA' | 'CUSTO';
 
 export interface IPlanoContaProps {
   id?: string;

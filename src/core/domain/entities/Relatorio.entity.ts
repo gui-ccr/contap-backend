@@ -20,10 +20,12 @@ export interface IDRE {
   // Linhas analíticas do relatório
   receitas: ISaldoContaAgregado[];
   despesas: ISaldoContaAgregado[];
+  custos: ISaldoContaAgregado[];
   
   // Totais agregados matematicamente no UseCase
   totalReceitas: number;
   totalDespesas: number;
+  totalCustos: number;
   
   // O "Bottom Line": totalReceitas - totalDespesas
   resultadoLiquido: number; 

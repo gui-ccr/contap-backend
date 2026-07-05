@@ -27,6 +27,7 @@ function funcionarioDto(funcionario: Funcionario) {
     cpf_cnpj: funcionario.cpfCnpj,
     salario: funcionario.salario,
     dia_pagamento: funcionario.diaPagamento,
+    data_admissao: funcionario.dataAdmissao,
     foto_url: funcionario.foto_url,
   };
 }
@@ -50,7 +51,8 @@ export class FuncionarioController {
         cargo: z.string().min(1, 'O cargo é obrigatório'),
         cpf_cnpj: z.string().min(11, "CPF/CNPJ inválido"),
         salario: z.number().min(0, "O salário não pode ser negativo"),
-        dia_pagamento: z.number().min(1).max(31, "Dia de pagamento inválido"),
+        dia_pagamento: z.number().min(1).max(31, "Dia de pagamento inválido").optional().default(5),
+        data_admissao: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de admissão inválida" }),
         foto_url: z.string().url("URL da foto inválida").optional().nullable(),
       });
       
@@ -65,6 +67,7 @@ export class FuncionarioController {
         cpfCnpj: dadosValidados.cpf_cnpj,
         salario: dadosValidados.salario,
         diaPagamento: dadosValidados.dia_pagamento,
+        dataAdmissao: dadosValidados.data_admissao,
       };
       
       if (dadosValidados.foto_url) {
@@ -123,6 +126,7 @@ export class FuncionarioController {
         cpf_cnpj: z.string().optional(),
         salario: z.number().optional(),
         dia_pagamento: z.number().min(1).max(31).optional(),
+        data_admissao: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Data de admissão inválida" }).optional(),
         foto_url: z.string().url().optional().nullable(),
       }).refine((data) => Object.keys(data).length > 0, { message: "Informe algo para atualizar" });
 
@@ -139,6 +143,7 @@ export class FuncionarioController {
           ...(dadosValidados.cpf_cnpj !== undefined && { cpfCnpj: dadosValidados.cpf_cnpj }),
           ...(dadosValidados.salario !== undefined && { salario: dadosValidados.salario }),
           ...(dadosValidados.dia_pagamento !== undefined && { diaPagamento: dadosValidados.dia_pagamento }),
+          ...(dadosValidados.data_admissao !== undefined && { dataAdmissao: dadosValidados.data_admissao }),
           ...(dadosValidados.foto_url !== undefined && { foto_url: dadosValidados.foto_url }),
         },
       });

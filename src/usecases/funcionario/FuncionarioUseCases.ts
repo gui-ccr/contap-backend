@@ -12,14 +12,34 @@ export interface ICriarFuncionarioInput {
   email: string;
   cpfCnpj: string;
   salario: number;
-  diaPagamento: number;
+  diaPagamento?: number;
+  dataAdmissao: string;
   foto_url?: string;
+}
+
+function getQuintoDiaUtil(ano: number, mes: number): Date {
+  let dia = 1;
+  let diasUteis = 0;
+  
+  while (diasUteis < 5) {
+    const data = new Date(ano, mes, dia);
+    const diaSemana = data.getDay();
+    // 0 = Domingo, 6 = Sábado
+    if (diaSemana !== 0 && diaSemana !== 6) {
+      diasUteis++;
+    }
+    if (diasUteis < 5) {
+      dia++;
+    }
+  }
+  return new Date(ano, mes, dia);
 }
 
 export class CriarFuncionarioUseCase {
   constructor(
     private readonly funcionarioRepository: IFuncionarioRepository,
-    private readonly contaPagarRepository: IContaPagarRepository
+    private readonly contaPagarRepository: IContaPagarRepository,
+    private readonly planoContaRepository?: any // Forçando injeção opcional ou buscar direto se necessário
   ) {}
 
   async execute(dados: ICriarFuncionarioInput): Promise<Funcionario> {
@@ -27,19 +47,50 @@ export class CriarFuncionarioUseCase {
     const novo = new Funcionario(dados);
     const salvo = await this.funcionarioRepository.criar(novo);
 
-    const dataAtual = new Date();
+    // Procurar ou criar conta de "Despesas com Salários"
+    const { SupabasePlanoContaRepository } = await import("../../core/domain/repository/plano-conta/SupabasePlanoContaRepository.js");
+    const planoRepo = new SupabasePlanoContaRepository();
+    
+    let contaSalario = await planoRepo.buscarPorCodigoEEmpresa("5.1.04", salvo.empresaId);
+    if (!contaSalario) {
+      contaSalario = await planoRepo.criar({
+        empresaId: salvo.empresaId,
+        codigo: "5.1.04",
+        nome: "Despesas com Salários",
+        tipo: "DESPESA"
+      });
+    }
+
+    const dataAdmissao = new Date(dados.dataAdmissao + "T00:00:00");
+    const anoAdmissao = dataAdmissao.getFullYear();
+    const mesAdmissao = dataAdmissao.getMonth();
+    const diaAdmissao = dataAdmissao.getDate();
+    
+    // Calcula dias trabalhados no primeiro mês considerando o mês comercial de 30 dias (ou o mês real).
+    // Para simplificar, a regra comercial no Brasil: (Salário / 30) * Dias Trabalhados
+    const diasNoMes = new Date(anoAdmissao, mesAdmissao + 1, 0).getDate();
+    const diasTrabalhados = diasNoMes - diaAdmissao + 1;
+    const salarioProporcional = (salvo.salario / 30) * diasTrabalhados;
+
     for (let i = 0; i < 12; i++) {
-      const dataVencimento = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + i, dados.diaPagamento);
+      // O primeiro pagamento (i=0) é no mês SEGUINTE ao da admissão
+      const dataVencimento = getQuintoDiaUtil(anoAdmissao, mesAdmissao + 1 + i);
+      
       const dia = String(dataVencimento.getDate()).padStart(2, '0');
-      const mes = String(dataVencimento.getMonth() + 1).padStart(2, '0');
-      const ano = dataVencimento.getFullYear();
+      const mesStr = String(dataVencimento.getMonth() + 1).padStart(2, '0');
+      const anoStr = dataVencimento.getFullYear();
+      
+      const valorPagamento = i === 0 ? salarioProporcional : salvo.salario;
+      const mesReferencia = new Date(anoAdmissao, mesAdmissao + i, 1);
+      const mesRefStr = String(mesReferencia.getMonth() + 1).padStart(2, '0');
+      const anoRefStr = mesReferencia.getFullYear();
       
       await this.contaPagarRepository.criar({
         empresa_id: salvo.empresaId,
-        descricao: `[Salário] ${salvo.nome} - Mês ${mes}/${ano}`,
-        valor: salvo.salario,
-        tipo: "Salário",
-        data_vencimento: `${ano}-${mes}-${dia}`,
+        descricao: `[Salário] ${salvo.nome} - Ref. ${mesRefStr}/${anoRefStr}`,
+        valor: valorPagamento,
+        tipo: contaSalario.id!, // UUID correto
+        data_vencimento: `${anoStr}-${mesStr}-${dia}`,
         pago: false,
       });
     }

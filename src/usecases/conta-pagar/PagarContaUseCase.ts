@@ -10,7 +10,7 @@ export class PagarContaUseCase {
     private planoContaRepository: IPlanoContaRepository,
   ) {}
 
-  async executar(id: string, empresaId: string) {
+  async executar(id: string, empresaId: string, valor_pago?: number) {
     const conta = await this.contasPagarRepository.buscarPorId(id);
 
     if (!conta) throw new Error("Conta a pagar não encontrada.");
@@ -36,10 +36,19 @@ export class PagarContaUseCase {
     
     if (!contaDespesa) {
       // Legacy fallback for old records like "Salário"
-      contaDespesa = await this.planoContaRepository.buscarPorCodigoEEmpresa(
-        "5.1.01",
-        conta.empresa_id,
-      );
+      if (conta.tipo === "Salário" || conta.descricao.includes("[Salário]")) {
+        contaDespesa = await this.planoContaRepository.buscarPorCodigoEEmpresa("5.1.04", conta.empresa_id);
+        if (!contaDespesa) {
+          contaDespesa = await this.planoContaRepository.criar({
+            empresaId: conta.empresa_id,
+            codigo: "5.1.04",
+            nome: "Despesas com Salários",
+            tipo: "DESPESA"
+          });
+        }
+      } else {
+        contaDespesa = await this.planoContaRepository.buscarPorCodigoEEmpresa("5.1.01", conta.empresa_id);
+      }
     }
 
     if (!contaCaixa) {
@@ -58,24 +67,51 @@ export class PagarContaUseCase {
     const contaAtualizada = await this.contasPagarRepository.marcarComoPago(
       id,
       dataAtualString,
+      valor_pago
     );
+
+    const valorOriginal = conta.valor;
+    const valorRealizado = valor_pago !== undefined ? valor_pago : valorOriginal;
+    const juros = valorRealizado > valorOriginal ? valorRealizado - valorOriginal : 0;
+    
+    let contaJuros = null;
+    if (juros > 0) {
+      contaJuros = await this.planoContaRepository.buscarPorCodigoEEmpresa(
+        "5.1.02", // Supondo que 5.1.02 seja Despesas Financeiras/Juros
+        conta.empresa_id,
+      );
+      if (!contaJuros) {
+        // Fallback caso não exista
+        contaJuros = contaDespesa;
+      }
+    }
+
+    const partidas: any[] = [
+      {
+        contaId: contaDespesa.id!,
+        tipo: "D",
+        valor: valorOriginal,
+      },
+      {
+        contaId: contaCaixa.id!,
+        tipo: "C",
+        valor: valorRealizado,
+      },
+    ];
+
+    if (juros > 0 && contaJuros) {
+      partidas.push({
+        contaId: contaJuros.id!,
+        tipo: "D",
+        valor: juros,
+      });
+    }
 
     await this.criarLancamentoUseCase.execute({
       empresaId: conta.empresa_id,
       dataLancamento: new Date(dataAtualString),
-      descricao: `Pagamento automático referente a: ${conta.descricao}`,
-      partidas: [
-        {
-          contaId: contaDespesa.id!,
-          tipo: "D",
-          valor: conta.valor,
-        },
-        {
-          contaId: contaCaixa.id!,
-          tipo: "C",
-          valor: conta.valor,
-        },
-      ],
+      descricao: `Pagamento de: ${conta.descricao}` + (juros > 0 ? ` (com juros de R$ ${juros.toFixed(2)})` : ''),
+      partidas: partidas,
     });
 
     const { SupabaseNotificacaoRepository } = await import("../../core/domain/repository/notificacao/SupabaseNotificacaoRepository.js");
@@ -86,7 +122,7 @@ export class PagarContaUseCase {
     await criarNotificacao.executar({
       empresa_id: conta.empresa_id,
       titulo: "Conta Paga",
-      mensagem: `A conta "${conta.descricao}" no valor de R$ ${conta.valor} foi paga e contabilizada.`,
+      mensagem: `A conta "${conta.descricao}" no valor original de R$ ${valorOriginal} foi paga` + (juros > 0 ? ` com juros, totalizando R$ ${valorRealizado}` : '') + ` e contabilizada.`,
     });
 
     return contaAtualizada;

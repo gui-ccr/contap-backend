@@ -17,6 +17,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
         data_vencimento: dados.data_vencimento,
         pago: dados.pago,
         data_pagamento: dados.data_pagamento,
+        valor_pago: dados.valor_pago,
       })
       .select()
       .maybeSingle();
@@ -40,6 +41,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       data_vencimento: data.data_vencimento,
       pago: data.pago,
       data_pagamento: data.data_pagamento,
+      valor_pago: data.valor_pago,
     };
   }
 
@@ -65,16 +67,21 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       data_vencimento: c.data_vencimento,
       pago: c.pago,
       data_pagamento: c.data_pagamento,
+      valor_pago: c.valor_pago,
     }));
   }
 
   async marcarComoPago(
     id: string,
     data_pagamento: string,
+    valor_pago?: number,
   ): Promise<IContaPagar> {
+    const payload: any = { pago: true, data_pagamento };
+    if (valor_pago !== undefined) payload.valor_pago = valor_pago;
+
     const { data, error } = await supabaseAdmin
       .from("contas_pagar")
-      .update({ pago: true, data_pagamento })
+      .update(payload)
       .eq("id", id)
       .select()
       .maybeSingle();
@@ -98,6 +105,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       data_vencimento: data.data_vencimento,
       pago: data.pago,
       data_pagamento: data.data_pagamento,
+      valor_pago: data.valor_pago,
     };
   }
 
@@ -123,6 +131,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       data_vencimento: data.data_vencimento,
       pago: data.pago,
       data_pagamento: data.data_pagamento,
+      valor_pago: data.valor_pago,
     };
   }
 
@@ -151,6 +160,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
       data_vencimento: data.data_vencimento,
       pago: data.pago,
       data_pagamento: data.data_pagamento,
+      valor_pago: data.valor_pago,
     };
   }
 

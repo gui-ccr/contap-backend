@@ -51,8 +51,10 @@ export class ContaPagarController {
       const { empresaId } = (req as IRequestAutenticado).usuario;
       if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
 
+      const { valor_pago } = req.body;
+
       const useCase = new PagarContaUseCase(contasPagarRepository, criarLancamentoUseCase, planoContaRepository);
-      const resultado = await useCase.executar(id, empresaId);
+      const resultado = await useCase.executar(id, empresaId, valor_pago ? Number(valor_pago) : undefined);
 
       return res.status(200).json({
         message: 'Conta paga e lançamento contábil gerado!',

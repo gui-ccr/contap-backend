@@ -47,7 +47,9 @@ export class ContaReceberController {
       const { empresaId } = (req as any).usuario;
       if (!empresaId) return res.status(403).json({ status: 'error', message: 'Usuário sem empresa vinculada.' });
 
-      const resultado = await this.receberContaUseCase.executar(id, empresaId);
+      const { valor_pago } = req.body;
+
+      const resultado = await this.receberContaUseCase.executar(id, empresaId, valor_pago ? Number(valor_pago) : undefined);
 
       return res.status(200).json({
         message: "Conta recebida e lançamento contábil gerado com sucesso!",

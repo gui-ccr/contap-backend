@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const tiposPlanoContas = z.enum(["ATIVO", "PASSIVO", "PL", "RECEITA", "DESPESA"]);
+export const tiposPlanoContas = z.enum(["ATIVO", "PASSIVO", "PL", "RECEITA", "DESPESA", "CUSTO"]);
 
 export const planoContaIdParamSchema = z.object({
   id: z.string().uuid("ID do plano de contas invalido"),

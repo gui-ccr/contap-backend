@@ -8,7 +8,7 @@ interface PartidaRow {
   valor: number;
   tipo: "D" | "C";
   lancamentos: { data_lancamento: string; empresa_id: string };
-  plano_contas: { codigo: string; nome: string; tipo: "ATIVO" | "PASSIVO" | "PL" | "RECEITA" | "DESPESA" };
+  plano_contas: { codigo: string; nome: string; tipo: "ATIVO" | "PASSIVO" | "PL" | "RECEITA" | "DESPESA" | "CUSTO" };
 }
 
 export class SupabaseRelatorioRepository implements IRelatorioRepository {
@@ -16,7 +16,7 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
     empresaId: string,
     dataInicio: Date,
     dataFim: Date
-  ): Promise<{ receitas: ISaldoContaAgregado[]; despesas: ISaldoContaAgregado[] }> {
+  ): Promise<{ receitas: ISaldoContaAgregado[]; despesas: ISaldoContaAgregado[]; custos: ISaldoContaAgregado[] }> {
     const { data, error } = await supabaseAdmin
       .from("partidas")
       .select(`
@@ -28,7 +28,7 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
       .eq("lancamentos.empresa_id", empresaId)
       .gte("lancamentos.data_lancamento", dataInicio.toISOString())
       .lte("lancamentos.data_lancamento", dataFim.toISOString())
-      .in("plano_contas.tipo", ["RECEITA", "DESPESA"]);
+      .in("plano_contas.tipo", ["RECEITA", "DESPESA", "CUSTO"]);
 
     if (error) {
       throw new ErroBancoDeDados(`Erro ao buscar saldos de resultado: ${error.message}`);
@@ -36,14 +36,16 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
 
     const receitasMap = new Map<string, ISaldoContaAgregado>();
     const despesasMap = new Map<string, ISaldoContaAgregado>();
+    const custosMap = new Map<string, ISaldoContaAgregado>();
 
     for (const row of data as any[]) {
       const p = row as PartidaRow;
       const cod = p.plano_contas.codigo;
       const isReceita = p.plano_contas.tipo === "RECEITA";
       const isDespesa = p.plano_contas.tipo === "DESPESA";
+      const isCusto = p.plano_contas.tipo === "CUSTO";
 
-      let mapToUse = isReceita ? receitasMap : isDespesa ? despesasMap : null;
+      let mapToUse = isReceita ? receitasMap : isDespesa ? despesasMap : isCusto ? custosMap : null;
       if (!mapToUse) continue;
 
       if (!mapToUse.has(cod)) {
@@ -54,10 +56,10 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
 
       // Regra contábil:
       // Receita aumenta a Crédito
-      // Despesa aumenta a Débito
+      // Despesa e Custo aumentam a Débito
       if (isReceita) {
         conta.saldo += p.tipo === "C" ? p.valor : -p.valor;
-      } else if (isDespesa) {
+      } else if (isDespesa || isCusto) {
         conta.saldo += p.tipo === "D" ? p.valor : -p.valor;
       }
     }
@@ -65,6 +67,7 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
     return {
       receitas: Array.from(receitasMap.values()),
       despesas: Array.from(despesasMap.values()),
+      custos: Array.from(custosMap.values()),
     };
   }
 

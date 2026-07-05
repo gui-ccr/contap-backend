@@ -24,6 +24,20 @@ export class AnexarNotaFiscalUseCase {
       throw new ErroEntradaInvalida("Tipo de referência inválido.");
     }
 
+    const existentes = await this.notaFiscalRepository.listarPorEmpresa(input.empresa_id);
+    
+    const arquivoDuplicado = existentes.find(n => n.arquivo_nome === input.arquivo_nome);
+    if (arquivoDuplicado) {
+      throw new ErroEntradaInvalida(`Já existe um arquivo anexado com o nome "${input.arquivo_nome}".`);
+    }
+
+    if (input.numero_nota) {
+      const notaDuplicada = existentes.find(n => n.numero_nota === input.numero_nota);
+      if (notaDuplicada) {
+        throw new ErroEntradaInvalida(`A nota fiscal "${input.numero_nota}" já foi registrada no sistema.`);
+      }
+    }
+
     return this.notaFiscalRepository.criar({
       empresa_id: input.empresa_id,
       tipo_referencia: input.tipo_referencia,

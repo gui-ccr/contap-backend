@@ -8,7 +8,8 @@ export interface IFuncionarioProps {
   email: string;
   cpfCnpj: string;
   salario: number;
-  diaPagamento: number;
+  diaPagamento?: number;
+  dataAdmissao: string;
   foto_url?: string | null;
 }
 
@@ -33,6 +34,7 @@ export class Funcionario {
   get email() { return this.props.email; }
   get cpfCnpj() { return this.props.cpfCnpj; }
   get salario() { return this.props.salario; }
-  get diaPagamento() { return this.props.diaPagamento; }
+  get diaPagamento() { return this.props.diaPagamento ?? 5; }
+  get dataAdmissao() { return this.props.dataAdmissao; }
   get foto_url() { return this.props.foto_url; }
 }
