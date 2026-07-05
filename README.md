@@ -60,6 +60,15 @@ Ao criar uma rota/usecase novo que manipula dados de empresa, siga esse padrão 
 
 ---
 
+## 🛡️ API Gateway & Proteção Contra Ataques (DDoS)
+
+Nosso backend não é exposto diretamente à internet de forma nua. Para garantir a resiliência e estabilidade da aplicação, nós implementamos um **API Gateway usando Nginx** (hospedado no Railway) que atua como um escudo protetor:
+
+* **Rate Limiting Estrito**: Configuramos uma `limit_req_zone` que aceita até 5 requisições por segundo por IP, com um burst de 10. Se um atacante ou bot tentar realizar um ataque de Força Bruta (ex: tentar adivinhar senhas em massa no `/auth/login`), o Nginx intercepta as conexões e bloqueia imediatamente (retornando erro **429 Too Many Requests**), protegendo o servidor Node.js de sobrecarga.
+* **Proxy Reverso**: O Nginx recebe a conexão segura HTTPS da internet e repassa a requisição limpa para o backend rodando na rede privada interna do Railway.
+
+---
+
 ## 🏗️ Arquitetura e Módulos de Lógica (Clean Architecture & DDD)
 
 Para garantir que o código se mantenha limpo, testável e fácil de manter (Clean Code), o back-end está dividido em contextos isolados. Cada peça tem uma responsabilidade única:

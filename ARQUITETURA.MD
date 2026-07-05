@@ -13,12 +13,13 @@ Este guia serve para entenderem como o código funciona e o que devem pesquisar 
 
 Quando o Postman (ou o Front-end) faz um pedido à nossa API, o dado viaja por este "cano" até chegar à base de dados (Supabase):
 
-1. **Rotas (`/routes`)**: O carteiro. Recebe o URL e entrega ao Controller correto.
-2. **Segurança/Validação (`/schemas` - Zod)**: O segurança da porta. Verifica se o JSON tem o formato certo (se o email é válido, se a senha tem 6 letras, etc.). Se estiver errado, barra logo aqui.
-3. **Controller (`/controllers`)**: O rececionista. Pega no dado validado pelo Zod e entrega à camada de negócio. **Não tem lógica de banco de dados aqui!**
-4. **Use Case (`/usecases`)**: O cérebro. É aqui que a lógica acontece (ex: encriptar a senha, somar os débitos e créditos).
-5. **Entidade (`/core/domain/entities`)**: A lei. Classes puras de TypeScript que representam o nosso negócio (ex: a classe `Usuario` ou `Lancamento`).
-6. **Repositório (`/core/domain/repository`)**: O bibliotecário. É a **única** camada que sabe que o Supabase existe. Pega na Entidade e guarda na tabela correta.
+1. **API Gateway / Nginx (`/nginx-proxy`)**: O escudo. Intercepta todas as requisições na nuvem (Railway), aplica o limite de requisições por IP (Rate Limit) e protege a API contra ataques de força bruta (DDoS) antes mesmo do dado chegar no Node.js.
+2. **Rotas (`/routes`)**: O carteiro. Recebe o URL e entrega ao Controller correto.
+3. **Segurança/Validação (`/schemas` - Zod)**: O segurança da porta. Verifica se o JSON tem o formato certo (se o email é válido, se a senha tem 6 letras, etc.). Se estiver errado, barra logo aqui.
+4. **Controller (`/controllers`)**: O rececionista. Pega no dado validado pelo Zod e entrega à camada de negócio. **Não tem lógica de banco de dados aqui!**
+5. **Use Case (`/usecases`)**: O cérebro. É aqui que a lógica acontece (ex: encriptar a senha, somar os débitos e créditos).
+6. **Entidade (`/core/domain/entities`)**: A lei. Classes puras de TypeScript que representam o nosso negócio (ex: a classe `Usuario` ou `Lancamento`).
+7. **Repositório (`/core/domain/repository`)**: O bibliotecário. É a **única** camada que sabe que o Supabase existe. Pega na Entidade e guarda na tabela correta.
 
 ---
 
