@@ -5,8 +5,29 @@ import { RegistrarDonoUseCase } from '../usecases/auth/RegistrarDonoUseCase.js';
 import { LoginUseCase } from '../usecases/auth/LoginUseCase.js';
 import { registrarUsuarioSchema, registrarDonoSchema } from '../schemas/Usuarios.schema.js';
 import { type IRequestAutenticado } from '../middlewares/auth.middleware.js';
+import { SupabaseHistoricoLoginRepository } from '../core/domain/repository/auth/SupabaseHistoricoLoginRepository.js';
+import { supabaseAdmin } from '../config/database.js';
 
 const usuarioRepository = new SupabaseUsuarioRepository();
+const historicoLoginRepo = new SupabaseHistoricoLoginRepository();
+
+function parseUserAgent(ua: string): string {
+  if (!ua) return 'Desconhecido';
+  let browser = 'Desconhecido';
+  if (ua.includes('Firefox')) browser = 'Firefox';
+  else if (ua.includes('Edg')) browser = 'Edge';
+  else if (ua.includes('Chrome')) browser = 'Chrome';
+  else if (ua.includes('Safari')) browser = 'Safari';
+
+  let os = 'Desconhecido';
+  if (ua.includes('Windows')) os = 'Windows';
+  else if (ua.includes('Mac OS')) os = 'macOS';
+  else if (ua.includes('Linux')) os = 'Linux';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('like Mac OS')) os = 'iOS';
+
+  return `${browser} · ${os}`;
+}
 
 export class AuthController {
   async registrarUsuario(req: Request, res: Response, next: NextFunction) {
@@ -54,13 +75,57 @@ export class AuthController {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const useCase = new LoginUseCase(usuarioRepository);
-
       const resultado = await useCase.execute({
         email: req.body.email,
         senhaLimpa: req.body.senha,
       });
 
+      const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString();
+      const ua = req.headers['user-agent'] || '';
+
+      await historicoLoginRepo.criar({
+        usuario_id: resultado.usuario.id,
+        empresa_id: resultado.empresa_id || "",
+        dispositivo: parseUserAgent(ua),
+        ip,
+        status: "ok"
+      });
+
       return res.status(200).json({ status: 'success', data: resultado });
+    } catch (err) {
+      // Registrar falha se conseguirmos o email
+      // Not strictly possible to get user_id without querying, so we'll skip fail logs for now, or just let it fail silently
+      next(err);
+    }
+  }
+
+  async listarSessoes(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: reqUsuarioId } = (req as IRequestAutenticado).usuario;
+      const historico = await historicoLoginRepo.listarRecentes(reqUsuarioId);
+      
+      const sessoesFormatadas = historico.map(h => ({
+        id: h.id,
+        device: h.dispositivo,
+        location: h.ip ? h.ip : 'Desconhecida',
+        time: h.criado_em,
+        status: h.status,
+      }));
+
+      return res.status(200).json({ status: 'success', data: sessoesFormatadas });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async desconectarTodas(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: reqUsuarioId } = (req as IRequestAutenticado).usuario;
+      const { error } = await supabaseAdmin.auth.admin.signOut(reqUsuarioId, 'global');
+      if (error) {
+        throw new Error(`Erro ao deslogar dispositivos: ${error.message}`);
+      }
+      return res.status(200).json({ status: 'success', message: 'Todos os dispositivos foram desconectados.' });
     } catch (err) {
       next(err);
     }

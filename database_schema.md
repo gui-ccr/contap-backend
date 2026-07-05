@@ -144,3 +144,15 @@
 | `mensagem` | `text` |  |
 | `lida` | `bool` | Nullable |
 | `data_criacao` | `timestamptz` | Nullable |
+
+## Table `historico_logins`
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `uuid` | Primary, Default(uuid_generate_v4()) |
+| `usuario_id` | `uuid` | References auth.users(id) |
+| `empresa_id` | `uuid` | References empresas(id) |
+| `dispositivo` | `text` |  |
+| `ip` | `text` | Nullable |
+| `status` | `text` | 'ok' or 'fail' |
+| `criado_em` | `timestamptz` | Default(now()) |
+

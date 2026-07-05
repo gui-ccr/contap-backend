@@ -12,6 +12,8 @@ authRoutes.post('/login', authController.login);
 authRoutes.post('/registrar-usuario', authMiddleware, requireCargo('DONO'), authController.registrarUsuario);
 authRoutes.post('/registrar-dono', authController.registrarDono);
 authRoutes.get('/me', authMiddleware, meController.me);
+authRoutes.get('/sessoes', authMiddleware, authController.listarSessoes);
+authRoutes.post('/sessoes/desconectar-todas', authMiddleware, authController.desconectarTodas);
 authRoutes.get('/usuarios', authMiddleware, authController.listarUsuarios);
 authRoutes.put('/usuarios/:id', authMiddleware, authController.atualizarUsuario);
 authRoutes.delete('/usuarios/:id', authMiddleware, authController.deletarUsuario);
