@@ -23,14 +23,9 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-import { getDocsHtml } from "./docs.js";
-
-// Rota Raiz - Documentação da API
+// A raiz agora responde apenas um healthcheck simples
 app.get("/", (req, res) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.send(getDocsHtml());
+  res.status(200).json({ status: "ok", message: "ContaUp API Gateway rodando." });
 });
 
 app.use(routes);
