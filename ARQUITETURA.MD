@@ -11,6 +11,8 @@ Este guia serve para entenderem como o código funciona e o que devem pesquisar 
 
 ## 🏗️ O Fluxo da Aplicação (O Caminho do Dado)
 
+![Diagrama de Arquitetura e Conexões (Design System)](./design-system.png)
+
 Quando o Postman (ou o Front-end) faz um pedido à nossa API, o dado viaja por este "cano" até chegar à base de dados (Supabase):
 
 1. **API Gateway / Nginx (`/nginx-proxy`)**: O escudo. Intercepta todas as requisições na nuvem (Railway), aplica o limite de requisições por IP (Rate Limit) e protege a API contra ataques de força bruta (DDoS) antes mesmo do dado chegar no Node.js.
