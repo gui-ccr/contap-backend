@@ -2,12 +2,12 @@ import {
   type IContaReceber,
   type IContaReceberRepository,
 } from "./IContaReceberRepository.js";
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 export class SupabaseContaReceberRepository implements IContaReceberRepository {
   async criar(dados: IContaReceber): Promise<IContaReceber> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_receber")
       .insert({
         empresa_id: dados.empresa_id,
@@ -46,7 +46,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
   }
 
   async listarPorEmpresa(empresa_id: string): Promise<IContaReceber[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_receber")
       .select("*")
       .eq("empresa_id", empresa_id)
@@ -79,7 +79,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
     const payload: any = { recebido: true, data_recebimento };
     if (valor_pago !== undefined) payload.valor_pago = valor_pago;
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_receber")
       .update(payload)
       .eq("id", id)
@@ -110,7 +110,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
   }
 
   async buscarPorId(id: string): Promise<IContaReceber | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_receber")
       .select("*")
       .eq("id", id)
@@ -136,7 +136,7 @@ export class SupabaseContaReceberRepository implements IContaReceberRepository {
   }
 
   async atualizar(id: string, dados: Partial<IContaReceber>): Promise<IContaReceber> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_receber")
       .update(dados)
       .eq("id", id)

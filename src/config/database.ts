@@ -22,4 +22,16 @@ export const supabaseAdmin = createClient(
   { auth: { persistSession: false } }
 );
 
+import { supabaseContext } from './context.js';
+
+/**
+ * Retorna o cliente Supabase adequado para a operação.
+ * Se estiver dentro de uma requisição autenticada, retorna o cliente com o JWT do usuário (aplica RLS).
+ * Caso contrário (ex: scripts, rotas públicas), retorna o supabaseAdmin.
+ */
+export function getSupabaseClient() {
+  const store = supabaseContext.getStore();
+  return store || supabaseAdmin;
+}
+
 console.log("📦 Conexão com o Supabase inicializada com sucesso!");

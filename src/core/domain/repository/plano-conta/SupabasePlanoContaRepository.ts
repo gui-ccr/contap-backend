@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import { PlanoConta, type IPlanoContaProps } from "../../entities/PlanoConta.entity.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 import {
@@ -40,7 +40,7 @@ function montarDadosAtualizacao(dados: IAtualizarPlanoContaInput) {
 
 export class SupabasePlanoContaRepository implements IPlanoContaRepository {
   async salvar(planoConta: PlanoConta): Promise<PlanoConta> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("plano_contas")
       .insert({
         empresa_id: planoConta.empresaId,
@@ -59,7 +59,7 @@ export class SupabasePlanoContaRepository implements IPlanoContaRepository {
   }
 
   async salvarMuitos(planoContas: PlanoConta[]): Promise<PlanoConta[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("plano_contas")
       .insert(planoContas.map((planoConta) => ({
         empresa_id: planoConta.empresaId,
@@ -77,7 +77,7 @@ export class SupabasePlanoContaRepository implements IPlanoContaRepository {
   }
 
   async listar(empresaId?: string): Promise<PlanoConta[]> {
-    let query = supabaseAdmin
+    let query = getSupabaseClient()
       .from("plano_contas")
       .select("*")
       .order("codigo", { ascending: true });
@@ -96,7 +96,7 @@ export class SupabasePlanoContaRepository implements IPlanoContaRepository {
   }
 
   async buscarPorCodigoEEmpresa(codigo: string, empresaId: string): Promise<PlanoConta | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("plano_contas")
       .select("*")
       .eq("codigo", codigo)
@@ -113,7 +113,7 @@ export class SupabasePlanoContaRepository implements IPlanoContaRepository {
   }
 
   async buscarPorId(id: string): Promise<PlanoConta | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("plano_contas")
       .select("*")
       .eq("id", id)
@@ -129,7 +129,7 @@ export class SupabasePlanoContaRepository implements IPlanoContaRepository {
   }
 
   async atualizar(id: string, dados: IAtualizarPlanoContaInput): Promise<PlanoConta | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("plano_contas")
       .update(montarDadosAtualizacao(dados))
       .eq("id", id)
@@ -146,7 +146,7 @@ export class SupabasePlanoContaRepository implements IPlanoContaRepository {
   }
 
   async deletar(id: string): Promise<PlanoConta | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("plano_contas")
       .delete()
       .eq("id", id)

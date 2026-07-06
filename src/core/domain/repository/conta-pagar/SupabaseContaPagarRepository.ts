@@ -2,12 +2,12 @@ import {
   type IContaPagar,
   type IContaPagarRepository,
 } from "./IContaPagarRepository.js";
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 export class SupabaseContaPagarRepository implements IContaPagarRepository {
   async criar(dados: IContaPagar): Promise<IContaPagar> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_pagar")
       .insert({
         empresa_id: dados.empresa_id,
@@ -46,7 +46,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
   }
 
   async listarPorEmpresa(empresa_id: string): Promise<IContaPagar[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_pagar")
       .select("*")
       .eq("empresa_id", empresa_id)
@@ -79,7 +79,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
     const payload: any = { pago: true, data_pagamento };
     if (valor_pago !== undefined) payload.valor_pago = valor_pago;
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_pagar")
       .update(payload)
       .eq("id", id)
@@ -110,7 +110,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
   }
 
   async buscarPorId(id: string): Promise<IContaPagar | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_pagar")
       .select("*")
       .eq("id", id)
@@ -136,7 +136,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
   }
 
   async atualizar(id: string, dados: Partial<IContaPagar>): Promise<IContaPagar> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("contas_pagar")
       .update(dados)
       .eq("id", id)
@@ -165,7 +165,7 @@ export class SupabaseContaPagarRepository implements IContaPagarRepository {
   }
 
   async deletarPorDescricao(empresa_id: string, prefixoDescricao: string): Promise<void> {
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseClient()
       .from("contas_pagar")
       .delete()
       .eq("empresa_id", empresa_id)

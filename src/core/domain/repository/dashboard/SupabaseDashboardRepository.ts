@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 import type { IDashboardRepository } from "./IDashboardRepository.js";
 import type {
@@ -18,7 +18,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
   
   async resumoPeriodo(empresaId: string, dataInicio: string, dataFim: string): Promise<IResumoDashboard> {
     // 1. Saldo Consolidado: Regime de Caixa (Tudo o que foi pago/recebido até dataFim)
-    const { data: partidasCaixa, error: errorCaixa } = await supabaseAdmin
+    const { data: partidasCaixa, error: errorCaixa } = await getSupabaseClient()
       .from("partidas")
       .select(`
         valor, tipo,
@@ -44,7 +44,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
     }
 
     // 2. Receitas e Despesas do Período: Regime de Competência (Data de Vencimento/Previsão)
-    const { data: pagarData, error: errPagar } = await supabaseAdmin
+    const { data: pagarData, error: errPagar } = await getSupabaseClient()
       .from("contas_pagar")
       .select("valor")
       .eq("empresa_id", empresaId)
@@ -53,7 +53,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
 
     if (errPagar) throw new ErroBancoDeDados(`Erro ao buscar despesas do período: ${errPagar.message}`);
 
-    const { data: receberData, error: errReceber } = await supabaseAdmin
+    const { data: receberData, error: errReceber } = await getSupabaseClient()
       .from("contas_receber")
       .select("valor")
       .eq("empresa_id", empresaId)
@@ -74,7 +74,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
   }
 
   async desempenhoPeriodo(empresaId: string, dataInicio: string, dataFim: string): Promise<IDesempenhoMensal[]> {
-    const { data: pagarData, error: errPagar } = await supabaseAdmin
+    const { data: pagarData, error: errPagar } = await getSupabaseClient()
       .from("contas_pagar")
       .select("valor, data_vencimento")
       .eq("empresa_id", empresaId)
@@ -85,7 +85,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
       throw new ErroBancoDeDados(`Erro ao buscar despesas para desempenho: ${errPagar.message}`);
     }
 
-    const { data: receberData, error: errReceber } = await supabaseAdmin
+    const { data: receberData, error: errReceber } = await getSupabaseClient()
       .from("contas_receber")
       .select("valor, data_previsao")
       .eq("empresa_id", empresaId)
@@ -135,7 +135,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
   }
 
   async receitaPorCategoriaPeriodo(empresaId: string, dataInicio: string, dataFim: string): Promise<IReceitaCategoria[]> {
-    const { data: contasData, error: errContas } = await supabaseAdmin
+    const { data: contasData, error: errContas } = await getSupabaseClient()
       .from("contas_receber")
       .select("valor, tipo")
       .eq("empresa_id", empresaId)
@@ -146,7 +146,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
       throw new ErroBancoDeDados(`Erro ao buscar contas a receber por categoria: ${errContas.message}`);
     }
 
-    const { data: planosData, error: errPlanos } = await supabaseAdmin
+    const { data: planosData, error: errPlanos } = await getSupabaseClient()
       .from("plano_contas")
       .select("id, nome")
       .eq("empresa_id", empresaId);
@@ -190,7 +190,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
   }
 
   async fluxoCaixa(empresaId: string, dataInicio: string, dataFim: string): Promise<IFluxoCaixa[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("partidas")
       .select(`
         valor, tipo,
@@ -241,7 +241,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
   }
 
   async movimentacoesRecentes(empresaId: string, limite: number = 10, dataInicio: string, dataFim: string): Promise<IMovimentacaoRecente[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("partidas")
       .select(`
         id,
@@ -272,7 +272,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
   async pendenciasOperacionais(empresaId: string): Promise<IPendenciaOperacional[]> {
     const hoje = new Date().toISOString().split("T")[0]!;
 
-    const { data: receberData, error: errR } = await supabaseAdmin
+    const { data: receberData, error: errR } = await getSupabaseClient()
       .from("contas_receber")
       .select("id, origem, valor, data_previsao")
       .eq("empresa_id", empresaId)
@@ -282,7 +282,7 @@ export class SupabaseDashboardRepository implements IDashboardRepository {
       
     if (errR) throw new ErroBancoDeDados(`Erro: ${errR.message}`);
 
-    const { data: pagarData, error: errP } = await supabaseAdmin
+    const { data: pagarData, error: errP } = await getSupabaseClient()
       .from("contas_pagar")
       .select("id, descricao, valor, data_vencimento")
       .eq("empresa_id", empresaId)

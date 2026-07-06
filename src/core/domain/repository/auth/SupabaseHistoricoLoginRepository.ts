@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 export interface ICriarHistoricoLoginInput {
@@ -11,7 +11,7 @@ export interface ICriarHistoricoLoginInput {
 
 export class SupabaseHistoricoLoginRepository {
   async criar(dados: ICriarHistoricoLoginInput): Promise<any> {
-    const { data, error } = await supabaseAdmin.from("historico_logins").insert(dados).select().single();
+    const { data, error } = await getSupabaseClient().from("historico_logins").insert(dados).select().single();
     if (error) {
       console.error("Erro ao registrar histórico de login:", error);
       // Fail silently to not block login
@@ -21,7 +21,7 @@ export class SupabaseHistoricoLoginRepository {
   }
 
   async listarRecentes(usuarioId: string): Promise<any[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("historico_logins")
       .select("*")
       .eq("usuario_id", usuarioId)

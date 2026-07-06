@@ -1,11 +1,11 @@
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import type { NotaFiscal } from "../../entities/NotaFiscal.entity.js";
 import type { INotaFiscalRepository } from "./INotaFiscalRepository.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 export class SupabaseNotaFiscalRepository implements INotaFiscalRepository {
   async criar(dados: NotaFiscal): Promise<NotaFiscal> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("notas_fiscais")
       .insert({
         empresa_id: dados.empresa_id,
@@ -25,7 +25,7 @@ export class SupabaseNotaFiscalRepository implements INotaFiscalRepository {
   }
 
   async listarPorEmpresa(empresa_id: string): Promise<NotaFiscal[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("notas_fiscais")
       .select("*")
       .eq("empresa_id", empresa_id)
@@ -37,7 +37,7 @@ export class SupabaseNotaFiscalRepository implements INotaFiscalRepository {
   }
 
   async listarPorReferencia(referencia_id: string): Promise<NotaFiscal[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("notas_fiscais")
       .select("*")
       .eq("referencia_id", referencia_id)
@@ -49,7 +49,7 @@ export class SupabaseNotaFiscalRepository implements INotaFiscalRepository {
   }
 
   async buscarPorId(id: string): Promise<NotaFiscal | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("notas_fiscais")
       .select("*")
       .eq("id", id)
@@ -61,7 +61,7 @@ export class SupabaseNotaFiscalRepository implements INotaFiscalRepository {
   }
 
   async deletar(id: string): Promise<void> {
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseClient()
       .from("notas_fiscais")
       .delete()
       .eq("id", id);

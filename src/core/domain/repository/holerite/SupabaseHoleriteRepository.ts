@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 export interface ICriarHoleriteInput {
@@ -15,7 +15,7 @@ export interface ICriarHoleriteInput {
 
 export class SupabaseHoleriteRepository {
   async criar(dados: ICriarHoleriteInput): Promise<any> {
-    const { data, error } = await supabaseAdmin.from("holerites").insert(dados).select().single();
+    const { data, error } = await getSupabaseClient().from("holerites").insert(dados).select().single();
     if (error) {
       if (error.code === '23505') { // Unique constraint violation
         throw new ErroBancoDeDados("Já existe um holerite fechado para este funcionário neste mês/ano.");
@@ -26,7 +26,7 @@ export class SupabaseHoleriteRepository {
   }
 
   async existeHolerite(funcionarioId: string, mes: number, ano: number): Promise<boolean> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("holerites")
       .select("id")
       .eq("funcionario_id", funcionarioId)
@@ -39,7 +39,7 @@ export class SupabaseHoleriteRepository {
   }
   
   async listarPorMesAno(empresaId: string, mes: number, ano: number): Promise<any[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("holerites")
       .select("*, funcionarios(nome, cargo), empresas(razao_social, cnpj)")
       .eq("empresa_id", empresaId)

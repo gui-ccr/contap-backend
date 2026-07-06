@@ -9,7 +9,6 @@ empresaRoutes.post("/", empresaController.criar);
 empresaRoutes.get("/", empresaController.listar);
 empresaRoutes.get("/:id", requireDonoDaEmpresaTarget, empresaController.buscarPorId);
 empresaRoutes.put("/:id", requireCargo("DONO"), requireDonoDaEmpresaTarget, empresaController.atualizar);
-empresaRoutes.patch("/:id", requireCargo("DONO"), requireDonoDaEmpresaTarget, empresaController.atualizar);
 empresaRoutes.delete("/:id", requireCargo("DONO"), requireDonoDaEmpresaTarget, empresaController.deletar);
 
 export { empresaRoutes };

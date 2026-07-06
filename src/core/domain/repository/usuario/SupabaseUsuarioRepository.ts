@@ -1,4 +1,4 @@
-import { supabase, supabaseAdmin } from "../../../../config/database.js";
+import { supabase, getSupabaseClient } from "../../../../config/database.js";
 import { Usuario } from "../../entities/Usuarios.entity.js";
 import {
   type IUsuarioRepository,
@@ -21,7 +21,7 @@ function mapearUsuario(data: Record<string, unknown>): Usuario {
 
 export class SupabaseUsuarioRepository implements IUsuarioRepository {
   async registrarAuth(email: string, senhaLimpa: string): Promise<string> {
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    const { data, error } = await getSupabaseClient().auth.admin.createUser({
       email,
       password: senhaLimpa,
       email_confirm: true
@@ -56,12 +56,12 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
 
   async salvar(usuario: Usuario): Promise<void> {
     if (usuario.id && usuario.empresaId) {
-      await supabaseAdmin.auth.admin.updateUserById(usuario.id, {
+      await getSupabaseClient().auth.admin.updateUserById(usuario.id, {
         user_metadata: { empresa_id: usuario.empresaId }
       });
     }
 
-    const { error } = await supabaseAdmin.from("usuarios").insert({
+    const { error } = await getSupabaseClient().from("usuarios").insert({
       id: usuario.id,
       nome: usuario.nome,
       email: usuario.email,
@@ -79,7 +79,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async buscarPorId(id: string): Promise<Usuario | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("usuarios")
       .select("*")
       .eq("id", id)
@@ -91,7 +91,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async buscarPorEmail(email: string): Promise<Usuario | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("usuarios")
       .select("*")
       .eq("email", email)
@@ -108,7 +108,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async listar(empresaId: string): Promise<Usuario[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("usuarios")
       .select("*")
       .eq("empresa_id", empresaId);
@@ -133,7 +133,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
     if (dados.cargo !== undefined) atualizacao["cargo"] = dados.cargo;
     if (dados.empresaId !== undefined) {
       atualizacao["empresa_id"] = dados.empresaId;
-      await supabaseAdmin.auth.admin.updateUserById(id, {
+      await getSupabaseClient().auth.admin.updateUserById(id, {
         user_metadata: { empresa_id: dados.empresaId }
       });
     }
@@ -141,7 +141,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
     if (dados.ativo !== undefined) atualizacao["ativo"] = dados.ativo;
     if (dados.foto_url !== undefined) atualizacao["foto_url"] = dados.foto_url;
     
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("usuarios")
       .update(atualizacao)
       .eq("id", id)
@@ -162,7 +162,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
   }
 
   async deletar(id: string): Promise<Usuario | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("usuarios")
       .delete()
       .eq("id", id)

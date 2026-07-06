@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import {
   Lancamento,
   LancamentoSimplificado,
@@ -22,7 +22,7 @@ interface IlancamentoComPartidasRow {
 export class SupabaseLancamentoRepository implements ILancamentoRepository {
   async salvar(lancamento: Lancamento): Promise<void> {
     // 1. Salva o cabeçalho do lançamento contábil da pizzaria
-    const { data: lancamentoSalvo, error: erroLancamento } = await supabaseAdmin
+    const { data: lancamentoSalvo, error: erroLancamento } = await getSupabaseClient()
       .from("lancamentos")
       .insert({
         empresa_id: lancamento.empresaId,
@@ -47,13 +47,13 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
     }));
 
     // 3. Executa o Bulk Insert das partidas
-    const { error: erroPartidas } = await supabaseAdmin
+    const { error: erroPartidas } = await getSupabaseClient()
       .from("partidas")
       .insert(partidasFormatadas);
 
     if (erroPartidas) {
       // Rollback manual simples: apaga o pai se as partidas falharem
-      await supabaseAdmin.from("lancamentos").delete().eq("id", lancamentoSalvo.id);
+      await getSupabaseClient().from("lancamentos").delete().eq("id", lancamentoSalvo.id);
       throw new ErroBancoDeDados(
         `Erro ao salvar as partidas do lançamento: ${erroPartidas.message}`,
       );
@@ -61,7 +61,7 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
   }
   async salvarSimplificado(lancamento: LancamentoSimplificado): Promise<void> {
     // 1. Salva o cabeçalho do lançamento contábil da pizzaria
-    const { data: lancamentoSalvo, error: erroLancamento } = await supabaseAdmin
+    const { data: lancamentoSalvo, error: erroLancamento } = await getSupabaseClient()
       .from("lancamentos")
       .insert({
         empresa_id: lancamento.empresaId,
@@ -80,7 +80,7 @@ export class SupabaseLancamentoRepository implements ILancamentoRepository {
 
   async listarPorEmpresa(empresaId: string): Promise<ILancamentoDetalhado[]> {
     try {
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await getSupabaseClient()
         .from("lancamentos")
         .select(
           `

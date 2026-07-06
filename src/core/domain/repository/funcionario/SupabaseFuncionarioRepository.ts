@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import { Funcionario, type IConfigFolha } from "../../entities/Funcionario.entity.js";
 import { type IFuncionarioRepository, type IAtualizarFuncionarioInput } from "./IFuncionarioRepository.js";
 import { ErroBancoDeDados, ErroEntradaInvalida } from "../../../errors/AppErrors.js";
@@ -21,7 +21,7 @@ function mapearFuncionario(data: Record<string, unknown>): Funcionario {
 
 export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
   async criar(funcionario: Funcionario): Promise<Funcionario> {
-    const { data, error } = await supabaseAdmin.from("funcionarios").insert({
+    const { data, error } = await getSupabaseClient().from("funcionarios").insert({
       empresa_id: funcionario.empresaId,
       nome: funcionario.nome,
       cargo: funcionario.cargo,
@@ -42,7 +42,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
   }
 
   async buscarPorId(id: string): Promise<Funcionario | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("funcionarios")
       .select("*")
       .eq("id", id)
@@ -53,7 +53,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
   }
 
   async listar(empresaId: string): Promise<Funcionario[]> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("funcionarios")
       .select("*")
       .eq("empresa_id", empresaId);
@@ -76,7 +76,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
     if (dados.config_folha !== undefined) atualizacao["config_folha"] = dados.config_folha;
     if (dados.foto_url !== undefined) atualizacao["foto_url"] = dados.foto_url;
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("funcionarios")
       .update(atualizacao)
       .eq("id", id)
@@ -91,7 +91,7 @@ export class SupabaseFuncionarioRepository implements IFuncionarioRepository {
   }
 
   async deletar(id: string): Promise<void> {
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseClient()
       .from("funcionarios")
       .delete()
       .eq("id", id);

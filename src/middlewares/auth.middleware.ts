@@ -1,5 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { supabase, supabaseAdmin } from "../config/database.js";
+import { supabaseContext } from "../config/context.js";
+import { createClient } from "@supabase/supabase-js";
 import {
   ErroBancoDeDados,
   ErroNaoAutorizado,
@@ -63,13 +65,28 @@ export async function authMiddleware(
       );
     }
 
-   req.usuario = {
+    req.usuario = {
       id: user.id,
       cargo: usuarioData.cargo as string,
       ...(usuarioData.empresa_id && { empresaId: usuarioData.empresa_id as string }),
     };
 
-    next();
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
+    
+    // Create a scoped Supabase client with the user's JWT for RLS
+    const scopedSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      },
+      auth: { persistSession: false }
+    });
+
+    supabaseContext.run(scopedSupabase, () => {
+      next();
+    });
   } catch (err) {
     next(err);
   }

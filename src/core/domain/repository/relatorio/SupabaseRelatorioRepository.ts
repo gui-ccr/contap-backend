@@ -1,6 +1,6 @@
 import { type IRelatorioRepository } from "./IRelatorioRepository.js";
 import { type ISaldoContaAgregado } from "../../entities/Relatorio.entity.js";
-import { supabaseAdmin } from "../../../../config/database.js";
+import { getSupabaseClient } from "../../../../config/database.js";
 import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
 
 // Supabase returns these dynamically
@@ -17,7 +17,7 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
     dataInicio: Date,
     dataFim: Date
   ): Promise<{ receitas: ISaldoContaAgregado[]; despesas: ISaldoContaAgregado[]; custos: ISaldoContaAgregado[] }> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("partidas")
       .select(`
         valor,
@@ -79,7 +79,7 @@ export class SupabaseRelatorioRepository implements IRelatorioRepository {
     passivos: ISaldoContaAgregado[];
     patrimonioLiquido: ISaldoContaAgregado[];
   }> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseClient()
       .from("partidas")
       .select(`
         valor,

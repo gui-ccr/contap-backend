@@ -11,7 +11,6 @@ planoContaRoutes.post("/", requireCargo("DONO"), planoContaController.criar);
 planoContaRoutes.get("/", planoContaController.listar);
 planoContaRoutes.get("/:id", planoContaController.buscarPorId);
 planoContaRoutes.put("/:id", requireCargo("DONO"), planoContaController.atualizar);
-planoContaRoutes.patch("/:id", requireCargo("DONO"), planoContaController.atualizar);
 planoContaRoutes.delete("/:id", requireCargo("DONO"), planoContaController.deletar);
 
 export { planoContaRoutes };
