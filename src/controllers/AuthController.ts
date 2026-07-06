@@ -3,7 +3,7 @@ import { SupabaseUsuarioRepository } from '../core/domain/repository/usuario/Sup
 import { RegistrarUsuarioUseCase } from '../usecases/auth/RegistrarUsuarioUseCase.js';
 import { RegistrarDonoUseCase } from '../usecases/auth/RegistrarDonoUseCase.js';
 import { LoginUseCase } from '../usecases/auth/LoginUseCase.js';
-import { registrarUsuarioSchema, registrarDonoSchema } from '../schemas/Usuarios.schema.js';
+import { registrarUsuarioSchema, registrarDonoSchema, loginSchema } from '../schemas/Usuarios.schema.js';
 import { type IRequestAutenticado } from '../middlewares/auth.middleware.js';
 import { SupabaseHistoricoLoginRepository } from '../core/domain/repository/auth/SupabaseHistoricoLoginRepository.js';
 import { supabaseAdmin } from '../config/database.js';
@@ -74,10 +74,12 @@ export class AuthController {
 
   async login(req: Request, res: Response, next: NextFunction) {
     try {
+      const dadosValidados = loginSchema.parse(req.body);
+
       const useCase = new LoginUseCase(usuarioRepository);
       const resultado = await useCase.execute({
-        email: req.body.email,
-        senhaLimpa: req.body.senha,
+        email: dadosValidados.email,
+        senhaLimpa: dadosValidados.senha,
       });
 
       const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString();

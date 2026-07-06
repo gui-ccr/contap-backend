@@ -48,7 +48,7 @@ export const registrarDonoSchema = z.object({
 // ─── Schema: Entrada do endpoint de login ──────────────────────────────────────
 export const loginSchema = z.object({
   email: z.string().email("Formato de e-mail inválido"),
-  password: z.string().min(1, "A senha é obrigatória").regex(passwordRegex, "A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial"),
+  senha: z.string().min(1, "A senha é obrigatória"),
 });
 
 export interface ICriarUsuario extends z.infer<typeof criarUsuariosSchema> {}
