@@ -4,11 +4,12 @@ import { CodigosDeErro } from "./CodeErrors.js";
 export abstract class ErroAplicacao extends Error {
   public abstract readonly statusCode: number;
   public abstract readonly errorCode: CodigosDeErro;
+  public readonly details?: Record<string, any>;
 
-  constructor(message: string) {
+  constructor(message: string, details?: Record<string, any>) {
     super(message);
-    // Garante que o nome da classe no log seja o nome da subclasse e não "Error"
     this.name = this.constructor.name;
+    this.details = details;
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -23,6 +24,11 @@ export class ErroEntradaInvalida extends ErroAplicacao {
 export class ErroNaoAutorizado extends ErroAplicacao {
   public readonly statusCode = 401; // Unauthorized
   public readonly errorCode = CodigosDeErro.NAO_AUTORIZADO;
+}
+
+export class ErroAcessoNegado extends ErroAplicacao {
+  public readonly statusCode = 403; // Forbidden
+  public readonly errorCode = CodigosDeErro.ACESSO_NEGADO;
 }
 
 export class ErroConflito extends ErroAplicacao {

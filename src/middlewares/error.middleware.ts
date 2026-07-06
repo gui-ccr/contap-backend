@@ -22,6 +22,7 @@ export function errorMiddleware(
       status: "error",
       code: error.errorCode,
       message: error.message,
+      ...(error.details && { details: error.details }),
     });
   }
 
