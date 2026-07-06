@@ -21,7 +21,7 @@ function mapearUsuario(data: Record<string, unknown>): Usuario {
 
 export class SupabaseUsuarioRepository implements IUsuarioRepository {
   async registrarAuth(email: string, senhaLimpa: string): Promise<string> {
-    const { data, error } = await getSupabaseClient().auth.admin.createUser({
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: senhaLimpa,
       email_confirm: true
@@ -56,7 +56,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
 
   async salvar(usuario: Usuario): Promise<void> {
     if (usuario.id && usuario.empresaId) {
-      await getSupabaseClient().auth.admin.updateUserById(usuario.id, {
+      await supabaseAdmin.auth.admin.updateUserById(usuario.id, {
         user_metadata: { empresa_id: usuario.empresaId }
       });
     }
@@ -133,7 +133,7 @@ export class SupabaseUsuarioRepository implements IUsuarioRepository {
     if (dados.cargo !== undefined) atualizacao["cargo"] = dados.cargo;
     if (dados.empresaId !== undefined) {
       atualizacao["empresa_id"] = dados.empresaId;
-      await getSupabaseClient().auth.admin.updateUserById(id, {
+      await supabaseAdmin.auth.admin.updateUserById(id, {
         user_metadata: { empresa_id: dados.empresaId }
       });
     }
