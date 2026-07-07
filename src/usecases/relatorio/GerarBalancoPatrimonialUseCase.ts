@@ -36,8 +36,9 @@ export class GerarBalancoPatrimonialUseCase {
     const totalPL = this.somarSaldos(saldos.patrimonioLiquido);
 
     // 4. Auditoria do Balanço: Ativo DEVE ser igual ao Passivo + PL
+    // Tolerância de 1 centavo para evitar falsos negativos por arredondamento de ponto flutuante
     const somaPassivoPL = Number((totalPassivo + totalPL).toFixed(2));
-    const equacaoValida = totalAtivo === somaPassivoPL;
+    const equacaoValida = Math.abs(totalAtivo - somaPassivoPL) < 0.01;
 
     // 5. Retorna o contrato exigido
     return {
