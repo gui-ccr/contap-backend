@@ -7,6 +7,8 @@ const lancamentoController = new LancamentoController();
 lancamentoRoutes.get('/lancamentos', lancamentoController.listar);
 lancamentoRoutes.post('/lancamento', lancamentoController.criarLancamento);
 lancamentoRoutes.post('/lancamento/simplificado', lancamentoController.criarLancamentoSimplificado);
+lancamentoRoutes.get('/diagnostico', lancamentoController.diagnostico);
+
 
 
 export { lancamentoRoutes };

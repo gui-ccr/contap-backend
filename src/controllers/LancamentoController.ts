@@ -7,6 +7,7 @@ import { criarLancamentoSimplificadoSchema } from "../schemas/LancamentoSchema.j
 import { CriarLancamentoUseCase } from "../usecases/lancamento/CriarLancamentoUseCase.js";
 import { CriarLancamentoSimplificadoUseCase } from "../usecases/lancamento/CriarLancamentoSimplificadoUseCase.js";
 import { ListarLancamentosSimplificadoUseCase } from "../usecases/lancamento/ListarLancamentosSimplificadoUseCase.js";
+import { DiagnosticoLancamentosUseCase } from "../usecases/lancamento/DiagnosticoLancamentosUseCase.js";
 import { ErroNaoAutorizado } from "../core/errors/AppErrors.js";
 
 const lancamentoRepository = new SupabaseLancamentoRepository();
@@ -101,6 +102,23 @@ export class LancamentoController {
 
       const resultado = await listarLancamentosSimplificadoUseCase.executar(empresaId);
 
+
+      return res.status(200).json(resultado);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async diagnostico(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { empresaId } = req.usuario;
+
+      if (!empresaId) {
+        throw new ErroNaoAutorizado("Usuário não possui uma empresa vinculada.");
+      }
+
+      const diagnosticoUseCase = new DiagnosticoLancamentosUseCase(lancamentoRepository);
+      const resultado = await diagnosticoUseCase.executar(empresaId);
 
       return res.status(200).json(resultado);
     } catch (error: any) {
