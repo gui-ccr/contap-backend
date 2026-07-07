@@ -124,7 +124,13 @@ export class AtualizarPlanoContaUseCase {
 export class DeletarPlanoContaUseCase {
   constructor(private planoContaRepository: IPlanoContaRepository) {}
 
-  async execute(id: string): Promise<PlanoConta> {
+  async execute(id: string, acao?: 'excluir_vinculos' | 'substituir', substitutoId?: string): Promise<PlanoConta> {
+    if (acao === 'excluir_vinculos') {
+      await this.planoContaRepository.removerLancamentosVinculados(id);
+    } else if (acao === 'substituir' && substitutoId) {
+      await this.planoContaRepository.substituirContaVinculada(id, substitutoId);
+    }
+
     const planoContaDeletado = await this.planoContaRepository.deletar(id);
 
     if (!planoContaDeletado) {

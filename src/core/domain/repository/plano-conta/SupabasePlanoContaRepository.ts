@@ -1,6 +1,6 @@
-import { getSupabaseClient } from "../../../../config/database.js";
+import { getSupabaseClient, supabaseAdmin } from "../../../../config/database.js";
 import { PlanoConta, type IPlanoContaProps } from "../../entities/PlanoConta.entity.js";
-import { ErroBancoDeDados } from "../../../errors/AppErrors.js";
+import { ErroBancoDeDados, ErroConflito } from "../../../errors/AppErrors.js";
 import {
   type IAtualizarPlanoContaInput,
   type IPlanoContaRepository,
@@ -154,11 +154,64 @@ export class SupabasePlanoContaRepository implements IPlanoContaRepository {
       .maybeSingle();
 
     if (error) {
+      if (error.code === "23503") {
+        throw new ErroConflito("EM_USO: Conta contábil em uso por lançamentos. Não é possível excluir sem desvincular.");
+      }
       throw new ErroBancoDeDados(`Erro ao deletar conta contabil: ${error.message}`);
     }
 
     if (!data) return null;
 
     return mapearPlanoConta(data);
+  }
+
+  async removerLancamentosVinculados(contaId: string): Promise<void> {
+    const client = supabaseAdmin;
+    
+    // Buscar todos os lancamentos que possuem partidas usando essa conta
+    const { data: partidas, error: errPartidas } = await client
+      .from("partidas")
+      .select("lancamento_id")
+      .eq("conta_id", contaId);
+      
+    if (errPartidas) {
+      throw new ErroBancoDeDados(`Erro ao buscar lançamentos vinculados: ${errPartidas.message}`);
+    }
+    
+    if (partidas && partidas.length > 0) {
+      // Extrai os IDs únicos de lançamentos
+      const lancamentoIds = [...new Set(partidas.map(p => p.lancamento_id))];
+      
+      // Deletar as partidas primeiro (para evitar restrição de FK, já que não tem ON DELETE CASCADE)
+      const { error: errDelPartidas } = await client
+        .from("partidas")
+        .delete()
+        .in("lancamento_id", lancamentoIds);
+        
+      if (errDelPartidas) {
+        throw new ErroBancoDeDados(`Erro ao deletar partidas vinculadas: ${errDelPartidas.message}`);
+      }
+
+      // Deletar os lançamentos
+      const { error: errDelLancamentos } = await client
+        .from("lancamentos")
+        .delete()
+        .in("id", lancamentoIds);
+        
+      if (errDelLancamentos) {
+        throw new ErroBancoDeDados(`Erro ao deletar lançamentos vinculados: ${errDelLancamentos.message}`);
+      }
+    }
+  }
+
+  async substituirContaVinculada(contaIdAntiga: string, contaIdNova: string): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from("partidas")
+      .update({ conta_id: contaIdNova })
+      .eq("conta_id", contaIdAntiga);
+
+    if (error) {
+      throw new ErroBancoDeDados(`Erro ao substituir conta vinculada: ${error.message}`);
+    }
   }
 }

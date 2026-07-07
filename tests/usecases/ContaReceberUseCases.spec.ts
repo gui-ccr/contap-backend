@@ -7,7 +7,7 @@ import { type IPlanoContaRepository } from "../../src/core/domain/repository/pla
 import { CriarLancamentoUseCase } from "../../src/usecases/lancamento/CriarLancamentoUseCase.js";
 
 const mockContaRepo = (): IContaReceberRepository => ({ criar: vi.fn(), listarPorEmpresa: vi.fn(), marcarComoRecebido: vi.fn(), buscarPorId: vi.fn(), atualizar: vi.fn() });
-const mockPlanoRepo = (): IPlanoContaRepository => ({ salvar: vi.fn(), buscarPorCodigoEEmpresa: vi.fn(), listar: vi.fn(), buscarPorId: vi.fn(), atualizar: vi.fn(), deletar: vi.fn(), salvarMuitos: vi.fn() });
+const mockPlanoRepo = (): IPlanoContaRepository => ({ salvar: vi.fn(), buscarPorCodigoEEmpresa: vi.fn(), listar: vi.fn(), buscarPorId: vi.fn(), atualizar: vi.fn(), deletar: vi.fn(), salvarMuitos: vi.fn(), removerLancamentosVinculados: vi.fn(), substituirContaVinculada: vi.fn() });
 const mockCriarLancamentoUseCase = { execute: vi.fn() } as unknown as CriarLancamentoUseCase;
 
 describe("Contas a Receber - Casos de Uso", () => {

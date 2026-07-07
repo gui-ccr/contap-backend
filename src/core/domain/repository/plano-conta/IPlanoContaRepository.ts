@@ -10,4 +10,6 @@ export interface IPlanoContaRepository {
   buscarPorId(id: string): Promise<PlanoConta | null>;
   atualizar(id: string, dados: IAtualizarPlanoContaInput): Promise<PlanoConta | null>;
   deletar(id: string): Promise<PlanoConta | null>;
+  removerLancamentosVinculados(contaId: string): Promise<void>;
+  substituirContaVinculada(contaIdAntiga: string, contaIdNova: string): Promise<void>;
 }

@@ -135,8 +135,10 @@ export class PlanoContaController {
         throw new ErroNaoAutorizado("Você não tem permissão para remover esta conta contábil.");
       }
 
+      const { acao, substituto_id } = req.query as { acao?: 'excluir_vinculos' | 'substituir', substituto_id?: string };
+
       const deletarPlanoContaUseCase = new DeletarPlanoContaUseCase(planoContaRepository);
-      const planoConta = await deletarPlanoContaUseCase.execute(id);
+      const planoConta = await deletarPlanoContaUseCase.execute(id, acao, substituto_id);
 
       return res.status(200).json({
         status: "success",

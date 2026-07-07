@@ -16,6 +16,8 @@ const mockPlanoRepo = (): IPlanoContaRepository => ({
   buscarPorId: vi.fn(),
   atualizar: vi.fn(),
   deletar: vi.fn(),
+  removerLancamentosVinculados: vi.fn(),
+  substituirContaVinculada: vi.fn(),
 });
 
 describe("Lançamentos - Casos de Uso", () => {
