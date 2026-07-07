@@ -117,7 +117,10 @@ export class LancamentoController {
         throw new ErroNaoAutorizado("Usuário não possui uma empresa vinculada.");
       }
 
-      const diagnosticoUseCase = new DiagnosticoLancamentosUseCase(lancamentoRepository);
+      const diagnosticoUseCase = new DiagnosticoLancamentosUseCase(
+        lancamentoRepository,
+        planoContaRepository
+      );
       const resultado = await diagnosticoUseCase.executar(empresaId);
 
       return res.status(200).json(resultado);

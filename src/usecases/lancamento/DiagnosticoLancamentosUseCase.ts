@@ -1,4 +1,5 @@
 import { type ILancamentoRepository } from "../../core/domain/repository/lancamento/ILancamentoRepository.js";
+import { type IPlanoContaRepository } from "../../core/domain/repository/plano-conta/IPlanoContaRepository.js";
 
 export interface IDiagnostico {
   lancamentoId: string;
@@ -7,35 +8,44 @@ export interface IDiagnostico {
   erro: string;
 }
 
-export class DiagnosticoLancamentosUseCase {
-  constructor(private lancamentosRepository: ILancamentoRepository) {}
+export interface IDiagnosticoRelatorio {
+  totalLancamentos: number;
+  totalPartidas: number;
+  totalDivergencias: number;
+  divergencias: IDiagnostico[];
+}
 
-  async executar(empresaId: string): Promise<IDiagnostico[]> {
+export class DiagnosticoLancamentosUseCase {
+  constructor(
+    private lancamentosRepository: ILancamentoRepository,
+    private planoContaRepository: IPlanoContaRepository
+  ) {}
+
+  async executar(empresaId: string): Promise<IDiagnosticoRelatorio> {
     if (!empresaId) throw new Error("O ID da empresa é obrigatório para rodar o diagnóstico.");
 
     const lancamentos = await this.lancamentosRepository.listarPorEmpresa(empresaId);
-    const divergencias: IDiagnostico[] = [];
+    const planoContas = await this.planoContaRepository.listar(empresaId);
+    const planoContasMap = new Map(planoContas.map(pc => [pc.id, pc]));
+    
+    const relatorio: IDiagnosticoRelatorio = {
+      totalLancamentos: lancamentos.length,
+      totalPartidas: 0,
+      totalDivergencias: 0,
+      divergencias: [],
+    };
 
     if (lancamentos.length === 0) {
-      divergencias.push({
-        lancamentoId: "N/A",
-        dataLancamento: new Date(),
-        descricao: "N/A",
-        erro: `Zero lançamentos encontrados para a empresa ${empresaId}.`,
-      });
-      return divergencias;
+      return relatorio;
     }
 
-    divergencias.push({
-      lancamentoId: "INFO",
-      dataLancamento: new Date(),
-      descricao: "Análise concluída",
-      erro: `Analisados ${lancamentos.length} lançamentos. Nenhum erro encontrado.`,
-    });
-
     for (const lancamento of lancamentos) {
+      if (lancamento.partidas) {
+        relatorio.totalPartidas += lancamento.partidas.length;
+      }
+
       if (!lancamento.partidas || lancamento.partidas.length === 0) {
-        divergencias.push({
+        relatorio.divergencias.push({
           lancamentoId: lancamento.id,
           dataLancamento: lancamento.dataLancamento,
           descricao: lancamento.descricao,
@@ -52,9 +62,9 @@ export class DiagnosticoLancamentosUseCase {
         .filter((p) => p.tipo === "C")
         .reduce((sum, p) => sum + p.valor, 0);
 
-      // Usando toFixed para evitar problemas de arredondamento de float no JS
+      // 1. Verifica se as partidas dobradas batem
       if (totalDebitos.toFixed(2) !== totalCreditos.toFixed(2)) {
-        divergencias.push({
+        relatorio.divergencias.push({
           lancamentoId: lancamento.id,
           dataLancamento: lancamento.dataLancamento,
           descricao: lancamento.descricao,
@@ -65,15 +75,37 @@ export class DiagnosticoLancamentosUseCase {
           ).toFixed(2)}.`,
         });
       } else if (lancamento.partidas.length < 2) {
-         divergencias.push({
+         relatorio.divergencias.push({
           lancamentoId: lancamento.id,
           dataLancamento: lancamento.dataLancamento,
           descricao: lancamento.descricao,
           erro: `Partida solitária: Embora o valor feche, existe apenas 1 partida. São necessárias no mínimo 2 (uma origem e um destino).`,
         });
       }
+
+      // 2. Verifica se a conta vinculada à partida ainda existe e tem tipo válido
+      for (const partida of lancamento.partidas) {
+        const conta = planoContasMap.get(partida.contaId);
+        if (!conta) {
+          const tipoStr = partida.tipo === "D" ? "Débito" : "Crédito";
+          relatorio.divergencias.push({
+            lancamentoId: lancamento.id,
+            dataLancamento: lancamento.dataLancamento,
+            descricao: lancamento.descricao,
+            erro: `Conta Excluída: Uma partida de ${tipoStr} no valor de R$ ${partida.valor.toFixed(2)} está vinculada a uma conta que foi apagada do plano de contas.`,
+          });
+        } else if (!["ATIVO", "PASSIVO", "PL", "RECEITA", "DESPESA", "CUSTO"].includes(conta.tipo)) {
+          relatorio.divergencias.push({
+            lancamentoId: lancamento.id,
+            dataLancamento: lancamento.dataLancamento,
+            descricao: lancamento.descricao,
+            erro: `Tipo de conta inválido: A conta "${conta.nome}" possui o tipo "${conta.tipo}", que não é reconhecido pelo Balanço Patrimonial.`,
+          });
+        }
+      }
     }
 
-    return divergencias;
+    relatorio.totalDivergencias = relatorio.divergencias.length;
+    return relatorio;
   }
 }
