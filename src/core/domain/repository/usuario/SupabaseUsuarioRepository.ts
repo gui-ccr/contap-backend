@@ -1,4 +1,4 @@
-import { supabase, getSupabaseClient } from "../../../../config/database.js";
+import { supabase, getSupabaseClient, supabaseAdmin } from "../../../../config/database.js";
 import { Usuario } from "../../entities/Usuarios.entity.js";
 import {
   type IUsuarioRepository,
