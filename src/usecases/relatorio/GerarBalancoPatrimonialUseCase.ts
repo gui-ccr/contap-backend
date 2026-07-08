@@ -21,7 +21,8 @@ export class GerarBalancoPatrimonialUseCase {
     
     const totalReceitas = this.somarSaldos(saldosResultado.receitas);
     const totalDespesas = this.somarSaldos(saldosResultado.despesas);
-    const lucroOuPrejuizo = Number((totalReceitas - totalDespesas).toFixed(2));
+    const totalCustos = this.somarSaldos(saldosResultado.custos);
+    const lucroOuPrejuizo = Number((totalReceitas - totalDespesas - totalCustos).toFixed(2));
 
     // Injetar o Lucro/Prejuízo no Patrimônio Líquido
     saldos.patrimonioLiquido.push({
