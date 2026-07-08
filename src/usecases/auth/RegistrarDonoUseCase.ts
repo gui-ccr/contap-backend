@@ -5,7 +5,7 @@ import { ErroConflito } from "../../core/errors/AppErrors.js";
 export interface IRegistrarDonoInput {
     nome: string;
     email: string;
-    senhalimpa: string;
+    senha: string;
 }
 
 export class RegistrarDonoUseCase {
@@ -18,7 +18,7 @@ export class RegistrarDonoUseCase {
             throw new ErroConflito("Este endereço de e-mail já está cadastrado.");
         }
 
-        const authId = await this.usuarioRepository.registrarAuth(input.email, input.senhalimpa);
+        const authId = await this.usuarioRepository.registrarAuth(input.email, input.senha);
 
         const novoDono = new Usuario({
             id: authId,
