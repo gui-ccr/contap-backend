@@ -20,10 +20,15 @@ export class ReceberContaUseCase {
 
     if (conta.recebido)
       throw new Error("Esta conta já foi baixada/recebida anteriormente.");
-    const contaCaixa = await this.planoContaRepository.buscarPorCodigoEEmpresa(
-      "1.1.01",
-      conta.empresa_id,
-    );
+    const contaCaixa =
+      (await this.planoContaRepository.buscarPorCodigoEEmpresa(
+        "1.1.01",
+        conta.empresa_id,
+      )) ??
+      (await this.planoContaRepository.buscarPorCodigoEEmpresa(
+        "1.1.1.01",
+        conta.empresa_id,
+      ));
 
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(conta.tipo);
     let contaReceita = null;

@@ -22,10 +22,15 @@ export class PagarContaUseCase {
     if (conta.pago)
       throw new Error("Esta conta já foi baixada/paga anteriormente.");
 
-    const contaCaixa = await this.planoContaRepository.buscarPorCodigoEEmpresa(
-      "1.1.01",
-      conta.empresa_id,
-    );
+    const contaCaixa =
+      (await this.planoContaRepository.buscarPorCodigoEEmpresa(
+        "1.1.01",
+        conta.empresa_id,
+      )) ??
+      (await this.planoContaRepository.buscarPorCodigoEEmpresa(
+        "1.1.1.01",
+        conta.empresa_id,
+      ));
 
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(conta.tipo);
     let contaDespesa = null;
