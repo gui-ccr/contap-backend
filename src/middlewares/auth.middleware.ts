@@ -81,7 +81,7 @@ export async function authMiddleware(
           Authorization: `Bearer ${token}`
         }
       },
-      auth: { persistSession: false }
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
     });
 
     supabaseContext.run(scopedSupabase, () => {
