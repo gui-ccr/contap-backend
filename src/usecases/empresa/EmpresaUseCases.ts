@@ -50,6 +50,9 @@ export const planoContasPadrao: IContaPadrao[] = [
   { codigo: "5.1.03", nome: "Energia Eletrica", tipo: "DESPESA" },
 ];
 
+import { supabaseContext } from "../../config/context.js";
+import { supabaseAdmin } from "../../config/database.js";
+
 export class CriarEmpresaUseCase {
   constructor(
     private empresaRepository: IEmpresaRepository,
@@ -58,51 +61,56 @@ export class CriarEmpresaUseCase {
   ) {}
 
   async execute(input: ICriarEmpresaInput): Promise<ICriarEmpresaOutput> {
-    const empresaExistente = await this.empresaRepository.buscarPorCnpj(input.cnpj);
+    // Executa a criação da empresa e configuração inicial usando a service_role (Admin)
+    // Isso é necessário porque o usuário ainda não possui um empresa_id, então o RLS
+    // bloquearia as inserções usando o token dele.
+    return supabaseContext.run(supabaseAdmin, async () => {
+      const empresaExistente = await this.empresaRepository.buscarPorCnpj(input.cnpj);
 
-    if (empresaExistente) {
-      throw new ErroConflito("Ja existe uma empresa cadastrada com este CNPJ.");
-    }
-
-    const novaEmpresa = new Empresa({
-      nome: input.nome,
-      nomeFantasia: input.nomeFantasia,
-      razaoSocial: input.razaoSocial,
-      cnpj: input.cnpj,
-    });
-
-    const empresaSalva = await this.empresaRepository.salvar(novaEmpresa);
-    const empresaId = empresaSalva.id;
-
-    if (!empresaId) {
-      throw new ErroBancoDeDados("Empresa criada sem ID retornado pelo banco de dados.");
-    }
-
-    try {
-      const contasPadrao = planoContasPadrao.map((conta) => new PlanoConta({
-        empresaId,
-        codigo: conta.codigo,
-        nome: conta.nome,
-        tipo: conta.tipo,
-      }));
-
-      const contasCriadas = await this.planoContaRepository.salvarMuitos(contasPadrao);
-
-      // Vincula o usuário à empresa criada
-      const usuarioAtualizado = await this.usuarioRepository.atualizar(input.usuarioId, { empresaId });
-
-      if (!usuarioAtualizado) {
-        throw new ErroBancoDeDados("Não foi possível vincular o usuário à nova empresa.");
+      if (empresaExistente) {
+        throw new ErroConflito("Ja existe uma empresa cadastrada com este CNPJ.");
       }
 
-      return {
-        empresa: empresaSalva,
-        planoContasPadrao: contasCriadas,
-      };
-    } catch (error) {
-      await this.empresaRepository.deletar(empresaId);
-      throw error;
-    }
+      const novaEmpresa = new Empresa({
+        nome: input.nome,
+        nomeFantasia: input.nomeFantasia,
+        razaoSocial: input.razaoSocial,
+        cnpj: input.cnpj,
+      });
+
+      const empresaSalva = await this.empresaRepository.salvar(novaEmpresa);
+      const empresaId = empresaSalva.id;
+
+      if (!empresaId) {
+        throw new ErroBancoDeDados("Empresa criada sem ID retornado pelo banco de dados.");
+      }
+
+      try {
+        const contasPadrao = planoContasPadrao.map((conta) => new PlanoConta({
+          empresaId,
+          codigo: conta.codigo,
+          nome: conta.nome,
+          tipo: conta.tipo,
+        }));
+
+        const contasCriadas = await this.planoContaRepository.salvarMuitos(contasPadrao);
+
+        // Vincula o usuário à empresa criada
+        const usuarioAtualizado = await this.usuarioRepository.atualizar(input.usuarioId, { empresaId });
+
+        if (!usuarioAtualizado) {
+          throw new ErroBancoDeDados("Não foi possível vincular o usuário à nova empresa.");
+        }
+
+        return {
+          empresa: empresaSalva,
+          planoContasPadrao: contasCriadas,
+        };
+      } catch (error) {
+        await this.empresaRepository.deletar(empresaId);
+        throw error;
+      }
+    });
   }
 }
 
