@@ -63,7 +63,7 @@ export class AuthController {
       await useCase.execute({
         nome: dadosValidados.nome,
         email: dadosValidados.email,
-        senhalimpa: dadosValidados.senha,
+        senha: dadosValidados.senha,
       });
 
       return res.status(201).json({ status: 'success', message: 'Dono registrado com sucesso!' });
