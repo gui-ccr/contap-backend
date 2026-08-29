@@ -2,6 +2,8 @@
 
 Bem-vindo à **Camada de Negócio** do sistema ContaUp. Este repositório atua como o cérebro contábil da aplicação, garantindo através de regras estritas (DDD e Clean Architecture) que todas as transações financeiras e lançamentos sigam as normas técnicas de contabilidade, impedindo qualquer violação de integridade antes de tocar no banco de dados.
 
+🔗 Veja o case completo no [portfólio de Guilherme Rodrigues](https://www.gui-ccr.com.br/project/contaup).
+
 ## 📚 Documentação e Arquitetura
 A documentação profunda e estrutural sobre como tudo funciona foi extraída para o nosso guia especializado.
 
